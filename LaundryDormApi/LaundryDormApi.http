@@ -1,0 +1,6 @@
+@LaundryDormApi_HostAddress = http://localhost:5119
+
+GET {{LaundryDormApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

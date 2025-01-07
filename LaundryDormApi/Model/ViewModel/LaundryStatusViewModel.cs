@@ -1,9 +1,10 @@
-﻿namespace LaundryDormApi.Model.DomainModel
+﻿namespace LaundryDormApi.Model.ViewModel
 {
-    public class LaundryStatusState
+    public class LaundryStatusViewModel
     {
         public int LaundryStatusID { get; set; }
         public string? LaundryStatusStateName { get; set; }
         public string? StatusDescription { get; set; }
+
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace LaundryDormApi.Model.DomainModel
+﻿namespace LaundryDormApi.Model.ViewModel
 {
-    public class MachineModel
+    public class MachineViewModel
     {
         public int MachineId { get; set; }
         public string MachineName { get; set; }

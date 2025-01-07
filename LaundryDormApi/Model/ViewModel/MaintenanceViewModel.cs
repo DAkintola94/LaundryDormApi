@@ -1,6 +1,6 @@
-﻿namespace LaundryDormApi.Model.DomainModel
+﻿namespace LaundryDormApi.Model.ViewModel
 {
-    public class MaintenanceLogModel
+    public class MaintenanceViewModel
     {
         public int MaintenanceLogId { get; set; }
         public int MachineId { get; set; }

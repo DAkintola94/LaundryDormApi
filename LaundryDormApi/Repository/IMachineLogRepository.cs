@@ -2,7 +2,7 @@
 
 namespace LaundryDormApi.Repository
 {
-    public interface IMacineLogRepository
+    public interface IMachineLogRepository
     {
         public Task<IEnumerable<MaintenanceLogModel>> GetAllLog();
         public Task<MaintenanceLogModel?> GetLogById(int id);

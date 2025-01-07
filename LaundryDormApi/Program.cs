@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using LaundryDormApi.DataContext;
+using LaundryDormApi.Repository;
 
 namespace LaundryDormApi
 {
@@ -13,6 +14,10 @@ namespace LaundryDormApi
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+            builder.Services.AddScoped<ILaundrySession, LaundrySessionRepository>();
+            builder.Services.AddScoped<IMachineLogRepository, MachineLogRepository>();
+            builder.Services.AddScoped<IAdviceSetRepository, AdviceSetRepository>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
             options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -41,9 +46,12 @@ namespace LaundryDormApi
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors("MyAllowSpecificOrigins");
 
             app.UseHttpsRedirection();
 

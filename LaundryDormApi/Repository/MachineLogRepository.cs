@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LaundryDormApi.Repository
 {
-    public class MachineLogRepository : IMacineLogRepository
+    public class MachineLogRepository : IMachineLogRepository
     {
         private readonly ApplicationDbContext _context;
         public MachineLogRepository(ApplicationDbContext context)

@@ -2,7 +2,7 @@
 {
     public class LaundrySession
     {
-
+        public int LaundrySessionId { get; set; }
 
     }
 }

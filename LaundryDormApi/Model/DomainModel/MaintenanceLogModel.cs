@@ -2,5 +2,6 @@
 {
     public class MaintenanceLogModel
     {
+        public int MaintenanceLogId { get; set; }
     }
 }

@@ -19,6 +19,18 @@ namespace LaundryDormApi
             new MySqlServerVersion(new Version(11, 5, 2))
             ));
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "MyAllowSpecificOrigins",
+                    policyBuilder =>
+                    {
+                        policyBuilder.WithOrigins("http://127.0.0.1:5500") //this makes it possible to listen to the live server in vscode
+                                                                           //This setting Essensial to connect frontend to backend
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                    });
+            });
 
 
             builder.Services.AddEndpointsApiExplorer();
@@ -34,6 +46,8 @@ namespace LaundryDormApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using LaundryDormApi.DataContext;
 using LaundryDormApi.Repository;
+using Microsoft.AspNetCore.Identity;
+using LaundryDormApi.Model.DomainModel;
 
 namespace LaundryDormApi
 {
@@ -18,6 +20,10 @@ namespace LaundryDormApi
             builder.Services.AddScoped<ILaundrySession, LaundrySessionRepository>();
             builder.Services.AddScoped<IMachineLogRepository, MachineLogRepository>();
             builder.Services.AddScoped<IAdviceSetRepository, AdviceSetRepository>();
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => 
             options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),

@@ -15,9 +15,9 @@ namespace LaundryDormApi.Controllers
         private readonly ILaundrySession _laundrySession;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly MachineLogRepository _machineLogRepository;
+        private readonly IMachineLogRepository _machineLogRepository;
         public HomeController(ILaundrySession laundrySession, UserManager<ApplicationUser> userManager,
-            MachineLogRepository machineLogRepository, SignInManager<ApplicationUser> signInManager)
+            IMachineLogRepository machineLogRepository, SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _machineLogRepository = machineLogRepository;

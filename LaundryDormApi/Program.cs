@@ -16,10 +16,12 @@ namespace LaundryDormApi
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<ILaundrySession, LaundrySessionRepository>();
             builder.Services.AddScoped<IMachineLogRepository, MachineLogRepository>();
             builder.Services.AddScoped<IAdviceSetRepository, AdviceSetRepository>();
+            builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -36,7 +38,8 @@ namespace LaundryDormApi
                     policyBuilder =>
                     {
                         policyBuilder.WithOrigins("http://127.0.0.1:5500") //this makes it possible to listen to the live server in vscode
-                                                                           //This setting Essensial to connect frontend to backend
+                                                                           //This setting makes it that the backend only listen to the frontend with this specific port/ip
+                                                                           //During production, we set the address to the doamin name ("www.chess.com") feks
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

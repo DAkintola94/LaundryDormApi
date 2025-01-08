@@ -18,6 +18,7 @@ namespace LaundryDormApi.DataContext
     public DbSet <LaundrySession> Laundry { get; set; }
     public DbSet <AdviceSet> Advice { get; set; }
     public DbSet <LaundryStatusState> LaundryStatus { get; set; }
+    public DbSet<ImageModel> Image { get; set; }
     public DbSet <MaintenanceLogModel> MaintenanceLog { get; set; }
     public DbSet<MachineModel> Machine { get; set; }
 
@@ -167,12 +168,38 @@ namespace LaundryDormApi.DataContext
                 UserId = userId
             }
           );
+
             //seeding primarykey
             modelBuilder.Entity<LaundryStatusState>().HasKey(x => x.LaundryStatusID); 
             modelBuilder.Entity<MachineModel>().HasKey(x => x.MachineId); 
             modelBuilder.Entity<MaintenanceLogModel>().HasKey(x => x.MaintenanceLogId); 
             modelBuilder.Entity<AdviceSet>().HasKey(x => x.PosterId); 
-            modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId); 
+            modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
+
+
+            modelBuilder.Entity<LaundrySession>()
+                .HasOne(ls => ls.LaundryStatus)
+                .WithMany()
+                .HasForeignKey(ls => ls.LaundryStatusID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<LaundrySession>()
+                .HasOne(ls => ls.Machine)
+                .WithMany()
+                .HasForeignKey(ls => ls.MachineId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MaintenanceLogModel>()
+                .HasOne(ml => ml.Machine)
+                .WithMany()
+                .HasForeignKey(ml => ml.MachineId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AdviceSet>()
+                .HasOne(ad => ad.CategoryModel)
+                .WithMany()
+                .HasForeignKey(ad => ad.CategoryID)
+                .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain

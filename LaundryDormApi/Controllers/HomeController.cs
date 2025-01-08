@@ -41,12 +41,12 @@ namespace LaundryDormApi.Controllers
                 var getLaundryData = getDataFromDb.Select(
                     x => new LaundrySessionViewModel
                     {
-                        LaundrySessionId = x.LaundrySessionId,
-                        //PersonalID = x.UserId,
+                        SessionId = x.LaundrySessionId,
+                        // PersonalID = x.UserId,
                         //UserEmail = x.UserEmail,
                         //UserFirstName = x.FirstName,
                         //UserLastName = x.LastName,
-                        //PhoneNumber = x.PhoneNumber,
+                        //PhoneNr = x.PhoneNumber,
                         ReservationTime = x.ReservationTime,
                         UserMessage = x.Message,
                         MachineId = x.MachineId,
@@ -90,7 +90,7 @@ namespace LaundryDormApi.Controllers
                     SessionEnd = laundrySessionViewModel.SessionEnd
                 };
                 //await _laundrySession.InsertSession(laundrySession);
-                return Ok(laundrySession);
+                return Ok(laundrySessionViewModel);
             }
 
             return BadRequest();

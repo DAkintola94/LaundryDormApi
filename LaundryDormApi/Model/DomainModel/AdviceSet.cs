@@ -8,8 +8,10 @@ namespace LaundryDormApi.Model.DomainModel
         public string PosterName { get; set; }
         public string Message { get; set; }
         public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+
+        public int CategoryID { get; set; }
         public Category CategoryModel { get; set; }
-        public string CategoryType { get; set; }
+        public string? CategoryType { get; set; }
 
     }
 }

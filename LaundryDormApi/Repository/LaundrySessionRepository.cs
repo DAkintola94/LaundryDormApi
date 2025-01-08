@@ -15,17 +15,27 @@ namespace LaundryDormApi.Repository
 
         public async Task<IEnumerable<LaundrySession>> GetAllSession()
         {
-            return await _context.Laundry.ToListAsync();
+            return await _context.Laundry
+                .Include(ls => ls.LaundryStatus)
+                .Include(m => m.Machine)
+                .ToListAsync();
         }
 
         public async Task<LaundrySession?> GetSessionById(int id)
         {
-            return await _context.Laundry.Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
+            return await _context.Laundry
+                .Include(ls => ls.LaundryStatus)
+                .Include(m => m.Machine)
+                .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
         }
 
         public async Task<LaundrySession?> DeleteSessionById(int id)
         {
-            var getLaundrySessionById = await _context.Laundry.Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
+            var getLaundrySessionById = await _context.Laundry
+                .Include(ls => ls.LaundryStatus)
+                .Include(m => m.Machine)
+                .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
+
             if(getLaundrySessionById !=null )
             {
                 _context.Laundry.Remove(getLaundrySessionById);

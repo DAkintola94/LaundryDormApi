@@ -14,7 +14,9 @@ namespace LaundryDormApi.Repository
 
         public async Task<IEnumerable<MaintenanceLogModel>> GetAllLog()
         {
-            return await _context.MaintenanceLog.Take(50).ToListAsync();
+            return await _context.MaintenanceLog
+                .Include(m => m.Machine)
+                .Take(50).ToListAsync();
         }
 
         public async Task<MaintenanceLogModel?> AddLog(MaintenanceLogModel logModel)
@@ -30,7 +32,9 @@ namespace LaundryDormApi.Repository
 
         public async Task<MaintenanceLogModel?> GetLogById(int id)
         {
-            return await _context.MaintenanceLog.Where(x => x.MaintenanceLogId == id).FirstOrDefaultAsync(); 
+            return await _context.MaintenanceLog
+                .Include(m => m.Machine)
+                .Where(x => x.MaintenanceLogId == id).FirstOrDefaultAsync(); 
         }
 
         public async Task<MaintenanceLogModel?> UpdateLog(MaintenanceLogModel maintenanceLogModel)
@@ -46,7 +50,10 @@ namespace LaundryDormApi.Repository
 
         public async Task<MaintenanceLogModel?> DeleteLogById(int id)
         {
-            var getLogById = await _context.MaintenanceLog.Where(x => x.MaintenanceLogId == id).FirstOrDefaultAsync();
+            var getLogById = await _context.MaintenanceLog
+                .Include(m => m.Machine)
+                .Where(x => x.MaintenanceLogId == id).FirstOrDefaultAsync();
+
             if(getLogById != null)
             {
                 _context.MaintenanceLog.Remove(getLogById);

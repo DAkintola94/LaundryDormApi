@@ -14,18 +14,27 @@ namespace LaundryDormApi.Repository
 
         public async Task<IEnumerable<AdviceSet>> GetAllAdvice()
         {
-            var getAdviceFromDb = await _context.Advice.Take(50).ToListAsync();
+            var getAdviceFromDb = await _context.Advice
+                .Include(c => c.CategoryModel)
+                .Take(50).ToListAsync();
+
             return getAdviceFromDb;
         }
 
         public async Task<AdviceSet?> GetAdviceById(int id)
         {
-            return await _context.Advice.Where(x => x.PosterId == id).FirstOrDefaultAsync();
+            return await _context.Advice
+                .Include(c => c.CategoryModel)
+                .Where(x => x.PosterId == id)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<AdviceSet?> DeleteAdviceById(int id)
         {
-            var adviceIdFromDb = await _context.Advice.Where(x => x.PosterId == id).FirstOrDefaultAsync();
+            var adviceIdFromDb = await _context.Advice
+                .Include(c => c.CategoryModel)
+                .Where(x => x.PosterId == id).FirstOrDefaultAsync();
+
             if(adviceIdFromDb != null)
             {
                 _context.Advice.Remove(adviceIdFromDb);

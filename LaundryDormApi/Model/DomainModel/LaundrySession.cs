@@ -9,11 +9,12 @@
         public string? UserEmail { get; set; }
 
         public string? PhoneNumber { get; set; }
-        public DateTime ReservationTime { get; set; }
+        public DateTime? ReservationTime { get; set; }
         public string? Message { get; set; }
-        //public int? LaundryStatusID { get; set; }
+        public int? LaundryStatusID { get; set; }
         public LaundryStatusState? LaundryStatus { get; set; }
         public string? LaundryStatusDescription { get; set; }
+
 
         public DateTime? SessionStart { get; set; }
         public DateTime? SessionEnd { get; set; }

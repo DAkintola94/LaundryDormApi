@@ -1,0 +1,41 @@
+services:
+  laundrydormapi:
+    image: ${DOCKER_REGISTRY-}laundrydormapi
+    build:
+      context: .
+      dockerfile: LaundryDormApi/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DbContextConnection=Server=mariadb;Database=LaundryDormBase;User=root;Password=Testingtesting1234
+      - ConnectionStrings__AuthContextConnection=Server=mariadb;Database=LaundryDormAuthDb;User=root;Password=Testingtesting1234
+    depends_on:
+      - mariadb
+
+  mariadb:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Testingtesting1234
+      MYSQL_DATABASE: LaundryDormBase
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    command: >
+      sh -c "
+      echo 'CREATE DATABASE IF NOT EXISTS LaundryDormBase;' > /docker-entrypoint-initdb.d/init.sql &&
+      echo 'CREATE DATABASE IF NOT EXISTS LaundryDormAuthDb;' >> /docker-entrypoint-initdb.d/init.sql &&
+      docker-entrypoint.sh mysqld
+      "
+
+volumes:
+  mariadb_data:
+   
+
+
+     
+
+

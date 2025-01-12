@@ -6,8 +6,8 @@ namespace LaundryDormApi.Repository
 {
     public class AdviceSetRepository : IAdviceSetRepository
     {
-        private readonly ApplicationDbContext _context;
-        public AdviceSetRepository(ApplicationDbContext context)
+        private readonly LaundryDormDbContext _context;
+        public AdviceSetRepository(LaundryDormDbContext context)
         {
             _context = context;
         }

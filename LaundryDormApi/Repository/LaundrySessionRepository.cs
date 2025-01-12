@@ -6,8 +6,8 @@ namespace LaundryDormApi.Repository
 {
     public class LaundrySessionRepository : ILaundrySession
     {
-        private readonly ApplicationDbContext _context;
-        public LaundrySessionRepository(ApplicationDbContext context)
+        private readonly LaundryDormDbContext _context;
+        public LaundrySessionRepository(LaundryDormDbContext context)
         {
             _context = context;
         }

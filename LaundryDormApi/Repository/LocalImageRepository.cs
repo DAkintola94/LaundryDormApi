@@ -1,14 +1,16 @@
 ﻿using LaundryDormApi.DataContext;
 using LaundryDormApi.Model.DomainModel;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace LaundryDormApi.Repository
 {
     public class LocalImageRepository : IImageRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly LaundryDormDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public LocalImageRepository(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment
+        public LocalImageRepository(LaundryDormDbContext context, IWebHostEnvironment webHostEnvironment
             ,IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
@@ -19,7 +21,7 @@ namespace LaundryDormApi.Repository
         public async Task<ImageModel> Upload(ImageModel image)
         {
             var localFilePath = Path.Combine(_webHostEnvironment.ContentRootPath,
-                "images", image.ImageName, image.ImageExtension);
+                "ServerImages", $"{image.ImageName}{image.ImageExtension}");
 
             //uploads the image to the local path (images folder)
             using var stream = new FileStream(localFilePath, FileMode.Create);

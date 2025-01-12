@@ -3,6 +3,9 @@ using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LaundryDormApi.Controllers
 {

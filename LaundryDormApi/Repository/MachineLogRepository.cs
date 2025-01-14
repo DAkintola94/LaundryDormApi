@@ -6,8 +6,8 @@ namespace LaundryDormApi.Repository
 {
     public class MachineLogRepository : IMachineLogRepository
     {
-        private readonly ApplicationDbContext _context;
-        public MachineLogRepository(ApplicationDbContext context)
+        private readonly LaundryDormDbContext _context;
+        public MachineLogRepository(LaundryDormDbContext context)
         {
             _context = context;
         }

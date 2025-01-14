@@ -24,7 +24,7 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpPost]
-        [Route("Register")]
+        [Route("RegistrationAuth")]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel regViewModel)
         {
             
@@ -64,11 +64,10 @@ namespace LaundryDormApi.Controllers
             }
 
             }
-
             return BadRequest();   
         }
         [HttpPost]
-        [Route("Login")]
+        [Route("LoginAuth")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
             var signInAttempt = await _userManager.FindByEmailAsync(loginViewModel.Email);
@@ -77,9 +76,8 @@ namespace LaundryDormApi.Controllers
             {
                 var checkPassword = await _userManager.CheckPasswordAsync(signInAttempt, loginViewModel.Password);
 
-                if(checkPassword) //boolean, if checkPassword is true
+                if(checkPassword) //boolean, if checkPassword is true(correct), proceed into the block logic
                 {
-
                     return Ok();
                 }
                 

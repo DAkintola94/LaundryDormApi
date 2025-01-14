@@ -7,6 +7,10 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.OpenApi.Models;
+using System.Security.Cryptography.Xml;
+using Serilog;
+using LaundryDormApi.Middlewares;
 
 namespace LaundryDormApi
 {
@@ -17,6 +21,18 @@ namespace LaundryDormApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+
+            var logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("Logs/LaundryDorm_Log.txt", rollingInterval: RollingInterval.Day) //will create log to the path (Logs), folder we created
+                .MinimumLevel.Warning()
+                .CreateLogger();
+
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog(logger);
+
+            builder.Services.AddHttpClient();
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -75,7 +91,37 @@ namespace LaundryDormApi
 
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "LaundryDorm Api", Version = "v1" });
+                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                },
+                Scheme = "Oauth2",
+                Name = JwtBearerDefaults.AuthenticationScheme,
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+            });
+
+
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -101,6 +147,8 @@ namespace LaundryDormApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseMiddleware<ExecptionHandlerMiddleware>();
 
             app.UseCors("MyAllowSpecificOrigins");
 

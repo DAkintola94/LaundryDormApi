@@ -39,6 +39,5 @@ namespace LaundryDormApi.Repository
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-
     }
 }

@@ -40,10 +40,22 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(ls => ls.MachineId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<MachineModel>()
+                .HasOne(im => im.Image)
+                .WithMany()
+                .HasForeignKey(im => im.ImageFK_ID)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<MaintenanceLogModel>()
                 .HasOne(ml => ml.Machine)
                 .WithMany()
                 .HasForeignKey(ml => ml.MachineId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MaintenanceLogModel>()
+                .HasOne(ls => ls.StatusState)
+                .WithMany()
+                .HasForeignKey(ls => ls.LaundryStatusIdentifier)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<AdviceSet>()
@@ -52,19 +64,31 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(ad => ad.CategoryID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
                new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Pågår" },
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Ferdig" },
                new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Stoppet!" },
-               new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Service pågår!" }
+               new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Service pågår!" },
+               new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" }
            );
 
             modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
-            new MachineModel { MachineId = 1, MachineName = "Bosch", ModelName = "WAE24460", IsOperational = true, Location = "Laundry room 1" },
-                new MachineModel { MachineId = 2, MachineName = "Miele", ModelName = "WDB 030 WCS", IsOperational = true, Location = "Laundry room 1" },
-                new MachineModel { MachineId = 3, MachineName = "Siemens", ModelName = "WM14N200DN", IsOperational = true, Location = "Laundry room 2" },
-            new MachineModel { MachineId = 4, MachineName = "Electrolux", ModelName = "EW6F5247G5", IsOperational = true, Location = "Laundry room 2" });
+            new MachineModel {
+                MachineId = 1, MachineName = "Balay",
+                ModelName = "Random",
+                IsOperational = true,
+                Location = "Laundry room 1",
+                ImageFK_ID = new Guid ("08dd3513-8481-4ab7-8ae8-28e6cee0c26e") //Attaching/seeding the image to the specific machine through foreign key 
+            },
+
+            new MachineModel {
+                MachineId = 2,
+                MachineName = "Samsung washing machine",
+                ModelName = "WW90CGC04DAH model",
+                IsOperational = true,
+                Location = "Laundry room 2",
+                ImageFK_ID = new Guid("08dd3514-195d-432b-8baa-9fb70ae4a679") //Attaching/seeding the image to the specific machine through foreign key 
+            });
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Forbedring" },

@@ -166,3 +166,9 @@ MigrationBackup/
 *.json
 /LaundryDormApi/Controllers/WeatherForecastController.cs
 /LaundryDormApi/WeatherForecast.cs
+/LaundryDormApi/ServerImages/AverageFoodPicture.jpg
+/LaundryDormApi/ServerImages/FoodPicture.jpg
+/LaundryDormApi/ServerImages/AverageFoodPicture.jpg
+/LaundryDormApi/ServerImages/FoodPicture.jpg
+/LaundryDormApi/ServerImages/AverageFoodPicture.jpg
+/LaundryDormApi/ServerImages/FoodPicture.jpg

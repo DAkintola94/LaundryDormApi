@@ -2,13 +2,12 @@
 {
     public class MaintenanceViewModel
     {
-        public int MaintenanceLogId { get; set; }
-        public int MachineId { get; set; }
-        public string? MachineName { get; set; }
-        public string? IssueDescription { get; set; }
+        public int Maintenance_Log_Id { get; set; }
+        public int? Machine_Id { get; set; }
+        public string? Machine_Name { get; set; }
+        public string? Problem_Description { get; set; }
         public DateTime? ReportedDate { get; set; }
         public DateTime? SolvedDate { get; set; }
-        public string? TechnicianName { get; set; }
-
+        public string? Technician_Name { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250115031430_InitialUpdate")]
+    partial class InitialUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,9 +302,6 @@ namespace LaundryDormApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("MachineId"));
 
-                    b.Property<Guid>("ImageFK_ID")
-                        .HasColumnType("char(36)");
-
                     b.Property<bool>("IsOperational")
                         .HasColumnType("tinyint(1)");
 
@@ -316,28 +316,24 @@ namespace LaundryDormApi.Migrations
 
                     b.HasKey("MachineId");
 
-                    b.HasIndex("ImageFK_ID");
-
                     b.ToTable("Machine");
 
                     b.HasData(
                         new
                         {
                             MachineId = 1,
-                            ImageFK_ID = new Guid("08dd3513-8481-4ab7-8ae8-28e6cee0c26e"),
                             IsOperational = true,
                             Location = "Laundry room 1",
-                            MachineName = "Balay",
-                            ModelName = "Random"
+                            MachineName = "Bosch",
+                            ModelName = "WAE24460"
                         },
                         new
                         {
                             MachineId = 2,
-                            ImageFK_ID = new Guid("08dd3514-195d-432b-8baa-9fb70ae4a679"),
                             IsOperational = true,
                             Location = "Laundry room 2",
-                            MachineName = "Samsung washing machine",
-                            ModelName = "WW90CGC04DAH model"
+                            MachineName = "Electrolux",
+                            ModelName = "EW6F5247G5"
                         });
                 });
 
@@ -406,17 +402,6 @@ namespace LaundryDormApi.Migrations
                     b.Navigation("LaundryStatus");
 
                     b.Navigation("Machine");
-                });
-
-            modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MachineModel", b =>
-                {
-                    b.HasOne("LaundryDormApi.Model.DomainModel.ImageModel", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageFK_ID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>

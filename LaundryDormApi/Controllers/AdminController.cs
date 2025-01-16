@@ -18,6 +18,30 @@ namespace LaundryDormApi.Controllers
             _machineLogRepository = machineLogRepository;
         }
 
+        [HttpGet]
+        [Route("Log")]
+        public async Task<IActionResult> DisplayLog()
+        {
+            var getLogs = await _machineLogRepository.GetAllLog();
+
+            if(getLogs!= null)
+            {
+                var maintenanceViewModel = getLogs.Select(logsFromDb => new MaintenanceViewModel //Intend is to map, we are receiving an IEnumerable of MaintenanceLogModel and we are converting it to IEnumerable of MaintenanceViewModel
+                {
+                    Machine_Id = logsFromDb.MachineId,
+                    Maintenance_Log_Id = logsFromDb.MaintenanceLogId,
+                    Machine_Name = logsFromDb.MachineName,
+                    Problem_Description = logsFromDb.IssueDescription,
+                    Technician_Name = logsFromDb.TechnicianName
+                });
+
+                return Ok(maintenanceViewModel);
+            }
+
+            return BadRequest("An error occured");
+        }
+
+
         [HttpPost]
         [Route("Maintenance")]
         public async Task<IActionResult> StartMaintenance([FromBody] MaintenanceViewModel maintenanceVLog)

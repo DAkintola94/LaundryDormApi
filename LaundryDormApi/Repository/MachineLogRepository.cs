@@ -16,6 +16,7 @@ namespace LaundryDormApi.Repository
         {
             return await _context.MaintenanceLog
                 .Include(m => m.Machine)
+                .Include(s => s.StatusState)
                 .Take(50).ToListAsync();
         }
 
@@ -34,6 +35,7 @@ namespace LaundryDormApi.Repository
         {
             return await _context.MaintenanceLog
                 .Include(m => m.Machine)
+                .Include(s => s.StatusState)
                 .Where(x => x.MaintenanceLogId == id).FirstOrDefaultAsync(); 
         }
 
@@ -52,6 +54,7 @@ namespace LaundryDormApi.Repository
         {
             var getLogById = await _context.MaintenanceLog
                 .Include(m => m.Machine)
+                .Include(s => s.StatusState)
                 .Where(x => x.MaintenanceLogId == id).FirstOrDefaultAsync();
 
             if(getLogById != null)

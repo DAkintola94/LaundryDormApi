@@ -9,24 +9,28 @@ namespace LaundryDormApi.Controllers
     public class LaundryController : ControllerBase
     {
         private readonly ILaundrySession _laundrySession;
+        private readonly ILaundryStatusStateRepository _laundryStatusRepository;
+        private readonly int _seconds;
+        private readonly bool _sessionActive;
 
-        public LaundryController(ILaundrySession laundrySession)
+        public LaundryController(ILaundrySession laundrySession, ILaundryStatusStateRepository laundryStatusRepository)
         {
             _laundrySession = laundrySession;
+            _laundryStatusRepository = laundryStatusRepository;
+            _seconds = 3600;
+            _sessionActive = false;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PlaceHolder()
-        {
-            return Ok();
-        }
+       
 
         [HttpGet]
         public async Task<IActionResult> CheckAvailability()
         {
+            await _laundryStatusRepository.GetAllStatus();
             return Ok();
         }
 
+   
 
     }
 }

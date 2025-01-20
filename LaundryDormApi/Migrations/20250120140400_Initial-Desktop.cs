@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LaundryDormApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreation : Migration
+    public partial class InitialDesktop : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -112,26 +112,6 @@ namespace LaundryDormApi.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Machine",
-                columns: table => new
-                {
-                    MachineId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MachineName = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ModelName = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IsOperational = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    Location = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Machine", x => x.MachineId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Advice",
                 columns: table => new
                 {
@@ -140,6 +120,8 @@ namespace LaundryDormApi.Migrations
                     PosterName = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Message = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Date = table.Column<DateOnly>(type: "date", nullable: false),
                     CategoryID = table.Column<int>(type: "int", nullable: false),
@@ -154,6 +136,33 @@ namespace LaundryDormApi.Migrations
                         column: x => x.CategoryID,
                         principalTable: "Category",
                         principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Machine",
+                columns: table => new
+                {
+                    MachineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    MachineName = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ModelName = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsOperational = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Location = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ImageFK_ID = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Machine", x => x.MachineId);
+                    table.ForeignKey(
+                        name: "FK_Machine_Image_ImageFK_ID",
+                        column: x => x.ImageFK_ID,
+                        principalTable: "Image",
+                        principalColumn: "ImageId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -225,11 +234,18 @@ namespace LaundryDormApi.Migrations
                     SolvedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     TechnicianName = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MachineId = table.Column<int>(type: "int", nullable: true)
+                    MachineId = table.Column<int>(type: "int", nullable: true),
+                    LaundryStatusIdentifier = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MaintenanceLog", x => x.MaintenanceLogId);
+                    table.ForeignKey(
+                        name: "FK_MaintenanceLog_LaundryStatus_LaundryStatusIdentifier",
+                        column: x => x.LaundryStatusIdentifier,
+                        principalTable: "LaundryStatus",
+                        principalColumn: "LaundryStatusID",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MaintenanceLog_Machine_MachineId",
                         column: x => x.MachineId,
@@ -258,18 +274,8 @@ namespace LaundryDormApi.Migrations
                     { 1, null, "Pågår" },
                     { 2, null, "Ferdig" },
                     { 3, null, "Stoppet!" },
-                    { 4, null, "Service pågår!" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Machine",
-                columns: new[] { "MachineId", "IsOperational", "Location", "MachineName", "ModelName" },
-                values: new object[,]
-                {
-                    { 1, true, "Laundry room 1", "Bosch", "WAE24460" },
-                    { 2, true, "Laundry room 1", "Miele", "WDB 030 WCS" },
-                    { 3, true, "Laundry room 2", "Siemens", "WM14N200DN" },
-                    { 4, true, "Laundry room 2", "Electrolux", "EW6F5247G5" }
+                    { 4, null, "Service pågår!" },
+                    { 5, null, "Service ferdig!" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -293,6 +299,16 @@ namespace LaundryDormApi.Migrations
                 column: "MachineId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Machine_ImageFK_ID",
+                table: "Machine",
+                column: "ImageFK_ID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MaintenanceLog_LaundryStatusIdentifier",
+                table: "MaintenanceLog",
+                column: "LaundryStatusIdentifier");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MaintenanceLog_MachineId",
                 table: "MaintenanceLog",
                 column: "MachineId");
@@ -303,9 +319,6 @@ namespace LaundryDormApi.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Advice");
-
-            migrationBuilder.DropTable(
-                name: "Image");
 
             migrationBuilder.DropTable(
                 name: "Laundry");
@@ -324,6 +337,9 @@ namespace LaundryDormApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Machine");
+
+            migrationBuilder.DropTable(
+                name: "Image");
         }
     }
 }

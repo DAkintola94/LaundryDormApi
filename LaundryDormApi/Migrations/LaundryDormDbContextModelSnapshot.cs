@@ -288,6 +288,11 @@ namespace LaundryDormApi.Migrations
                         {
                             LaundryStatusID = 4,
                             StatusDescription = "Service pågår!"
+                        },
+                        new
+                        {
+                            LaundryStatusID = 5,
+                            StatusDescription = "Service ferdig!"
                         });
                 });
 
@@ -319,26 +324,6 @@ namespace LaundryDormApi.Migrations
                     b.HasIndex("ImageFK_ID");
 
                     b.ToTable("Machine");
-
-                    b.HasData(
-                        new
-                        {
-                            MachineId = 1,
-                            ImageFK_ID = new Guid("08dd3513-8481-4ab7-8ae8-28e6cee0c26e"),
-                            IsOperational = true,
-                            Location = "Laundry room 1",
-                            MachineName = "Balay",
-                            ModelName = "Random"
-                        },
-                        new
-                        {
-                            MachineId = 2,
-                            ImageFK_ID = new Guid("08dd3514-195d-432b-8baa-9fb70ae4a679"),
-                            IsOperational = true,
-                            Location = "Laundry room 2",
-                            MachineName = "Samsung washing machine",
-                            ModelName = "WW90CGC04DAH model"
-                        });
                 });
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>
@@ -351,6 +336,9 @@ namespace LaundryDormApi.Migrations
 
                     b.Property<string>("IssueDescription")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("LaundryStatusIdentifier")
+                        .HasColumnType("int");
 
                     b.Property<int?>("MachineId")
                         .HasColumnType("int");
@@ -368,6 +356,8 @@ namespace LaundryDormApi.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("MaintenanceLogId");
+
+                    b.HasIndex("LaundryStatusIdentifier");
 
                     b.HasIndex("MachineId");
 
@@ -421,12 +411,20 @@ namespace LaundryDormApi.Migrations
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>
                 {
+                    b.HasOne("LaundryDormApi.Model.DomainModel.LaundryStatusState", "StatusState")
+                        .WithMany()
+                        .HasForeignKey("LaundryStatusIdentifier")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("LaundryDormApi.Model.DomainModel.MachineModel", "Machine")
                         .WithMany()
                         .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Machine");
+
+                    b.Navigation("StatusState");
                 });
 #pragma warning restore 612, 618
         }

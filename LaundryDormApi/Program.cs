@@ -26,6 +26,7 @@ namespace LaundryDormApi
                 .WriteTo.Console()
                 .WriteTo.File("Logs/LaundryDorm_Log.txt", rollingInterval: RollingInterval.Day) //will create log to the path (Logs), folder we created
                 .MinimumLevel.Warning()
+                .MinimumLevel.Debug() // incase the application wont run, lets you see the error log preventing it from running
                 .CreateLogger();
 
             builder.Logging.ClearProviders();
@@ -150,19 +151,21 @@ namespace LaundryDormApi
 
             app.UseMiddleware<ExecptionHandlerMiddleware>();
 
-            app.UseCors("MyAllowSpecificOrigins");
-
             app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-
-            app.UseAuthorization();
 
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "ServerImages")),
                 RequestPath = "/ServerImages"
             });
+
+            app.UseRouting();
+
+            app.UseCors("MyAllowSpecificOrigins");
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 

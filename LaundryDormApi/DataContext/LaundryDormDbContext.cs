@@ -72,23 +72,23 @@ namespace LaundryDormApi.DataContext
                new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" }
            );
 
-            modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
-            new MachineModel {
-                MachineId = 1, MachineName = "Balay",
-                ModelName = "Random",
-                IsOperational = true,
-                Location = "Laundry room 1",
-                ImageFK_ID = new Guid ("08dd3513-8481-4ab7-8ae8-28e6cee0c26e") //Attaching/seeding the image to the specific machine through foreign key 
-            },
+            //modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
+            //new MachineModel {
+                //MachineId = 1, MachineName = "Balay",
+                //ModelName = "Random",
+                //IsOperational = true,
+                //Location = "Laundry room 1",
+                //ImageFK_ID = new Guid ("08dd3513-8481-4ab7-8ae8-28e6cee0c26e") //Attaching/seeding the image to the specific machine through foreign key 
+            //},
 
-            new MachineModel {
-                MachineId = 2,
-                MachineName = "Samsung washing machine",
-                ModelName = "WW90CGC04DAH model",
-                IsOperational = true,
-                Location = "Laundry room 2",
-                ImageFK_ID = new Guid("08dd3514-195d-432b-8baa-9fb70ae4a679") //Attaching/seeding the image to the specific machine through foreign key 
-            });
+            //new MachineModel {
+                //MachineId = 2,
+                //MachineName = "Samsung washing machine",
+                //ModelName = "WW90CGC04DAH model",
+                //IsOperational = true,
+                //Location = "Laundry room 2",
+                //ImageFK_ID = new Guid("08dd3514-195d-432b-8baa-9fb70ae4a679") //Attaching/seeding the image to the specific machine through foreign key 
+            //});
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Forbedring" },

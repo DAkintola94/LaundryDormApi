@@ -28,7 +28,7 @@ namespace LaundryDormApi.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterViewModel regViewModel)
         {
             
-            if(regViewModel != null)
+            if(regViewModel != null && ModelState.IsValid)
             {
                 ApplicationUser applicationUser = new ApplicationUser
                 {

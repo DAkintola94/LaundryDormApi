@@ -1,3 +1,56 @@
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+a {
+  color: #0077cc;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+
+.account_icon{
+  width: 25px; 
+  height: 25px;
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -7,10 +60,10 @@
   }
   
   a {
-    color: white;
+    color: rgb(3, 0, 0);
   }
   a:visited {
-    color: white;
+    color: rgb(7, 7, 7);
   }
   a:hover {
     color: #6F86FF;
@@ -21,9 +74,8 @@
     font-family: sans-serif;
   }
   
-  /* off-screen-menu */
   .off-screen-menu {
-    background-color:  rgb(34, 37, 49);
+    background-color: rgb(59, 81, 168);
     height: 100vh;
     width: 100%;
     max-width: 450px;
@@ -32,38 +84,41 @@
     right: -450px;
     display: flex;
     flex-direction: column;
-    align-items: center;    
+    align-items: center;
     justify-content: center;
     text-align: center;
     font-size: 3rem;
-    transition: .3s ease;
+    transition: 0.3s ease;
   }
+  
   .off-screen-menu.active {
     right: 0;
   }
   
-  
-  
   /* nav */
-  nav {
-    padding: 1rem;
-    display: flex;
-    background-color: transparent;
-  }
-  
-  
-  
-  /* ham menu */
-  .ham-menu {
-    height: 50px;
-    width: 40px;
-    margin-left: auto;
-    position: relative;
-  }
+ /* Adjust nav to ensure proper alignment */
+nav {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Space between brand and hamburger menu */
+  background-color: transparent;
+}
+
+/* Hamburger menu positioning to the far right */
+.ham-menu {
+  height: 50px;
+  width: 40px;
+  position: absolute; /* Make it independent of flow */
+  right: 1rem; /* Push it to the far right */
+  top: 50%; /* Center it vertically */
+  transform: translateY(-50%); /* Proper vertical alignment */
+  cursor: pointer;
+}
   .ham-menu span {
     height: 5px;
     width: 100%;
-    background-color: white;
+    background-color: rgb(19, 15, 15);
     border-radius: 25px;
     position: absolute;
     left: 50%;
@@ -78,7 +133,7 @@
     top: 75%;
   }
   .ham-menu.active span {
-    background-color: white;
+    background-color: rgb(19, 15, 15);
   }
   .ham-menu.active span:nth-child(1) {
     top: 50%;

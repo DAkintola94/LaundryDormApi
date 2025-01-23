@@ -1,6 +1,24 @@
-const getLaundryData = document.querySelector('#btnPress');
+document.addEventListener("DOMContentLoaded", function(){ // this is needed, we call when the page is loaded and ready to perform DOM manipulation
+    const getDataThroughBtn = document.querySelector('#btnPress');
+    const laundryList = document.querySelector('#laundryList');
+    const startDate_Time = document.querySelector("#StartTime");
+    const endTime = document.querySelector("#EndTime");
 
-getLaundryDataButton.addEventListener('click', getLaundryData);
+    if(getDataThroughBtn){
+        getLaundryData.addEventListener('click', getLaundryData);
+    }
+
+    if(laundryList){
+        laundryList.addEventListener('click', displayLaundryData);
+    }
+   
+    
+    if (startDate_Time && endTime) {
+        // Adding the event listener for 'input' on startDate_Time
+        startDate_Time.addEventListener('input', (event) => setEndTime(event, startDate_Time, endTime));
+      }
+    
+
 
 function getLaundryData()
 {
@@ -23,7 +41,6 @@ function getLaundryData()
 }
 
 function displayLaundryData(data){
-const laundryList = document.querySelector('#laundryList'); //get the list element from the html file, # is for id
 
 laundryList.innerHTML = ''; //clear any existing content in the list
 
@@ -42,3 +59,21 @@ data.ForEach(item => { //need to run loop since the backend is returning a list 
 })
 
 }
+
+function setEndTime(event) {
+    // Ensure the start time has a value
+    if (startDate_Time.value === "") {
+      return;
+    }
+
+    // Parse the start time as a Date object
+    const startTime = new Date(startDate_Time.value);
+
+    // Add one hour to the start time
+    startTime.setHours(startTime.getHours() + 2);
+
+    // Set the end time value with the adjusted time (format it to 'yyyy-mm-ddThh:mm')
+    endTime.value = startTime.toISOString().slice(0, 16);
+  }
+
+});

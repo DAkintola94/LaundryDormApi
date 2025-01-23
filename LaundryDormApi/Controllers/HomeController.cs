@@ -32,6 +32,7 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpGet]
+        [Route("LaundrySession")]
         public async Task<IActionResult> HomePage()
         {
             var getDataFromDb = await _laundrySession.GetAllSession();

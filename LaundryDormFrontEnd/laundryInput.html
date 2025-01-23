@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+	<link href="/bootstrap-5.3.3-dist/js/bootstrap.bundle.js">
+	<link href="/rootcss/laundryinput.css" rel="stylesheet"/>
+    <title>Laundry Data</title>
+</head>
+
+<h1 class="display-1 ">Sett vask</h1>
+<body>
+<div class="container py-5 d-flex">
+
+	<!-- Form Column -->
+	<div class="form-column">
+		<form method="post">
+
+			<div class="mb-3">
+				<label class="form-label">Kommentar</label>
+				<input type="text" class="form-control" name="Message" id="Enter message" placeholder="Legg ved kommentar her (valgfritt)" />
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Velg start-tid</label>
+				<input type="datetime-local" class="form-control" id="StartTime" title="StartTime" placeholder="Tidspunkt" required/>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Slutt-tid</label>
+				<input type="datetime-local" class="form-control" id="EndTime" title="FinishTime" required readonly/>
+			</div>
+
+
+			<div class="mb-3">
+				<label class="form-label">Velg vaskerom</label>
+				<select class="select_option" id="Option" title="Machine room" required>
+					<option value="Rom 1">Rom 1</option>
+					<option value="Rom 2">Rom 2</option>
+				</select>
+			</div>
+
+			<div class="mb-3">
+				<button type="submit" class="btn btn-dark" onclick="return confirm('Er du sikkert?')">
+					Start vask
+				</button>
+			</div>
+
+		
+		</form>
+	</div>
+</div>
+</body>
+
+<script src="/rootjs/laundry.js"></script>

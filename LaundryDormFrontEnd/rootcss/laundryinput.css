@@ -1,0 +1,18 @@
+
+.form-column{
+flex: 1;
+padding-right: 20px;
+}
+
+.select_option{
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3e%3cpath fill='none' stroke='%232596be' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    color: #000000;
+  }
+
+  body{
+    background-image: url("https://images.unsplash.com/photo-1557683316-973673baf926");
+  }
+  
+  h1{
+    text-align: center;
+  }

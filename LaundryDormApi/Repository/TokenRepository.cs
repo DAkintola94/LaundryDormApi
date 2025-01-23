@@ -10,6 +10,7 @@ namespace LaundryDormApi.Repository
     public class TokenRepository : ITokenRepository
     {
         private readonly IConfiguration _configuration;
+       
         public TokenRepository(IConfiguration configuration)
         {
             _configuration = configuration;

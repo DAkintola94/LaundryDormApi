@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250112065306_InitialCreation")]
-    partial class InitialCreation
+    [Migration("20250120140400_Initial-Desktop")]
+    partial class InitialDesktop
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,10 @@ namespace LaundryDormApi.Migrations
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -287,6 +291,11 @@ namespace LaundryDormApi.Migrations
                         {
                             LaundryStatusID = 4,
                             StatusDescription = "Service pågår!"
+                        },
+                        new
+                        {
+                            LaundryStatusID = 5,
+                            StatusDescription = "Service ferdig!"
                         });
                 });
 
@@ -298,58 +307,26 @@ namespace LaundryDormApi.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("MachineId"));
 
+                    b.Property<Guid>("ImageFK_ID")
+                        .HasColumnType("char(36)");
+
                     b.Property<bool>("IsOperational")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("MachineName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ModelName")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("MachineId");
 
-                    b.ToTable("Machine");
+                    b.HasIndex("ImageFK_ID");
 
-                    b.HasData(
-                        new
-                        {
-                            MachineId = 1,
-                            IsOperational = true,
-                            Location = "Laundry room 1",
-                            MachineName = "Bosch",
-                            ModelName = "WAE24460"
-                        },
-                        new
-                        {
-                            MachineId = 2,
-                            IsOperational = true,
-                            Location = "Laundry room 1",
-                            MachineName = "Miele",
-                            ModelName = "WDB 030 WCS"
-                        },
-                        new
-                        {
-                            MachineId = 3,
-                            IsOperational = true,
-                            Location = "Laundry room 2",
-                            MachineName = "Siemens",
-                            ModelName = "WM14N200DN"
-                        },
-                        new
-                        {
-                            MachineId = 4,
-                            IsOperational = true,
-                            Location = "Laundry room 2",
-                            MachineName = "Electrolux",
-                            ModelName = "EW6F5247G5"
-                        });
+                    b.ToTable("Machine");
                 });
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>
@@ -362,6 +339,9 @@ namespace LaundryDormApi.Migrations
 
                     b.Property<string>("IssueDescription")
                         .HasColumnType("longtext");
+
+                    b.Property<int>("LaundryStatusIdentifier")
+                        .HasColumnType("int");
 
                     b.Property<int?>("MachineId")
                         .HasColumnType("int");
@@ -379,6 +359,8 @@ namespace LaundryDormApi.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("MaintenanceLogId");
+
+                    b.HasIndex("LaundryStatusIdentifier");
 
                     b.HasIndex("MachineId");
 
@@ -419,14 +401,33 @@ namespace LaundryDormApi.Migrations
                     b.Navigation("Machine");
                 });
 
+            modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MachineModel", b =>
+                {
+                    b.HasOne("LaundryDormApi.Model.DomainModel.ImageModel", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageFK_ID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+                });
+
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>
                 {
+                    b.HasOne("LaundryDormApi.Model.DomainModel.LaundryStatusState", "StatusState")
+                        .WithMany()
+                        .HasForeignKey("LaundryStatusIdentifier")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("LaundryDormApi.Model.DomainModel.MachineModel", "Machine")
                         .WithMany()
                         .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Machine");
+
+                    b.Navigation("StatusState");
                 });
 #pragma warning restore 612, 618
         }

@@ -172,3 +172,5 @@ MigrationBackup/
 /LaundryDormApi/ServerImages/FoodPicture.jpg
 /LaundryDormApi/ServerImages/AverageFoodPicture.jpg
 /LaundryDormApi/ServerImages/FoodPicture.jpg
+/LaundryDormApi/Migrations/20250120140400_Initial-Desktop.Designer.cs
+/LaundryDormApi/Migrations/20250120140400_Initial-Desktop.cs

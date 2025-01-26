@@ -16,3 +16,9 @@ padding-right: 20px;
   h1{
     text-align: center;
   }
+
+  .form-label{
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+  }

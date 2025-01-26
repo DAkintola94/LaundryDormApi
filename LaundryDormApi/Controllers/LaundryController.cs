@@ -1,6 +1,7 @@
 ﻿using LaundryDormApi.Model.DomainModel;
 using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,9 +35,10 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("StartSession")]
+        [AllowAnonymous]
         public async Task<IActionResult> SetSession(LaundrySessionViewModel laundrySessionViewModel)
         {
-            var currentUser = _userManager.GetUserAsync(User);
+            //var currentUser = _userManager.GetUserAsync(User);
 
             if(laundrySessionViewModel!=null) //&& currentUser
             {
@@ -49,6 +51,8 @@ namespace LaundryDormApi.Controllers
                     //PhoneNumber = currentUser.Result.PhoneNumber,
                     Message = laundrySessionViewModel.UserMessage,
                     MachineId = laundrySessionViewModel.MachineId,
+                    SessionStart = laundrySessionViewModel.SessionStart,
+                    SessionEnd = laundrySessionViewModel.SessionEnd,
                     LaundryStatusID = 1,
                 };
                 await _laundrySession.InsertSession(laundrySessionDomain);

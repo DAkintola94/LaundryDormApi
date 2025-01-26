@@ -1,6 +1,18 @@
+fetch('layout.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('header-placeholder').innerHTML = data;
+    setupMenuToggle(); // Set up the event listeners after content is loaded
+  })
+  .catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+  });
+
+
+
 document.addEventListener("DOMContentLoaded", function(){ // this is needed, we call when the page is loaded and ready to perform DOM manipulation
     const getDataThroughBtn = document.querySelector('#btnPress');
-    const laundryList = document.querySelector('#laundryList');
+    const laundryList = document.querySelector('#laundryForm');
     const startDate_Time = document.querySelector("#StartTime");
     const endTime = document.querySelector("#EndTime");
 
@@ -8,9 +20,14 @@ document.addEventListener("DOMContentLoaded", function(){ // this is needed, we 
         getLaundryData.addEventListener('click', getLaundryData);
     }
 
+    //if(laundryList){
+        //laundryList.addEventListener('click', displayLaundryData);
+    //}
+
     if(laundryList){
-        laundryList.addEventListener('click', displayLaundryData);
+        laundryList.addEventListener('submit', sendLaundryData);
     }
+    
    
     
     if (startDate_Time && endTime) {
@@ -60,7 +77,7 @@ data.ForEach(item => { //need to run loop since the backend is returning a list 
 
 }
 
-function setEndTime(event) {
+function setEndTime() {
     // Ensure the start time has a value
     if (startDate_Time.value === "") {
       return;
@@ -76,4 +93,36 @@ function setEndTime(event) {
     endTime.value = startTime.toISOString().slice(0, 16);
   }
 
+
+  function sendLaundryData(event){
+    event.preventDefault();
+
+    const sendBodyElement = {
+        MachineId: parseInt(document.getElementById("MachineOption").value),
+        SessionStart: document.getElementById("StartTime").value,
+        SessionEnd: document.getElementById("EndTime").value,
+        UserMessage: document.getElementById("Comment").value
+    }
+
+    console.log(sendBodyElement);
+    fetch('http://localhost:5119/api/Laundry/StartSession',{
+        method: 'POST',
+        body: JSON.stringify(sendBodyElement),
+        headers: {
+            'Content-Type': 'application/json' //specifing the data we are sending, json in this case
+        }
+    })
+    .then(response => {
+        if(!response.ok){
+            throw new Error("Something went wrong: " + response.status);
+        }
+    })
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch(error => {
+        console.error("An error occured: ", error);
+    })
+
+    }
 });

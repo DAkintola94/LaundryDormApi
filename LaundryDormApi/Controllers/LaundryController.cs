@@ -14,13 +14,15 @@ namespace LaundryDormApi.Controllers
     {
         private readonly ILaundrySession _laundrySession;
         private readonly ILaundryStatusStateRepository _laundryStatusRepository;
+        private readonly IReservationRepository _reservationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public LaundryController(ILaundrySession laundrySession, ILaundryStatusStateRepository laundryStatusRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, IReservationRepository reservationRepository)
         {
             _laundrySession = laundrySession;
             _laundryStatusRepository = laundryStatusRepository;
+            _reservationRepository = reservationRepository;
             _userManager = userManager;
         }
 
@@ -31,6 +33,25 @@ namespace LaundryDormApi.Controllers
         {
             await _laundryStatusRepository.GetAllStatus();
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("DateAvailability")]
+        public async Task<IActionResult> CheckSingularAvailability(DiverseViewModel diverseViewModel)
+        {
+            var getAllLaundry = await _laundrySession.GetAllSession();
+            if(getAllLaundry != null && diverseViewModel != null)
+            {
+                var matchingDate = getAllLaundry.FirstOrDefault(sessionDate => sessionDate.ReservationTime.HasValue && sessionDate.ReservationTime.Value.Date == diverseViewModel.DateOfTime.Date);
+                //linq instead of foreach loop, also checks if it has value
+
+                if(matchingDate!= null)
+                {
+                    return Ok(matchingDate.ReservationTime); //this returns value back that js keyword "response" will catch
+                }
+            }
+
+            return BadRequest();
         }
 
         [HttpPost]
@@ -59,7 +80,7 @@ namespace LaundryDormApi.Controllers
                 return Ok();
               
             }
-            return BadRequest();
+            return BadRequest("Value have been set");
         }
 
         [HttpPost]
@@ -76,7 +97,26 @@ namespace LaundryDormApi.Controllers
 
         }
 
-   
+        [HttpPost]
+        [Route("SetReservation")]
+        public async Task<IActionResult> InsertReservationTime(ReservationViewModel reservationViewModel)
+        {
+            if(reservationViewModel!= null)
+            {
+                ReservationDto reservationDto = new ReservationDto
+                {
+                    ReservationStart = reservationViewModel.ReservationStartTime,
+                    ReservationEnd = reservationViewModel.ReservationEndtime,
+                    ReservationHolder = reservationViewModel.Name,
+                    MachineId = reservationViewModel.MachineRoom
+                };
 
+                await _reservationRepository.InsertReservation(reservationDto);
+                return Ok("Data successfully added into base");
+            }
+            return BadRequest("Error, report to admin");
+        }
+
+  
     }
 }

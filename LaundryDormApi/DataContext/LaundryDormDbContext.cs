@@ -16,6 +16,7 @@ namespace LaundryDormApi.DataContext
         public DbSet<ImageModel> Image { get; set; }
         public DbSet<MaintenanceLogModel> MaintenanceLog { get; set; }
         public DbSet<MachineModel> Machine { get; set; }
+        public DbSet<ReservationDto> Reservation { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<AdviceSet>().HasKey(x => x.PosterId);
             modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
+            modelBuilder.Entity<ReservationDto>().HasKey(x => x.ReservationID);
 
 
             modelBuilder.Entity<LaundrySession>()
@@ -52,6 +54,12 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(ml => ml.MachineId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ReservationDto>() //keep?
+                .HasOne(rto => rto.Machine)
+                .WithMany()
+                .HasForeignKey(mId => mId.MachineId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<MaintenanceLogModel>()
                 .HasOne(ls => ls.StatusState)
                 .WithMany()
@@ -72,23 +80,23 @@ namespace LaundryDormApi.DataContext
                new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" }
            );
 
-            //modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
-            //new MachineModel {
-                //MachineId = 1, MachineName = "Balay",
-                //ModelName = "Random",
-                //IsOperational = true,
-                //Location = "Laundry room 1",
-                //ImageFK_ID = new Guid ("08dd3513-8481-4ab7-8ae8-28e6cee0c26e") //Attaching/seeding the image to the specific machine through foreign key 
-            //},
+            modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
+            new MachineModel {
+            MachineId = 1, MachineName = "Balay",
+            ModelName = "Random",
+            IsOperational = true,
+            Location = "Laundry room 1",
+            ImageFK_ID = new Guid ("08dd3e4e-9f82-4ada-8b37-2fb04b78b08b") //Attaching/seeding the image to the specific machine through foreign key 
+            },
 
-            //new MachineModel {
-                //MachineId = 2,
-                //MachineName = "Samsung washing machine",
-                //ModelName = "WW90CGC04DAH model",
-                //IsOperational = true,
-                //Location = "Laundry room 2",
-                //ImageFK_ID = new Guid("08dd3514-195d-432b-8baa-9fb70ae4a679") //Attaching/seeding the image to the specific machine through foreign key 
-            //});
+            new MachineModel {
+            MachineId = 2,
+            MachineName = "Samsung washing machine",
+            ModelName = "WW90CGC04DAH model",
+            IsOperational = true,
+            Location = "Laundry room 2",
+            ImageFK_ID = new Guid("08dd3e4e-b027-40cf-8a90-8803586722a5") //Attaching/seeding the image to the specific machine through foreign key 
+            });
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Forbedring" },

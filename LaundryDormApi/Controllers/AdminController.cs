@@ -30,8 +30,8 @@ namespace LaundryDormApi.Controllers
                 var getReservationData = getAllReservation.Select(
                     x => new ReservationViewModel
                     {
-                        ReservationStartTime = x.ReservationStart,
-                        ReservationEndtime = x.ReservationEnd,
+                        ReservationPeriodTime = x.ReservationTime,
+                        ReservationDate = x.ReservationDate,
                         ReservationID = x.ReservationID,
                         Name = x.ReservationHolder,
                         MachineRoom = x.MachineId

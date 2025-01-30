@@ -105,18 +105,17 @@ namespace LaundryDormApi.Controllers
             {
                 ReservationDto reservationDto = new ReservationDto
                 {
-                    ReservationStart = reservationViewModel.ReservationStartTime,
-                    ReservationEnd = reservationViewModel.ReservationEndtime,
+                    ReservationTime = reservationViewModel.ReservationPeriodTime,
+                    ReservationDate = reservationViewModel.ReservationDate,
                     ReservationHolder = reservationViewModel.Name,
                     MachineId = reservationViewModel.MachineRoom
                 };
 
                 await _reservationRepository.InsertReservation(reservationDto);
-                return Ok("Data successfully added into base");
+                return Ok(reservationDto);
             }
             return BadRequest("Error, report to admin");
         }
-
   
     }
 }

@@ -31,8 +31,7 @@ fetch('layout.html')
             if(response.ok){
                 return response.json();
                 // returning the response in json format, from the backend
-
-
+                //needed or else we get "undefined" since it cant be read
             }
 
             else{

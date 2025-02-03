@@ -44,6 +44,8 @@ namespace LaundryDormApi
             builder.Services.AddScoped<IAdviceSetRepository, AdviceSetRepository>();
             builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+            builder.Services.AddScoped<ILaundryStatusStateRepository, LaundryStatusStateRepository>();
+            builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
             
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()

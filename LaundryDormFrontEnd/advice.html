@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaundryDorm</title>
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/rootcss/laundryinput.css">
+    <link rel="stylesheet" href="/rootcss/layout.css">
+
+</head>
+<header id="header-placeholder">
+  
+</header>
+
+<body>
+    <div class="container py-5 d-flex">
+    
+        <!-- Form Column -->
+        <div class="form-column">
+            <form method="post" id="adviceForm">
+    
+                <div class="mb-3">
+                    <label class="form-label">Navn</label>
+                    <input type="text" class="form-control" id="PersonalName" title="Name" placeholder="Ditt navn" required/>
+                </div>
+    
+                <div class="mb-3">
+                    <label class="form-label">Email addresse</label>
+                    <input type="email" class="form-control" id="Email" title="Email" placeholder="Din mail addresse" required/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Melding</label>
+                    <textarea class="form-control" id="Message" placeholder="Legg ved kommentar her (valgfritt)" ></textarea>
+                </div>
+    
+    
+                <div class="mb-3">
+                    <label class="form-label">Kategory</label>
+                    <select class="select_option" id="Category_option" title="Machine room" required>
+                        <option value="1">Forbedring</option>
+                        <option value="2">Vedlikehold</option>
+                        <option value="3">Feil</option>
+                        <option value="4">Annet</option>
+                    </select>
+                </div>
+    
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-dark" onclick="return confirm('Er du sikkert?')">
+                        Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </body>
+
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/rootjs/advice.js"></script>
+<script src="/rootjs/layout.js"></script>

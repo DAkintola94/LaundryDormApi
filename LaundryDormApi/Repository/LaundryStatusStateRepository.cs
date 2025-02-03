@@ -6,11 +6,9 @@ namespace LaundryDormApi.Repository
 {
     public class LaundryStatusStateRepository : ILaundryStatusStateRepository
     {
-        private readonly LaundryStatusStateRepository _laundryStatusStateRepo;
         private readonly LaundryDormDbContext _context;
-        public LaundryStatusStateRepository(LaundryStatusStateRepository laundryStatusStateRepo, LaundryDormDbContext context)
+        public LaundryStatusStateRepository(LaundryDormDbContext context)
         {
-            _laundryStatusStateRepo = laundryStatusStateRepo;
             _context = context;
         }
 

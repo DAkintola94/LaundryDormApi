@@ -1,6 +1,7 @@
 ﻿using LaundryDormApi.Model.DomainModel;
 using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,13 +14,15 @@ namespace LaundryDormApi.Controllers
     {
         private readonly ILaundrySession _laundrySession;
         private readonly ILaundryStatusStateRepository _laundryStatusRepository;
+        private readonly IReservationRepository _reservationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public LaundryController(ILaundrySession laundrySession, ILaundryStatusStateRepository laundryStatusRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, IReservationRepository reservationRepository)
         {
             _laundrySession = laundrySession;
             _laundryStatusRepository = laundryStatusRepository;
+            _reservationRepository = reservationRepository;
             _userManager = userManager;
         }
 
@@ -33,10 +36,30 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpPost]
+        [Route("DateAvailability")]
+        public async Task<IActionResult> CheckSingularAvailability(DiverseViewModel diverseViewModel)
+        {
+            var getAllLaundry = await _laundrySession.GetAllSession();
+            if(getAllLaundry != null && diverseViewModel != null)
+            {
+                var matchingDate = getAllLaundry.FirstOrDefault(sessionDate => sessionDate.ReservationTime.HasValue && sessionDate.ReservationTime.Value.Date == diverseViewModel.DateOfTime.Date);
+                //linq instead of foreach loop, also checks if it has value
+
+                if(matchingDate!= null)
+                {
+                    return Ok(matchingDate.ReservationTime); //this returns value back that js keyword "response" will catch
+                }
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
         [Route("StartSession")]
+        [AllowAnonymous]
         public async Task<IActionResult> SetSession(LaundrySessionViewModel laundrySessionViewModel)
         {
-            var currentUser = _userManager.GetUserAsync(User);
+            //var currentUser = _userManager.GetUserAsync(User);
 
             if(laundrySessionViewModel!=null) //&& currentUser
             {
@@ -49,13 +72,15 @@ namespace LaundryDormApi.Controllers
                     //PhoneNumber = currentUser.Result.PhoneNumber,
                     Message = laundrySessionViewModel.UserMessage,
                     MachineId = laundrySessionViewModel.MachineId,
+                    SessionStart = laundrySessionViewModel.SessionStart,
+                    SessionEnd = laundrySessionViewModel.SessionEnd,
                     LaundryStatusID = 1,
                 };
                 await _laundrySession.InsertSession(laundrySessionDomain);
                 return Ok();
               
             }
-            return BadRequest();
+            return BadRequest("Value have been set");
         }
 
         [HttpPost]
@@ -72,7 +97,25 @@ namespace LaundryDormApi.Controllers
 
         }
 
-   
+        [HttpPost]
+        [Route("SetReservation")]
+        public async Task<IActionResult> InsertReservationTime(ReservationViewModel reservationViewModel)
+        {
+            if(reservationViewModel!= null)
+            {
+                ReservationDto reservationDto = new ReservationDto
+                {
+                    ReservationTime = reservationViewModel.ReservationPeriodTime,
+                    ReservationDate = reservationViewModel.ReservationDate,
+                    ReservationHolder = reservationViewModel.Name,
+                    MachineId = reservationViewModel.MachineRoom
+                };
 
+                await _reservationRepository.InsertReservation(reservationDto);
+                return Ok(reservationDto);
+            }
+            return BadRequest("Error, report to admin");
+        }
+  
     }
 }

@@ -19,7 +19,7 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpPost]
-        [Route("Advice")]
+        [Route("AdviceFetcher")]
         public async Task<IActionResult> InitiateAdvice([FromBody] AdviceViewModel adviceViewModel)
         {
             if(ModelState.IsValid)
@@ -29,8 +29,7 @@ namespace LaundryDormApi.Controllers
                     PosterName = adviceViewModel.AuthorName,
                     Message = adviceViewModel.InformationMessage,
                     Email = adviceViewModel.EmailAddress,
-                    CategoryID = adviceViewModel.CategoryID,
-                    //CategoryType = 
+                    CategoryID = adviceViewModel.CategoryID
                 };
 
                 await _adviceRepository.InsertAdvice(adviceDomainModel);

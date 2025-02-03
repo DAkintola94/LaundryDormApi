@@ -86,6 +86,19 @@ namespace LaundryDormApi.Controllers
             return BadRequest();
         }
 
+        [HttpGet]
+        [Route("LogOut")]
+        public async Task<IActionResult> LogOut()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(currentUser!= null)
+            {
+                await _signInManager.SignOutAsync();
+                return NoContent();
+            }
+
+            return Unauthorized("No user found");
+        }
 
     }
 }

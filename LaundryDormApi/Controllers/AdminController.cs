@@ -13,10 +13,34 @@ namespace LaundryDormApi.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IMachineLogRepository _machineLogRepository;
-        public AdminController(IMachineLogRepository machineLogRepository)
+        private readonly IReservationRepository _reservationRepository;
+        public AdminController(IMachineLogRepository machineLogRepository, IReservationRepository reservationRepository)
         {
             _machineLogRepository = machineLogRepository;
+            _reservationRepository = reservationRepository;
         }
+
+        [HttpGet]
+        [Route("EntireReservationLog")]
+        public async Task<IActionResult> DispayAllReservation()
+        {
+            var getAllReservation = await _reservationRepository.GetAllReservation();
+            if(getAllReservation!= null)
+            {
+                var getReservationData = getAllReservation.Select(
+                    x => new ReservationViewModel
+                    {
+                        ReservationPeriodTime = x.ReservationTime,
+                        ReservationDate = x.ReservationDate,
+                        ReservationID = x.ReservationID,
+                        Name = x.ReservationHolder,
+                        MachineRoom = x.MachineId
+                    });
+                return Ok(getReservationData);
+            }
+            return BadRequest("Error, something went wrong");
+        }
+
 
         [HttpGet]
         [Route("Log")]

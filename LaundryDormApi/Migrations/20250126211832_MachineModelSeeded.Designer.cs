@@ -4,6 +4,7 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250126211832_MachineModelSeeded")]
+    partial class MachineModelSeeded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -384,33 +387,6 @@ namespace LaundryDormApi.Migrations
                     b.ToTable("MaintenanceLog");
                 });
 
-            modelBuilder.Entity("LaundryDormApi.Model.DomainModel.ReservationDto", b =>
-                {
-                    b.Property<int>("ReservationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ReservationID"));
-
-                    b.Property<int>("MachineId")
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly>("ReservationDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("ReservationHolder")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ReservationTime")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("ReservationID");
-
-                    b.HasIndex("MachineId");
-
-                    b.ToTable("Reservation");
-                });
-
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.AdviceSet", b =>
                 {
                     b.HasOne("LaundryDormApi.Model.DomainModel.Category", "CategoryModel")
@@ -472,17 +448,6 @@ namespace LaundryDormApi.Migrations
                     b.Navigation("Machine");
 
                     b.Navigation("StatusState");
-                });
-
-            modelBuilder.Entity("LaundryDormApi.Model.DomainModel.ReservationDto", b =>
-                {
-                    b.HasOne("LaundryDormApi.Model.DomainModel.MachineModel", "Machine")
-                        .WithMany()
-                        .HasForeignKey("MachineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Machine");
                 });
 #pragma warning restore 612, 618
         }

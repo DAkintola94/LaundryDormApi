@@ -54,36 +54,45 @@ namespace LaundryDormApi.Controllers
                             JwtToken = jwtToken
                         };
 
-                        return Ok(loginResponse);
+                        return Ok(loginResponse); //returning jwtToken, although its a model
                 }
                 else
                 {
-                    return BadRequest(identityRole.Errors);
+                    return BadRequest(identityRole.Errors + "No user by that role");
                 }
 
             }
 
+                return BadRequest(new { Errors = result.Errors.Select(e => e.Description).ToList(), Message = "Error attempting to register " });
+
             }
-            return BadRequest();   
+            return Unauthorized("Something went wrong");   
         }
         [HttpPost]
         [Route("LoginAuth")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
-            var signInAttempt = await _userManager.FindByEmailAsync(loginViewModel.Email);
+            var currentLogger = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
-            if(signInAttempt != null && loginViewModel.Email!= null)
+            if(currentLogger != null && loginViewModel.Email!= null)
             {
-                var checkPassword = await _userManager.CheckPasswordAsync(signInAttempt, loginViewModel.Password);
+                var checkPassword = await _userManager.CheckPasswordAsync(currentLogger, loginViewModel.Password);
 
                 if(checkPassword) //boolean, if checkPassword is true(correct), proceed into the block logic
                 {
-                    return Ok();
+                    var setRole = await _userManager.GetRolesAsync(currentLogger);
+
+                    if (setRole != null)
+                    {
+                        var jwtToken = _tokenRepository.CreateJWTToken(currentLogger, setRole.ToList());
+                        return Ok(jwtToken);
+                    }
+
                 }
                 
             }
 
-            return BadRequest();
+            return Unauthorized("Username or password wrong");
         }
 
         [HttpGet]

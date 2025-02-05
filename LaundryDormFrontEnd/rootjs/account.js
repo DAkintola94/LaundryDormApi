@@ -1,4 +1,4 @@
-fetch('layout.html')
+ fetch('layout.html')
   .then(response => response.text())
   .then(data => {
     document.getElementById('header-placeholder').innerHTML = data;
@@ -8,26 +8,24 @@ fetch('layout.html')
     console.error('There has been a problem with your fetch operation:', error);
   });
 
+  document.addEventListener("DOMContentLoaded", function () { 
 
-document.addEventListener("DOMContentLoaded", function(){ // this is needed, we call when the page is loaded and ready to perform DOM manipulation
-const registrationForm = document.querySelector('#registrationForm');
-const loginForm = document.querySelector('#loginForm');
+    const registrationForm = document.querySelector('#registrationForm');
+    const loginForm = document.querySelector('#loginForm');
 
-if(registrationForm){
-    registrationForm.addEventListener('submit', addRegistration);
-}
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', userRegistration);
+    }
 
-if(loginForm){
-    loginForm.addEventListener('submit', addLogin);
-}
-
-})
+    if (loginForm) {
+        loginForm.addEventListener('submit', loginUser);
+    }
 
 
-function addRegistration(event){
-    event.preventDefault(); //preventing the default action of the form, which is to send the data to the server
+async function userRegistration(event) {
+    event.preventDefault(); // Prevent default form submission
 
-    const body = { //body content need to match the model (name/style) in the backend
+    const registrationValidation = {
         UserAddress: document.getElementById("Address").value,
         UserName: document.getElementById("Username").value,
         Email: document.getElementById("Email").value,
@@ -38,79 +36,69 @@ function addRegistration(event){
         ConfirmPassword: document.getElementById("ConfirmPassword").value
     };
 
-    if(body.Password != body.ConfirmPassword){
-        console.log("Password does not match");
+    if (registrationValidation.Password !== registrationValidation.ConfirmPassword) {
+        console.log("Passwords do not match.");
         return;
     }
 
-    fetch('http://localhost:5119/api/ProfileManagement/RegistrationAuth', {
-        method: 'POST', //the CRUD method we are using, we are sending data in this case
-        body: JSON.stringify(body), //converting the data content into a json format. They become camelcase during conversion
-        headers:{
-            'Content-Type': 'application/json' //specifing the data we are sending, json in this case
+   const response = await fetch('http://localhost:5119/api/ProfileManagement/RegistrationAuth', {
+        method: 'POST',
+        body: JSON.stringify(registrationValidation), // Convert JavaScript object to JSON string
+        headers: {
+            'Content-Type': 'application/json'
         }
-    })
-
-    .then(response =>{
-        if(!response.ok)
-             {
-                throw new Error("Something went wrong: " + response.status);
-             }
-
-             return response.json();
-    })
-    .then(data => {
-        console.log("Success, data sent: " + data);
-        if(data.ok){
-            console.log("Regristration successful");
-        }
-    })
-    .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
     });
 
+    if(!response.ok){ 
+        const errorMessage = await response.text();
+        console.log("Registration failed: ", errorMessage);
+        //const errorMessage = `Registration failed: ${response.status}`;
+        //window.location.href = `404.html?error=${encodeURIComponent(errorMessage)}`; // Redirecting to 404 page and passing error message to it
+
+        throw new Error("Login failed: ");
+    }
+
+
+    const tokenData = await response.text();
+    localStorage.setItem('authToken', tokenData);
+    console.log("Token received:", tokenData);
+
+    window.location.href = 'home.html'; // Redirect to home page
 }
 
-
-// Login function
-function addLogin(event){
+async function loginUser(event) { //async instead of promise chaining
     event.preventDefault();
-    console.log("Login function called");
 
-    const body = {
-        Email: document.getElementById('Email').value,
-        Password: document.getElementById('Password').value
+    const usersValidation = {
+        Email: document.getElementById("UsersEmail").value,
+        Password: document.getElementById("UsersPassword").value
     };
 
-    console.log(body);
-
-    fetch('http://localhost:5119/api/ProfileManagement/LoginAuth', {
-        method: 'POST', //the CRUD method we are using, we are sending data in this case
-        body: JSON.stringify(body), //converting the data content into a json format. They become camelcase during conversion
-        headers:{
-            'Content-Type': 'application/json' //specifing the data we are sending, json in this case
+    const response = await fetch('http://localhost:5119/api/ProfileManagement/LoginAuth', {
+        method: 'POST',
+        body: JSON.stringify(usersValidation),
+        headers: {
+            'Content-Type': 'application/json'
         }
-    })
-
-    .then(response =>{
-        if(!response.ok)
-             {
-                throw new Error("Something went wrong: " + response.status);
-             }
-
-             return response.json();
-    })
-    .then(data => {
-        console.log("Success, data sent: " + data);
-        if(data.ok){
-            console.log("Regristration successful");
-        }
-    })
-    .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
     });
 
+    if (!response.ok) {
+
+        console.log("Login failed: ", response);
+        window.location.href = "404.html";  // Redirecting to 404 page
+        throw new Error("Login failed: " + response.status);
+        
+    }
+
+    const tokenData = await response.text(); // JWT is a plain text string
+    localStorage.setItem('authToken', tokenData);
+    localStorage.setItem('userEmail', usersValidation.Email);
+
+
+    console.log("Token received:", tokenData);
+
+    window.location.href = 'home.html'; // Redirect to home page
+    
 }
 
-
-
+});

@@ -33,7 +33,7 @@ namespace LaundryDormApi.Controllers
                 };
 
                 await _adviceRepository.InsertAdvice(adviceDomainModel);
-                return Ok();
+                return Ok(adviceDomainModel);
             }
 
             return BadRequest(ModelState);

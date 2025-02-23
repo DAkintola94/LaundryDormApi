@@ -26,6 +26,7 @@ namespace LaundryDormApi.Controllers
             {
                 AdviceSet adviceDomainModel = new AdviceSet
                 {
+                    //ID is created automatically when data is sent to the DB, date is also set to auto creation upon validation success.
                     PosterName = adviceViewModel.AuthorName,
                     Message = adviceViewModel.InformationMessage,
                     Email = adviceViewModel.EmailAddress,
@@ -37,6 +38,29 @@ namespace LaundryDormApi.Controllers
             }
 
             return BadRequest(ModelState);
+        }
+
+        [HttpGet]
+        [Route("ExportAdvice")]
+        public async Task<IActionResult> GetAdvice()
+        {
+            var getAdviceFromDb = await _adviceRepository.GetAllAdvice();
+
+            if(getAdviceFromDb!= null)
+            {
+                var adviceViewModel = getAdviceFromDb.Select(adviceDB => new AdviceViewModel
+                {
+                    InformationMessage = adviceDB.Message,
+                    AuthorName = adviceDB.PosterName,
+                    Date = adviceDB.Date, //retreiving the date that was auto created through model logic
+                    EmailAddress = adviceDB.Email,
+                    PosterId = adviceDB.PosterId,
+                    CategoryName = adviceDB.CategoryModel.CategoryName //Getting the value from the category, its also mapped as foreign key, this is just retrieving its value based on the id that is on.
+                }).ToList();
+
+                return Ok(adviceViewModel);
+            }
+            return NotFound();
         }
 
     }

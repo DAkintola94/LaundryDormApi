@@ -49,6 +49,7 @@ namespace LaundryDormApi.Controllers
                 if (identityRole.Succeeded)
                 {
                         var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { "RegularUser" });
+
                         LoginResponse loginResponse = new LoginResponse
                         {
                             JwtToken = jwtToken
@@ -71,6 +72,7 @@ namespace LaundryDormApi.Controllers
         [HttpPost]
         [Route("LoginAuth")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
+        
         {
             var currentLogger = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
@@ -93,9 +95,9 @@ namespace LaundryDormApi.Controllers
             }
 
             return Unauthorized("Username or password wrong");
-        }
+         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("LogOut")]
         public async Task<IActionResult> LogOut()
         {

@@ -32,7 +32,6 @@ namespace LaundryDormApi.Controllers
                     {
                         ReservationPeriodTime = x.ReservationTime,
                         ReservationDate = x.ReservationDate,
-                        ReservationID = x.ReservationID,
                         Name = x.ReservationHolder,
                         MachineRoom = x.MachineId
                     });

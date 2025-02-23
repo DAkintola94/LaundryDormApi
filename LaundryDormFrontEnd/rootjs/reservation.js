@@ -8,6 +8,9 @@ fetch('layout.html')
     console.error('There has been a problem with your fetch operation:', error);
   });
 
+  const getToken = localStorage.getItem("authToken");
+  console.log(getToken + "is the token");
+
   document.addEventListener("DOMContentLoaded", function(){
 
     const reservationScheme = document.querySelector("#reservationForm");
@@ -29,7 +32,8 @@ fetch('layout.html')
             method: 'POST',
             body: JSON.stringify(reservationBody),
             headers:{
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${getToken}`
             }
         })
 

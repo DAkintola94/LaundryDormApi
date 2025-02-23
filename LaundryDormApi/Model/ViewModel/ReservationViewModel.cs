@@ -2,7 +2,6 @@
 {
     public class ReservationViewModel
     {
-        public int ReservationID { get; set; }
         public DateOnly ReservationDate { get; set; }
         public string? ReservationPeriodTime { get; set; }
         public string? Name { get; set; }

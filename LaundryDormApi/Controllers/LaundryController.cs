@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LaundryDormApi.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LaundryController : ControllerBase
     {
         private readonly ILaundrySession _laundrySession;
@@ -29,10 +31,19 @@ namespace LaundryDormApi.Controllers
 
 
         [HttpGet]
+        [Route("Availability")]
+        
         public async Task<IActionResult> CheckAvailability()
         {
-            await _laundryStatusRepository.GetAllStatus();
-            return Ok();
+            var getAllOrders = await _laundryStatusRepository.GetAllStatus();
+
+            if(getAllOrders!= null)
+            {
+                return Ok(getAllOrders);
+            }
+
+            return BadRequest();
+            
         }
 
         [HttpPost]
@@ -99,6 +110,7 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("SetReservation")]
+        [Authorize]
         public async Task<IActionResult> InsertReservationTime(ReservationViewModel reservationViewModel)
         {
             if(reservationViewModel!= null)

@@ -18,23 +18,34 @@ namespace LaundryDormApi.Repository
 
        public string CreateJWTToken(ApplicationUser user, List<string> roles)
         {
-            var claims = new List<Claim>();
-
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            var claims = new List<Claim> //claims are the information that we want to store about the user, in the token that is being sent to the client
+            {
+                new Claim (ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim (ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty),
+                new Claim (ClaimTypes.Name, $"{user.FirstName} {user.LastName}" ?? string.Empty),
+                new Claim (ClaimTypes.NameIdentifier, user.Id ?? string.Empty)
+            };
 
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwT:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+           
+
+
+            var encodeKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new Exception("Key not found")));
+
+            var creds = new SigningCredentials(encodeKey, SecurityAlgorithms.HmacSha256);
+
+            //var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? string.Empty)),
+                //SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                _configuration["JwT:Issuer"],
-                _configuration["JwT: Audience"],
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(15), //token expires after 15 minutes
+                expires: DateTime.Now.AddMinutes(120), //token expires after 120 minutes
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

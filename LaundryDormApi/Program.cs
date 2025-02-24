@@ -81,11 +81,12 @@ namespace LaundryDormApi
                 options.AddPolicy(name: "MyAllowSpecificOrigins",
                     policyBuilder =>
                     {
-                        policyBuilder.WithOrigins("https://localhost:7054") //this makes it possible to listen to the live server in vscode
+                        policyBuilder.WithOrigins("https://localhost:7054",
+                            "http://localhost:4200") //this makes it possible to listen to the live server in vscode
                                                                            //This setting makes it that the backend only listen to the frontend with this specific port/ip
                                                                            //During production, we set the address to the doamin name ("www.chess.com") feks
                                                                            //http: //127.0.0.1:5500
-                                                                           
+
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();

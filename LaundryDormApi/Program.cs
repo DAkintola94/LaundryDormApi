@@ -10,7 +10,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.Xml;
 using Serilog;
-using LaundryDormApi.Middlewares;
+
 
 namespace LaundryDormApi
 {
@@ -25,8 +25,6 @@ namespace LaundryDormApi
             var logger = new LoggerConfiguration()
                 .WriteTo.Console()
                 .WriteTo.File("Logs/LaundryDorm_Log.txt", rollingInterval: RollingInterval.Day) //will create log to the path (Logs), folder we created
-                .MinimumLevel.Warning()
-                .MinimumLevel.Debug() // incase the application wont run, lets you see the error log preventing it from running
                 .CreateLogger();
 
             builder.Logging.ClearProviders();
@@ -83,9 +81,12 @@ namespace LaundryDormApi
                 options.AddPolicy(name: "MyAllowSpecificOrigins",
                     policyBuilder =>
                     {
-                        policyBuilder.WithOrigins("http://127.0.0.1:5500") //this makes it possible to listen to the live server in vscode
+                        policyBuilder.WithOrigins("https://localhost:7054",
+                            "http://localhost:4200") //this makes it possible to listen to the live server in vscode
                                                                            //This setting makes it that the backend only listen to the frontend with this specific port/ip
                                                                            //During production, we set the address to the doamin name ("www.chess.com") feks
+                                                                           //http: //127.0.0.1:5500
+
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
@@ -94,37 +95,14 @@ namespace LaundryDormApi
 
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "LaundryDorm Api", Version = "v1" });
-                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = JwtBearerDefaults.AuthenticationScheme
-                });
+            builder.Services.AddSwaggerGen();
 
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
-                },
-                Scheme = "Oauth2",
-                Name = JwtBearerDefaults.AuthenticationScheme,
-                In = ParameterLocation.Header
-            },
-            new List<string>()
-        }
-    });
-            });
+            builder.Services.AddAuthorization();
 
+            var jwtKey = builder.Configuration["Jwt:Key"];
 
+            var testerKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? string.Empty));
+            Console.WriteLine(testerKey);
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -136,10 +114,12 @@ namespace LaundryDormApi
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     ValidAudience = builder.Configuration["Jwt:Audience"],
+
                     IssuerSigningKey = new SymmetricSecurityKey
-                    (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                    (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Jwt not configurated")))
                 });
-                
+
+            
 
             var app = builder.Build();
 
@@ -150,8 +130,6 @@ namespace LaundryDormApi
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.UseMiddleware<ExecptionHandlerMiddleware>();
 
             app.UseHttpsRedirection();
 

@@ -79,7 +79,7 @@ namespace LaundryDormApi.DataContext
             ().HashPassword(sysAdminUser, "Testingtesting1234");
 
         modelBuilder.Entity<ApplicationUser>().HasData(sysAdminUser); //using applicationuser because its custom model than add more, 
-                                                                      //its possible because it inherits from IdentityUser, the is the default
+                                                                       //its possible because it inherits from IdentityUser, the is the default
 
         var sysadminRoles = new List<IdentityUserRole<string>> //List of roles for sysAdminUser
             {

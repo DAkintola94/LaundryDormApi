@@ -57,7 +57,7 @@ namespace LaundryDormApi
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = true;
+                options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequiredLength = 4;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
@@ -104,7 +104,15 @@ namespace LaundryDormApi
             var testerKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? string.Empty));
             Console.WriteLine(testerKey);
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(options =>
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

@@ -27,10 +27,13 @@ namespace LaundryDormApi.Controllers
                 AdviceSet adviceDomainModel = new AdviceSet
                 {
                     //ID is created automatically when data is sent to the DB, date is also set to auto creation upon validation success.
+                    //PosterID was created in the case of using id to find users post from database!
                     PosterName = adviceViewModel.AuthorName,
                     Message = adviceViewModel.InformationMessage,
                     Email = adviceViewModel.EmailAddress,
-                    CategoryID = adviceViewModel.CategoryID
+                    CategoryID = adviceViewModel.CategoryID,
+                    Date = DateOnly.FromDateTime(DateTime.Now)
+                    
                 };
 
                 await _adviceRepository.InsertAdvice(adviceDomainModel);

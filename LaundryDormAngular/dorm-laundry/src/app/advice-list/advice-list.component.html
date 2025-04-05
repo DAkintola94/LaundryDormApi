@@ -1,16 +1,32 @@
-<h1> List of all advices</h1>
-<ul> 
-<li *ngFor="let elements of advices" > 
-<h3>  {{elements.authorName}} </h3>
-<p>  {{elements.posterId}} </p> 
-<p>  {{elements.informationMessage}} </p> 
-<p>  {{elements.date}} </p> 
-<p>  {{elements.emailAddress}} </p> 
-<p>  {{elements.categoryName}} </p> 
-    
+<h2> Liste av forbedring</h2>
 
-</li>
+<body>
+<div>
+    <div>
+<table class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th> Navn: </th>
+            <th> Inlegg-ID: </th>
+            <th> Melding: </th>
+            <th> Dato: </th>
+            <th>Email: </th>
+            <th> Kategori:</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let elements of advices" >
+            <td> {{elements.authorName}} </td>
+            <td> {{elements.posterId}} </td>
+            <td> {{elements.informationMessage}} </td>
+            <td> {{elements.date}} </td>
+            <td> {{elements.emailAddress}} </td>
+            <td> {{elements.categoryName}} </td>
+        </tr>
+    </tbody>
+</table>
 
 
-
-</ul>
+    </div>
+</div>
+</body>

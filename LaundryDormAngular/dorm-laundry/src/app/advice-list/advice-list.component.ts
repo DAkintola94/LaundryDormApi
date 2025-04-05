@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Advice } from '../advice';
 import { CommonModule } from '@angular/common';
+import { AdviceService } from '../advice.service';
 
 @Component({
   selector: 'app-advice-list',
@@ -9,7 +10,23 @@ import { CommonModule } from '@angular/common';
   templateUrl: './advice-list.component.html',
   styleUrl: './advice-list.component.css'
 })
-export class AdviceListComponent {
+export class AdviceListComponent implements OnInit{
+
+  adviceArray : Advice[] = [];
+
+  constructor(private adviceService : AdviceService){
+
+  }
+
+
+  ngOnInit(){ //Lifecycle hook that get executed when the component is initialized
+    this.getData();
+  }
+
+  getData() : void{
+    this.adviceService.getAdvice()
+    .subscribe(advicesFromApi => this.advices = advicesFromApi); //subscribe notifies when the async is done
+  }
 
 advices: Advice[] = [
   {posterId: 1,

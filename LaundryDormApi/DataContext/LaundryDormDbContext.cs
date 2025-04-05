@@ -80,23 +80,23 @@ namespace LaundryDormApi.DataContext
                new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" }
            );
 
-            modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
-            new MachineModel {
-            MachineId = 1, MachineName = "Balay",
-            ModelName = "Random",
-            IsOperational = true,
-            Location = "Laundry room 1",
-            ImageFK_ID = new Guid ("08dd3e4e-9f82-4ada-8b37-2fb04b78b08b") //Attaching/seeding the image to the specific machine through foreign key 
-            },
+            //modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
+            //new MachineModel {
+            //MachineId = 1, MachineName = "Balay",
+            //ModelName = "Random",
+            //IsOperational = true,
+            //Location = "Laundry room 1",
+            //ImageFK_ID = new Guid ("08dd3e4e-9f82-4ada-8b37-2fb04b78b08b") //Attaching/seeding the image to the specific machine through foreign key 
+            //},
 
-            new MachineModel {
-            MachineId = 2,
-            MachineName = "Samsung washing machine",
-            ModelName = "WW90CGC04DAH model",
-            IsOperational = true,
-            Location = "Laundry room 2",
-            ImageFK_ID = new Guid("08dd3e4e-b027-40cf-8a90-8803586722a5") //Attaching/seeding the image to the specific machine through foreign key 
-            });
+            //new MachineModel {
+            //MachineId = 2,
+            //MachineName = "Samsung washing machine",
+            //ModelName = "WW90CGC04DAH model",
+            //IsOperational = true,
+            //Location = "Laundry room 2",
+            //ImageFK_ID = new Guid("08dd3e4e-b027-40cf-8a90-8803586722a5") //Attaching/seeding the image to the specific machine through foreign key 
+            //});
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Forbedring" },

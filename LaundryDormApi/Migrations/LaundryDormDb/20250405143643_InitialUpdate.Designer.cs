@@ -4,16 +4,19 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250405143643_InitialUpdate")]
+    partial class InitialUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -324,26 +327,6 @@ namespace LaundryDormApi.Migrations
                     b.HasIndex("ImageFK_ID");
 
                     b.ToTable("Machine");
-
-                    b.HasData(
-                        new
-                        {
-                            MachineId = 1,
-                            ImageFK_ID = new Guid("08dd3e4e-9f82-4ada-8b37-2fb04b78b08b"),
-                            IsOperational = true,
-                            Location = "Laundry room 1",
-                            MachineName = "Balay",
-                            ModelName = "Random"
-                        },
-                        new
-                        {
-                            MachineId = 2,
-                            ImageFK_ID = new Guid("08dd3e4e-b027-40cf-8a90-8803586722a5"),
-                            IsOperational = true,
-                            Location = "Laundry room 2",
-                            MachineName = "Samsung washing machine",
-                            ModelName = "WW90CGC04DAH model"
-                        });
                 });
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>

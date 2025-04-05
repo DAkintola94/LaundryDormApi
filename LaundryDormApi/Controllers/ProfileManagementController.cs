@@ -44,11 +44,11 @@ namespace LaundryDormApi.Controllers
 
             if(result.Succeeded)
             {
-                var identityRole = await _userManager.AddToRoleAsync(applicationUser, "RegularUser");
+                var identityRole = await _userManager.AddToRoleAsync(applicationUser, "Regularuser");
 
                 if (identityRole.Succeeded)
                 {
-                        var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { "RegularUser" });
+                        var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { "Regularuser" });
 
                         LoginResponse loginResponse = new LoginResponse
                         {

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations.LaundryDormAuth
+namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormAuthContext))]
     partial class LaundryDormAuthContextModelSnapshot : ModelSnapshot
@@ -96,68 +96,6 @@ namespace LaundryDormApi.Migrations.LaundryDormAuth
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "1",
-                            AccessFailedCount = 0,
-                            Address = "Justvik",
-                            ConcurrencyStamp = "2e1e2fef-baf8-4cad-a14a-18efd0ccef8e",
-                            Email = "sysadmin@test.com",
-                            EmailConfirmed = false,
-                            FirstName = "System",
-                            LastName = "Administrator",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "SYSADMIN@TEST.COM",
-                            NormalizedUserName = "SYSADMIN@TEST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEF+eXtYnBguOk9QECiR4BnOJguTBfgil9D1qmA++YJjxh6xUslONcNzvfFuAfl4mlQ==",
-                            PhoneNumber = "40748608",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "f8c6b1ac-49b3-494c-989e-67cb12234a5e",
-                            TwoFactorEnabled = false,
-                            UserName = "sysadmin@test.com"
-                        },
-                        new
-                        {
-                            Id = "2",
-                            AccessFailedCount = 0,
-                            Address = "Lund",
-                            ConcurrencyStamp = "e4cc5d10-92c7-4601-86b1-447e2bc02a72",
-                            Email = "admin@test.com",
-                            EmailConfirmed = false,
-                            FirstName = "Test",
-                            LastName = "Admin",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@TEST.COM",
-                            NormalizedUserName = "ADMIN@TEST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJ/weqtXLPN/5UNw48BiyOMC9ShxkX6A66yyPT+kBuHXx9x9aAaXJeah8IIQNzSh3w==",
-                            PhoneNumber = "95534356",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "39915a89-d50d-4f93-b344-94ad7073eeb8",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@test.com"
-                        },
-                        new
-                        {
-                            Id = "3",
-                            AccessFailedCount = 0,
-                            Address = "Søm",
-                            ConcurrencyStamp = "1076fdcb-b6cd-4704-b545-5b624a6ea891",
-                            Email = "user@test.com",
-                            EmailConfirmed = false,
-                            FirstName = "Test",
-                            LastName = "User",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "USER@TEST.COM",
-                            NormalizedUserName = "USER@TEST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAELLETqLQYAZRd5b51ZwLU3l6FjAVvVauXKjwMM/WlgVuQYvpUqS+5zDyHJfcNTDLAg==",
-                            PhoneNumber = "43342364",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "3932543f-4698-4182-8342-5eff50a4a353",
-                            TwoFactorEnabled = false,
-                            UserName = "user@test.com"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -188,24 +126,24 @@ namespace LaundryDormApi.Migrations.LaundryDormAuth
                     b.HasData(
                         new
                         {
-                            Id = "1",
-                            ConcurrencyStamp = "1",
-                            Name = "System Administrator",
+                            Id = "67330e4f-e3e7-470f-9230-124bb2f207e9",
+                            ConcurrencyStamp = "67330e4f-e3e7-470f-9230-124bb2f207e9",
+                            Name = "Sysadmin",
                             NormalizedName = "SYSADMIN"
                         },
                         new
                         {
-                            Id = "2",
-                            ConcurrencyStamp = "2",
+                            Id = "76e267ae-8be5-4040-b507-e39da47afba1",
+                            ConcurrencyStamp = "76e267ae-8be5-4040-b507-e39da47afba1",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "3",
-                            ConcurrencyStamp = "3",
-                            Name = "RegularUser",
-                            NormalizedName = "RegularUser"
+                            Id = "da325b16-0977-43ca-8611-b32033c9ff91",
+                            ConcurrencyStamp = "da325b16-0977-43ca-8611-b32033c9ff91",
+                            Name = "Regularuser",
+                            NormalizedName = "REGULARUSER"
                         });
                 });
 
@@ -294,33 +232,6 @@ namespace LaundryDormApi.Migrations.LaundryDormAuth
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "1",
-                            RoleId = "1"
-                        },
-                        new
-                        {
-                            UserId = "1",
-                            RoleId = "2"
-                        },
-                        new
-                        {
-                            UserId = "1",
-                            RoleId = "3"
-                        },
-                        new
-                        {
-                            UserId = "2",
-                            RoleId = "2"
-                        },
-                        new
-                        {
-                            UserId = "3",
-                            RoleId = "3"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>

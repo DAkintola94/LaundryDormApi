@@ -31,6 +31,7 @@ namespace LaundryDormApi.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         [HttpGet]
         [Route("LaundrySession")]
         public async Task<IActionResult> HomePage()

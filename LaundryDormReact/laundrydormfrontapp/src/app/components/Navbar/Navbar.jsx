@@ -30,7 +30,7 @@ const toggleMenu = () => {
            {/* Logo */}
             <Link href="/" className="text-3xl font-bold">
             <span className="text-[#eed963]"> Laundry</span>
-            <span className="text-[#60116e]">Dorm</span>
+            <span className="he">Dorm</span>
             </Link>
             {/* Hamburger menu */}
             <div className="hidden md:block">

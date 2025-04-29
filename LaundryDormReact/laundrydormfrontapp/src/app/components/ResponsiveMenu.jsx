@@ -20,7 +20,7 @@ export const ResponsiveMenu = ({ showMenu, navLinks }) => { //receiving the prop
                     <FaUserCircle className="text-5xl" />
                     <div>
                         <h1> Velkommen </h1>
-                        <h1 className="text-sm text-slate-500"> Hello </h1>
+                        <h1 className="text-sm text-slate-500"> *navn på innlogget* </h1>
                     </div>
                 </div>
                 {/* navlinks */}

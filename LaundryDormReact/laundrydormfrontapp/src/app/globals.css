@@ -1,9 +1,14 @@
 @import "tailwindcss";
+@tailwind utilities;
 
-
-
-.primaryColor {
-    color: #eed963;
+@layer utilities {
+  .inputField {
+    @apply px-5 py-1 mb-4 border-b-2
+        border-gray-300 ring-0 focus:ring-0
+        focus:outline-none;
+  }
 }
 
-
+.primaryColor {
+  color: #eed963;
+}

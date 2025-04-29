@@ -44,7 +44,7 @@ namespace LaundryDormApi
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();
             builder.Services.AddScoped<ILaundryStatusStateRepository, LaundryStatusStateRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
-            
+
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
                 .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("LaundryDormApi")
@@ -71,7 +71,7 @@ namespace LaundryDormApi
           new MySqlServerVersion(new Version(11, 5, 2))
           ));
 
-            builder.Services.AddDbContext<LaundryDormAuthContext>(options => 
+            builder.Services.AddDbContext<LaundryDormAuthContext>(options =>
             options.UseMySql(builder.Configuration.GetConnectionString("AuthContextConnection"),
             new MySqlServerVersion(new Version(11, 5, 2))
             ));
@@ -82,10 +82,11 @@ namespace LaundryDormApi
                     policyBuilder =>
                     {
                         policyBuilder.WithOrigins("https://localhost:7054",
+                            "http://localhost:3000",
                             "http://localhost:4200") //this makes it possible to listen to the live server in vscode
-                                                                           //This setting makes it that the backend only listen to the frontend with this specific port/ip
-                                                                           //During production, we set the address to the doamin name ("www.chess.com") feks
-                                                                           //http: //127.0.0.1:5500
+                                                     //This setting makes it that the backend only listen to the frontend with this specific port/ip
+                                                     //During production, we set the address to the doamin name ("www.chess.com") feks
+                                                     //http: //127.0.0.1:5500
 
                         .AllowAnyHeader()
                         .AllowAnyMethod()
@@ -127,7 +128,7 @@ namespace LaundryDormApi
                     (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Jwt not configurated")))
                 });
 
-            
+
 
             var app = builder.Build();
 

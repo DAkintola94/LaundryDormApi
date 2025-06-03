@@ -1,87 +1,55 @@
 //import {Link, Route, Routes } from "react-router-dom";
 //Navbar, MobileNav, Button, IconButton,
-import React from 'react'
-import {Typography, MenuHandler, Menu, MenuItem, MenuList} from "@material-tailwind/react";
-import { MdLocalLaundryService, MdAccountCircle} from "react-icons/md";
-import {IoIosInformationCircle} from "react-icons/io";
-import {VscFeedback} from "react-icons/vsc"
+import {useState} from 'react'
+import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 
 export const NavbarDefault = () => {
-  const [openNav, setOpenNav] = React.useState(false);
-  
-  React.useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => window.innerWidth >= 960 && setOpenNav(false),
-    );
-  }, []);
+ 
+const [nav, setNavBar] = useState(false); //remember that in react, hooks must be called at the top level.
+//you cant call them inside loops, conditions, nested function, etc
 
-// ...existing code...
-const navList = (
-  <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-    <li>
-      <Menu>
-        <MenuHandler>
-          <Typography
-            variant="small"
-            color="blue-gray"
-            className="flex items-center gap-x-2 p-1 font-medium cursor-pointer"
-          >
-            <MdLocalLaundryService className="text-blue-gray-500 w-5 h-5" />
-            <span>Vask</span>
-          </Typography>
-        </MenuHandler>
-        <MenuList>
-          <MenuItem><a href="/login">Sett vask</a></MenuItem>
-          <MenuItem><a href="/login">Reservasjon</a></MenuItem>
-          <MenuItem><a href="/login">Historikk</a></MenuItem>
-        </MenuList>
-      </Menu>
-    </li>
-    <li>
-      <Menu>
-        <MenuHandler>
-          <Typography
-            variant="small"
-            color="blue-gray"
-            className="flex items-center gap-x-2 p-1 font-medium"
-          >
-            <MdAccountCircle className="text-blue-gray-500 w-5 h-5" />
-            <span>Konto</span>
-          </Typography>
-        </MenuHandler>
-        <MenuList>
-          <MenuItem><a href="/login">Logg inn</a></MenuItem>
-          <MenuItem><a href="/login">Logg ut</a></MenuItem>
-          <MenuItem><a href="/login">Min side</a></MenuItem>
-        </MenuList>
-      </Menu>
-    </li>
-    <li>
-      <Typography
-        variant="small"
-        color="blue-gray"
-        className="flex items-center gap-x-2 p-1 font-medium"
-      >
-        <VscFeedback className="text-blue-gray-500 w-5 h-5" />
-        <a href="#" className="flex items-center">Meld feil</a>
-      </Typography>
-    </li>
-    <li>
-      <Typography
-        variant="small"
-        color="blue-gray"
-        className="flex items-center gap-x-2 p-1 font-medium"
-      >
-        <IoIosInformationCircle className="text-blue-gray-500 w-5 h-5" />
-        <a href="#" className="flex items-center">Om meg</a>
-      </Typography>
-    </li>
-  </ul>
-);
+const Navlinks = [
+{id: 1, name: "Sett vask", link:'/setvask'},
+{id: 2, name: "Meld feil", link: '/meld-feil'},
+{id: 3, name: "Innboks", link: '/innboks'},
+{id: 4, name: "Logg inn", link: '/logg-inn'},
+{id: 5, name: "Logg ut", link: '/logg-ut'},
+{id: 6, name: "Registrer deg", link: '/registrer-deg'},
+{id: 7, name: "Om oss", link: '/om-oss'},
+{id: 8, name: "Kontakt oss", link: '/kontakt'},
+];
 
-
+const toogleNav = () => setNavBar(!nav);
   return (
-    <div>Navbar</div>
-  )
-}
+    <>
+    <div className="sticky top-0 z-50">
+    <div className="bg-black flex justify-between items-center mx-auto px-4 text-white">
+      {/* Logo */}
+      
+      <a href="/">
+      <h1 className="w-full text-3xl font-bold text-[#60116e]">LaundyDorm</h1>
+      </a>
+
+      {/*Desktop Navigation */}
+      <ul className="hidden md:flex">
+        {Navlinks.map(elements => (
+          <li
+          key={elements.id}
+          className="p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
+          >
+            <a href={elements.link} 
+            > 
+            {elements.name} </a>
+          </li>
+        ))}
+      </ul>
+
+      {/* Mobile Navigation Icon */}
+      <div onClick={toogleNav} className="block md:hidden">
+      {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+      </div>
+    </div>
+    </div>
+    </>
+  );
+};

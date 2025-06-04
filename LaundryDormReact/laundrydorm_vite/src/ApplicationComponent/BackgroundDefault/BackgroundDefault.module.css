@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+.backgroundImage {
+  background-image: url("../../assets/city_lake.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 520px;
+  width: 100vw;
+}

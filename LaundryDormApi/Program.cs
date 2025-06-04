@@ -82,6 +82,7 @@ namespace LaundryDormApi
                     policyBuilder =>
                     {
                         policyBuilder.WithOrigins("https://localhost:7054",
+				"http://localhost:5173",
                             "http://localhost:4200") //this makes it possible to listen to the live server in vscode
                                                                            //This setting makes it that the backend only listen to the frontend with this specific port/ip
                                                                            //During production, we set the address to the doamin name ("www.chess.com") feks

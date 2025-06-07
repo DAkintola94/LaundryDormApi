@@ -1,6 +1,7 @@
 
 import profilePic from "../../assets/aboutpicture.jpg"
 import {NavbarDefault} from "../NavbackgroundDefault/NavbackgroundDefault"
+import {FooterDefault} from "../FooterDefault/FooterDefault"
 
 export const About = () => {
   return (
@@ -35,6 +36,7 @@ export const About = () => {
 
         
     </section>
+    <div> <FooterDefault/> </div>
     </>
   );
 };

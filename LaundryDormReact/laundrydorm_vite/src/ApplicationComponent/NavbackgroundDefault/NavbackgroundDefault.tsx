@@ -2,6 +2,7 @@
 //Navbar, MobileNav, Button, IconButton,
 import {useState, useRef} from 'react'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
+//import About from "../Pages/About";
 
 export const NavbarDefault = () => {
  

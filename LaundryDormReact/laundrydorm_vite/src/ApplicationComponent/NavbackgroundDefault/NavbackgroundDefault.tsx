@@ -2,7 +2,8 @@
 //Navbar, MobileNav, Button, IconButton,
 import {useState, useRef} from 'react'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
-//import About from "../Pages/About";
+import {BrowserRouter, Routes, Route} from "react-router-dom"
+import {Link} from "react-router-dom"
 
 export const NavbarDefault = () => {
  
@@ -119,7 +120,7 @@ const contactUsDropdown = [
               {laundryDownMenu.map((items, idx) => ( //map is an array method to loop over an array, and return a new array of elements
                 <li key={idx} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black"
                 >
-                  <a href={items.link}> {items.name}</a>
+                  <Link to={items.link}> {items.name} </Link>  
                 </li>
               ))}
             </ul>
@@ -139,7 +140,9 @@ const contactUsDropdown = [
                 <ul className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
                   {contactUsDropdown.map((contactList, idkeys) => (
                     <li key={idkeys} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
-                      <a href={contactList.link}> {contactList.name}</a>
+                      
+                          <a href={contactList.link}> {contactList.name}</a>
+                        
                     </li>
                   ))}
                 </ul>

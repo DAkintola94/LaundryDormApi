@@ -21,7 +21,7 @@ AOS.refresh();
     <>
     <div> <NavbarDefault /> </div>
     <div> <BackgroundDefault/> </div>
-      </>
+    </>
   )
 }
 

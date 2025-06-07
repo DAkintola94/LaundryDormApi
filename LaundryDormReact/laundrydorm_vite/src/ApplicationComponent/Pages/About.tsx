@@ -26,14 +26,14 @@ export const About = () => {
 
             <div className="w-1/2 relative">
             <img  className="w-full relative z-10" src={profilePic} alt="About us picture"/>
-            <div className="bg-indigo-900 h-full w-full absolute top-6 -left-6">
-
+            <div className="bg-indigo-900 h-full w-full absolute top-6 -left-6"> 
             </div>
-
 
             </div>
 
         </div>
+
+        
     </section>
     </>
   );

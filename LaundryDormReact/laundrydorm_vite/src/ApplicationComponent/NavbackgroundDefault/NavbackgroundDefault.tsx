@@ -2,7 +2,6 @@
 //Navbar, MobileNav, Button, IconButton,
 import {useState, useRef} from 'react'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
-import {BrowserRouter, Routes, Route} from "react-router-dom"
 import {Link} from "react-router-dom"
 
 export const NavbarDefault = () => {

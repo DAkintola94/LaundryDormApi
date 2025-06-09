@@ -163,7 +163,6 @@ MigrationBackup/
 .ionide/
 *.targets
 *.props
-*.json
 /LaundryDormApi/Controllers/WeatherForecastController.cs
 /LaundryDormApi/WeatherForecast.cs
 /LaundryDormApi/ServerImages/AverageFoodPicture.jpg

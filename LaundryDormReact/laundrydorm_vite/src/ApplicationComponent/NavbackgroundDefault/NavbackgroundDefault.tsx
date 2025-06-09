@@ -61,7 +61,7 @@ const Navlinks = [
 {id: 1, name: "Vask", link:'/vask'},
 {id: 2, name: "Innboks", link: '/innboks'},
 {id: 3, name: "Konto", link: '/account'},
-{id: 4, name: "Kontakt oss", link: '/contact'},
+{id: 4, name: "Om oss", link: '/aboutus'},
 ];
 
 const toogleNav = () => setNavBar(!nav);
@@ -79,7 +79,6 @@ const accountDropDownMenu = [
 ];
 
 const contactUsDropdown = [
-{name: "Om oss", link:"/aboutus"},
 {name: "Melde feil", link:"/reportproblem"}
 ];
 

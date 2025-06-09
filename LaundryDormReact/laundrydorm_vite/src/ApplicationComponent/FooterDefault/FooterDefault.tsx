@@ -11,7 +11,7 @@ export const FooterDefault = () => {
     </p>
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 <li>
-                    <a href="https://www.linkedin.com/in/dennis-akintola-294a6a285/" 
+                    <a href="/aboutus" 
                     target="blank"
                     rel="noopener noreferrer"
                     className="">

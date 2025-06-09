@@ -28,6 +28,9 @@ export const BackgroundDefault = () => {
                 www.laundrydorm.com
             </p>
         </div>
+        
+      
+
         {/* Image section*/}
         <div data-aos="zoom-in-right"
         data-aos-duration="1000">

@@ -1,8 +1,10 @@
 //import {Link, Route, Routes } from "react-router-dom";
 //Navbar, MobileNav, Button, IconButton,
+//import laundrySVG from "../../assets/BlueLaundry.svg"
 import {useState, useRef} from 'react'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import {Link} from "react-router-dom"
+
 
 export const NavbarDefault = () => {
  
@@ -88,7 +90,8 @@ const contactUsDropdown = [
       {/* Logo */}
       
       <a href="/">
-      <h1 className="w-full text-3xl font-bold text-[#c658da]">LaundyDorm</h1>
+      <h1 className="w-full text-3xl font-bold text-[#c658da] flex items-center"> 
+        {/*SVG image for logo if needed <img src={laundrySVG} className="w-8 h-6 ml-2" alt="laundry_svg"/> */}  LaundyDorm </h1>
       </a>
 
       {/*Desktop Navigation */}

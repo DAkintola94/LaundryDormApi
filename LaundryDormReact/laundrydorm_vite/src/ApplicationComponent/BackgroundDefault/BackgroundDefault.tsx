@@ -9,8 +9,8 @@ export const BackgroundDefault = () => {
 
   return (
     <div className={bgCss.backgroundImage}> 
-    <div className="dark:bg-black/60 bg-white/80 background-blur-sm dark:text-white duration-300
-    h-[520px] flex">
+    <div className="dark:bg-black/50 bg-white/80 background-blur-sm dark:text-white duration-300
+    min-h-screen flex">
       <div className="container grid grid-cols-1 place-items-center">
         {/* text content section*/}
         <div className="text-center space-y-5 py-14">

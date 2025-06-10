@@ -79,7 +79,7 @@ const accountDropDownMenu = [
 ];
 
 const contactUsDropdown = [
-{name: "Melde feil", link:"/reportproblem"}
+{name: "Melde feil", link:"/report"}
 ];
 
   return (

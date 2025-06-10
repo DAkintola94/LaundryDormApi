@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import {About} from "./ApplicationComponent/Pages/About.tsx"
 import { Settvask } from './ApplicationComponent/Pages/Settvask.tsx'
+import { Report } from './ApplicationComponent/Pages/Report.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/" element={<App />} />
       <Route path="/aboutus" element={<About />} />
       <Route path="/laundry" element={<Settvask />} />
+      <Route path="/report" element={<Report />} />
       
     </Routes>
     </BrowserRouter>

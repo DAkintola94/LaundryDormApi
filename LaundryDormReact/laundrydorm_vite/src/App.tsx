@@ -20,9 +20,15 @@ AOS.refresh();
 
   return (
     <>
-    <div> <NavbarDefault /> </div>
-    <div> <BackgroundDefault/> </div>
-    <div> <FooterDefault/> </div>
+    <div className="min-h-screen flex flex-col"> 
+      <NavbarDefault /> 
+    <div className="flex-1"> 
+      <BackgroundDefault /> 
+    </div>
+    
+    <FooterDefault/>
+
+    </div>
     </>
   )
 }

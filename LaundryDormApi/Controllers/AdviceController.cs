@@ -32,8 +32,7 @@ namespace LaundryDormApi.Controllers
                     Message = adviceViewModel.InformationMessage,
                     Email = adviceViewModel.EmailAddress,
                     CategoryID = adviceViewModel.CategoryID,
-                    Date = DateOnly.FromDateTime(DateTime.Now)
-                    
+                    Date = adviceViewModel.Date
                 };
 
                 await _adviceRepository.InsertAdvice(adviceDomainModel);

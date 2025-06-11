@@ -8,7 +8,7 @@ namespace LaundryDormApi.Model.ViewModel
         public string? AuthorName { get; set; }
         public string? InformationMessage { get; set; }
         public string? EmailAddress { get; set; }
-        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+        public DateOnly Date { get; set; }
         public string? CategoryName { get; set; }
         public int CategoryID { get; set; }
 

@@ -1,25 +1,29 @@
 import {NavbarDefault} from "../NavbackgroundDefault/NavbackgroundDefault"
-import { FooterDefault } from "../FooterDefault/FooterDefault"
+//import { FooterDefault } from "../FooterDefault/FooterDefault"
 
 export const Settvask = () => {
   return (
-    
-    <div className="min-h-screen flex flex-col"> 
-      <NavbarDefault /> 
+    <>
+    <div> <NavbarDefault /> </div>
 
-        
+    <h1 className="text-3xl text-[#00000]" > Sett vask  </h1>
+
+    <div className="container py-5 d-flex">         
           <input type="date" className="custom-date" placeholder="Date"></input> {/*Since index.css is global, no need to import*/}
-        
-        <div className="container flex justify-end">
-          <input type="date" className={"custom-date"} placeholder="Date">
-          </input>
-        </div>
+    </div>
+
+    <div className="container py-5 d-flex">
+          <input type="date" className={"custom-date"} placeholder="Date"> </input>
+    </div>
+
+    <div className="container py-5 d-flex">
+      
+
+    </div>
+
         <p>here</p>
 
-        <FooterDefault />
-        
-        </div>
-
-    
+        {/* <div> <FooterDefault /></div> */ }
+    </>
   )
 }

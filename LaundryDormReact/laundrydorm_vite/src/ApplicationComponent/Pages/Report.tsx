@@ -40,12 +40,12 @@ export const Report = () => {
   }
   
   return (
-    <div className="reportBackgroundImage">
+    <div className="reportBackgroundImage"> {/*Since .reportBackgroundImage is in the global index.css, we can import it directly like this*/}
 
       <form onSubmit={handleSubmit}> 
 
    <div className="min-h-screen flex flex-col">
-     <NavbarDefault /> {/* Although we imported, we can still use className in div to structure the look of our component*/}
+     <NavbarDefault /> 
     
     <div className=" flex-1 flex flex-col items-center justify-center py-8">
 
@@ -75,8 +75,6 @@ export const Report = () => {
         className="mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold">
          Sender... </button>}
 
-        
-         
     </div>
 
      <FooterDefault /> 

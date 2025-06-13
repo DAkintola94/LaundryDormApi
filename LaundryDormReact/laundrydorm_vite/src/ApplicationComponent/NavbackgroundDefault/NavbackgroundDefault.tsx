@@ -75,7 +75,7 @@ const laundryDownMenu = [
 const accountDropDownMenu = [
 {name: "Logg inn", link:"/login"},
 {name: "Logg ut", link:"/logout"},
-{name: "Registrer deg", link:"register"}
+{name: "Registrer deg", link:"/register"}
 ];
 
 const contactUsDropdown = [
@@ -85,13 +85,13 @@ const contactUsDropdown = [
   return (
     <>
     <div className="sticky top-0 z-50">
-    <div className="bg-black flex justify-between items-center mx-auto px-4 text-white">
+    <div className="bg-black flex justify-between items-center mx-auto px-2 text-white">
       {/* Logo */}
       
-      <a href="/">
-      <h1 className="w-full text-3xl font-bold text-[#c658da] flex items-center"> 
+      <Link to="/">
+      <h1 className="w-full text-2xl font-bold text-[#c658da] flex items-center"> 
         {/*SVG image for logo if needed <img src={laundrySVG} className="w-8 h-6 ml-2" alt="laundry_svg"/> */}  LaundyDorm </h1>
-      </a>
+      </Link>
 
       {/*Desktop Navigation */}
 
@@ -111,10 +111,10 @@ const contactUsDropdown = [
             if(elements.id === 4) handleContactMouseLeave();
           }} 
           >
-            <a href={elements.link} 
+            <Link to={elements.link} 
             > 
             {elements.name} 
-            </a>
+            </Link>
             {/* Dropdown for vask*/}
             {elements.id === 1 && dropDownOpen && ( //dropDownOpen is the current state of the boolean/default value in the usestate
             <ul className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
@@ -131,7 +131,7 @@ const contactUsDropdown = [
                 <ul className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
                   {accountDropDownMenu.map((accList, ids) => (
                     <li key={ids} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
-                      <a href={accList.link}> {accList.name}</a>
+                      <Link to={accList.link}> {accList.name}</Link>
                     </li>
                   ))}
                 </ul>
@@ -142,7 +142,7 @@ const contactUsDropdown = [
                   {contactUsDropdown.map((contactList, idkeys) => (
                     <li key={idkeys} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
                       
-                          <a href={contactList.link}> {contactList.name}</a>
+                          <Link to={contactList.link}> {contactList.name}</Link>
                         
                     </li>
                   ))}

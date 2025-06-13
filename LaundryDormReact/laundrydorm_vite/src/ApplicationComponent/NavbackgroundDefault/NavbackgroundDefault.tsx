@@ -75,7 +75,7 @@ const laundryDownMenu = [
 const accountDropDownMenu = [
 {name: "Logg inn", link:"/login"},
 {name: "Logg ut", link:"/logout"},
-{name: "Registrer deg", link:"register"}
+{name: "Registrer deg", link:"/register"}
 ];
 
 const contactUsDropdown = [

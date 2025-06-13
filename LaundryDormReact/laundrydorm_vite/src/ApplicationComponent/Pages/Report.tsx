@@ -29,11 +29,11 @@ export const Report = () => {
     };
     setPendingButton(true)
 
-    fetch('https://localhost:7054/api/Advice/AdviceFetcher', {
+    fetch('https://localhost:7054/api/Advice/AdviceFetcher', { //part of js promises, fetch this, then do this
       method:'POST',
       headers: {"Content-Type": "application/json" },
       body: JSON.stringify(reportData)
-    }).then(() => {
+    }).then(() => { //then do this
       console.log("Content sent");
       setPendingButton(false)
     })

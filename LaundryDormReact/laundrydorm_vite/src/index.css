@@ -15,8 +15,8 @@
 }
 
 .register_loginBG {
-  backgroud-image: url("./assets/polar-lights.jpg");
-  backgroud-size: cover;
+  background-image: url("./assets/polar-lights.jpg");
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   min-height: 100vh;

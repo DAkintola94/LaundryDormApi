@@ -7,8 +7,6 @@ export const Logout = () => {
   return (
     <>
 
-    
-    
     </>
   )
 }

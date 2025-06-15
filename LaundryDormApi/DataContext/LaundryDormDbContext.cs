@@ -18,6 +18,8 @@ namespace LaundryDormApi.DataContext
         public DbSet<MachineModel> Machine { get; set; }
         public DbSet<ReservationDto> Reservation { get; set; }
 
+        public DbSet<Category> Category { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //seeding primarykey

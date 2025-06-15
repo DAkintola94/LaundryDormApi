@@ -33,9 +33,11 @@ export const Login = () => {
                 setErrorMessage("Det oppstod en feil");
                 return Promise.reject(response);
             }
-
+            return response.json();
         }).then(data => {
-            console.log("Data", data);
+
+            console.log("Valid login", data);    
+            localStorage.setItem("access_token", data.access_token); //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
             setBtnPending(false);
 
         }).catch(err => {

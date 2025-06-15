@@ -110,9 +110,9 @@ export const Register = () => {
         <input type="password" onChange={(evt) => regConfirmPassword(evt.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
 
-        { !isPending && <button type="submit">Registrer</button> }
+        { !isPending && <button type="submit" className="mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold">Registrer</button> }
         
-        {isPending && <button disabled type="submit">Registrerer...</button> }
+        {isPending && <button disabled type="submit" className="mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold">Registrerer...</button> }
         
 
     </div>

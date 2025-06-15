@@ -10,7 +10,7 @@ export const Report = () => {
 
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState('1'); //needs to be '1' or we keep getting '0' value defaulted
   const [email, setEmail] = useState('');
   const [isPending, setPendingButton] = useState(false);
 
@@ -29,12 +29,13 @@ export const Report = () => {
     };
     setPendingButton(true)
 
+
     fetch('https://localhost:7054/api/Advice/AdviceFetcher', { //part of js promises, fetch this, then do this
       method:'POST',
       headers: {"Content-Type": "application/json" },
       body: JSON.stringify(reportData)
     }).then(() => { //then do this
-      console.log("Content sent");
+      console.log("Data was sent successfully");
       setPendingButton(false)
     })
   }

@@ -31,13 +31,22 @@ export const Login = () => {
             {
                 setBtnPending(false);
                 setErrorMessage("Det oppstod en feil");
-                return Promise.reject(response);
+                return Promise.reject(response); //this is a special return that exits this .then() and passes the rejection to the next .catch() in the promise chain
             }
-            return response.json();
-        }).then(data => {
+            
+            return response.json(); //if we dont enter the if statement above, "get" the json the backend sent us as return
+                                    //return inside a .then() or .catch() only exits the callback, not the parent function
+                                    //in normal methods without js promises, return would exit the entire function immediately
 
-            console.log("Valid login", data);    
-            localStorage.setItem("access_token", data.access_token); //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
+        }).then(data => { //.then now contains whatever our backend sent as JSON response, due to response.json(); above
+
+            console.log("Valid login");   
+            
+            localStorage.setItem("access_token", data.jwtToken);  //this is the property of the JSON object return by the backend from the return json(); above
+                                                                  //the variable name after data. must match what our backend returns. jwtToken in this case
+            
+            //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
+            
             setBtnPending(false);
 
         }).catch(err => {

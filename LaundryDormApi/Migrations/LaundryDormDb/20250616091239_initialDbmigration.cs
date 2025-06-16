@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     /// <inheritdoc />
-    public partial class InitialCreation : Migration
+    public partial class initialDbmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

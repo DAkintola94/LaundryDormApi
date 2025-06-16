@@ -4,16 +4,19 @@ import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
+import { useNavigate } from 'react-router-dom'
 
 
 export const Login = () => {
+
+    const navigate = useNavigate();
 
     const [email, usersEmail] = useState('');
     const [passWord, usersPassword] = useState('');
     const [pending, setBtnPending] = useState(false);
     const [errorMsg, setErrorMessage] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const loginData = { //The left side need to match how the model is setup in backend/C#
                                 //right side is what we get from our user/usestate
@@ -22,38 +25,44 @@ export const Login = () => {
         }
         setBtnPending(true);
 
-        fetch('https://localhost:7054/api/ProfileManagement/LoginAuth', {
+        try {
+            const response = await fetch('https://localhost:7054/api/ProfileManagement/LoginAuth', { //await when fetching from the url api, the variable name is response
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(loginData)
-        }).then(response => {
+        }) 
             if(!response.ok) //read Register or report for promises understanding
             {
                 setBtnPending(false);
                 setErrorMessage("Det oppstod en feil");
-                return Promise.reject(response); //this is a special return that exits this .then() and passes the rejection to the next .catch() in the promise chain
+                throw new Error("Login failed"); //Throw makes us go straight to the catch block
             }
-            
-            return response.json(); //if we dont enter the if statement above, "get" the json the backend sent us as return
-                                    //return inside a .then() or .catch() only exits the callback, not the parent function
-                                    //in normal methods without js promises, return would exit the entire function immediately
 
-        }).then(data => { //.then now contains whatever our backend sent as JSON response, due to response.json(); above
-
-            console.log("Valid login");   
+            const tokenString = await response.text(); //data we are getting back from the backend, the return statement from the backend
+                                                 //returning what the server send us back, in this case we are expecting string
+                                                //With login and register, although we are posting, we are also waiting for a token return!
             
-            localStorage.setItem("access_token", data.jwtToken);  //this is the property of the JSON object return by the backend from the return json(); above
-                                                                  //the variable name after data. must match what our backend returns. jwtToken in this case
+                                         
+            console.log("Valid login", tokenString);   
             
-            //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
+            localStorage.setItem("access_token", tokenString);  //data has the data from the backend.
+                                                // If we are getting json back, the variable after data. must match the same variable name in the backend, since that is how json work
+                                                //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
+                                                
+            console.log("The token is", tokenString);
             
             setBtnPending(false);
 
-        }).catch(err => {
+            navigate('/', {replace: true}); //navigate to root after we successfully log in
+
+        }
+
+        catch (err){
             console.log("An error occured", err);
             setErrorMessage("Det oppstod en feil");
             setBtnPending(false);
-        })
+        }
+        
     }
 
   return (
@@ -71,7 +80,7 @@ export const Login = () => {
                     }
 
                     <label className="text-white flex items-center gap-2"> Passord <RiLockPasswordFill /> </label>
-                    <input type="text" onChange={(e) => usersPassword(e.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required />
+                    <input type="password" onChange={(e) => usersPassword(e.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required />
 
                     {!pending && <button type="submit" className="mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold">
                          Login 

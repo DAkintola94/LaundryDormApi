@@ -4,19 +4,16 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250615190719_InitialCreation")]
-    partial class InitialCreation
+    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

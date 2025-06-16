@@ -3,13 +3,15 @@ import {MdAccountCircle, MdAlternateEmail, MdContactPhone} from 'react-icons/md'
 import {useState} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
+import { useNavigate } from 'react-router-dom'
 
 
 
 
 export const Register = () => {
 
-    
+    const navigate = useNavigate(); //to navigate 
+
     {/*  <MdAccountCircle />      */}
 
     const [firstName, regFirstName] = useState("");
@@ -23,13 +25,15 @@ export const Register = () => {
     const [isPending, setBtnPending] = useState(false);
     const [errorMessage, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         if(passWord !== confirmPassWord){
             setError("Passordene matcher ikke");
             return;
         }
 
-        e.preventDefault();
+        setBtnPending(true);
+
         const registerData ={ //The left side need to match how the model is setup in backend/C#
                                 //right side is what we get from our user/usestate
             UserAddress: address,
@@ -42,31 +46,40 @@ export const Register = () => {
             PhoneNumber: phoneNumber
 
         };
-        setBtnPending(true);
-
-        fetch('https://localhost:7054/api/ProfileManagement/RegistrationAuth', { //part of js promises, fetch this, then do this
+        
+        try {
+             const response = await fetch('https://localhost:7054/api/ProfileManagement/RegistrationAuth', { //await when fetching from the url api, the variable name is response
             method: 'POST',
             headers: {"Content-Type": "application/json" },
             body: JSON.stringify(registerData)
-        }).then(response => { //then do this
-            //Our variable name doesnt matter, if we enter the if statement however, this means the first variable data did not succedd
-            //return Promise.reject and exit the promise function
-            //else, go to the next variable/data, and just give the pure data since we did not enter the if statement above that gives us an error
-
-            setBtnPending(true);
-
+        });
+            
             if(!response.ok){
                 setBtnPending(false);
                 return Promise.reject(response);
             }
-            return response.json();
-        }).then(data => {
-            console.log("Datas", data);
+
+            const tokenString = await response.text();//data we are getting back from the backend, the return statement from the backend
+                                                 //returning what the server send us back, as text since the backend is returning the token as plain string.
+                                                 //With login and register, although we are posting, we are also waiting for a token return!
+
+
+        
+            console.log("Datas", tokenString); //data has the data from the backend.
+                                                // If we are getting json back, the variable after data. must match the same variable name in the backend, since that is how json work
+                                                
+            localStorage.setItem("access_token", tokenString);
+            console.log("The data & access token", tokenString);
+
             setBtnPending(false); 
-        }).catch(err => {
+
+            navigate('/', {replace: true }); //navigate to root after we successfully registered
+        }
+
+        catch(err) {
             console.error("An error occured", err);
             setBtnPending(false);
-        })
+        }
 
     } 
 

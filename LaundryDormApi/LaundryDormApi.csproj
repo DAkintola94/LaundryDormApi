@@ -40,8 +40,9 @@
   <ItemGroup>
     <Folder Include="Logs\" />
     <Folder Include="Middlewares\" />
-    <Folder Include="Logs\" />
     <Folder Include="Middlewares\" />
+    <Folder Include="Middlewares\" />
+    <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\" />

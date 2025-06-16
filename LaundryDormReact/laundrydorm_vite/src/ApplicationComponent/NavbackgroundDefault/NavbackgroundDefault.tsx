@@ -1,12 +1,16 @@
 //import {Link, Route, Routes } from "react-router-dom";
 //Navbar, MobileNav, Button, IconButton,
 //import laundrySVG from "../../assets/BlueLaundry.svg"
-import {useState, useRef} from 'react'
+import {useState, useRef, useEffect} from 'react'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import {Link} from "react-router-dom"
+import {jwtDecode} from 'jwt-decode';
 
 
 export const NavbarDefault = () => {
+
+
+  
  
 const [nav, setNavBar] = useState(false); //hooks must be called at the top level in react.
 // //you cant call them inside loops, conditions, nested function, etc
@@ -54,6 +58,43 @@ const handleContactMouseLeave = () => {
  const handleAccountMouseLeave = () => {
   accountTimeout.current = window.setTimeout(() => setAccDropMenu(false), 100)
  }
+
+  type UserInfo = { //Where we want to hold the information about the logged in user
+    email: string; 
+    name: string;
+    phoneNr: string
+  };
+
+  type MyJwtPayload = {
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": string; //due to how our claim is sending the information from the backend
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone": string; //due to how our claim is sending the information from the backend
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": string //due to how our claim is sending the information from the backend
+  }
+
+    const [userInfo, setUsersInfo] = useState<UserInfo | null>(null);
+
+    useEffect(() => {
+      const token = localStorage.getItem("access_token");
+      if(token){
+        try {
+          const decode = jwtDecode<MyJwtPayload>(token);
+          setUsersInfo({
+            email: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], //due to how our claim is sending the information from the backend
+            name: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"], //due to how our claim is sending the information from the backend
+            phoneNr: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"] //due to how our claim is sending the information from the backend
+          })
+
+
+        } catch (err){
+          console.error("Invalid token",err);
+        }
+
+      }
+
+    }, [] );
+    
+    console.log("JWT token info",userInfo);
+
 
 
 

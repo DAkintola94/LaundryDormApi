@@ -190,7 +190,7 @@ const contactUsDropdown = [
               )}
               {/* Dropdown for contact us*/}
               {elements.id === 4 && contactDownOpen &&(
-                <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50"> 
+                <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">  {/* adjusted left so dropdown doesnt clips off the egde*/}
                   {contactUsDropdown.map((contactList, idkeys) => (
                     <li key={idkeys} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
                       

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import {NavbarDefault} from "./ApplicationComponent/NavbackgroundDefault/NavbackgroundDefault";
 import {BackgroundDefault} from "./ApplicationComponent/BackgroundDefault/BackgroundDefault";
 import { FooterDefault } from './ApplicationComponent/FooterDefault/FooterDefault';
+import {About} from './ApplicationComponent/Pages/About';
 import './App.css'
 import AOS from "aos";
 import "aos/dist/aos.css"
@@ -25,6 +26,10 @@ AOS.refresh();
     <div className="flex-1"> 
       <BackgroundDefault /> 
     </div>
+
+     <div className="flex-1">
+      <About />
+    </div> 
     
     <FooterDefault/>
 

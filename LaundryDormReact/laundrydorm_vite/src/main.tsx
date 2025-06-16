@@ -8,7 +8,6 @@ import { Settvask } from './ApplicationComponent/Pages/Settvask.tsx'
 import { Report } from './ApplicationComponent/Pages/Report.tsx'
 import {Register} from './ApplicationComponent/Pages/Register.tsx'
 import {Login} from './ApplicationComponent/Pages/Login.tsx'
-import {Logout} from './ApplicationComponent/Pages/Logout.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -21,7 +20,6 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/report" element={<Report />} />
       <Route path="/register" element={<Register/>} />
       <Route path="/login" element={<Login />} />
-      <Route path="/logout" element={<Logout />} />
       
     </Routes>
     </BrowserRouter>

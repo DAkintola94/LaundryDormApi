@@ -11,7 +11,7 @@ export const FooterDefault = () => {
     </p>
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 <li>
-                    <a href="/aboutus" 
+                    <a href="/report" 
                     target="blank"
                     rel="noopener noreferrer"
                     className="">

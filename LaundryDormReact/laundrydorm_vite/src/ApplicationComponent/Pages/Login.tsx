@@ -38,17 +38,17 @@ export const Login = () => {
                 throw new Error("Login failed"); //Throw makes us go straight to the catch block
             }
 
-            const tokenString = await response.text(); //data we are getting back from the backend, the return statement from the backend
+            const tokenString = await response.text(); //data we are getting back from the backend
                                                  //returning what the server send us back, in this case we are expecting string
-                                                //With login and register, although we are posting, we are also waiting for a token return!
+                                                //With login and register, although we are posting, we are also waiting for a token in return!
             
                                          
             console.log("Valid login", tokenString);   
             
-            localStorage.setItem("access_token", tokenString);  //data has the data from the backend.
+            localStorage.setItem("access_token", tokenString);  //tokenString is the response.text we get from the backend
                                                 // If we are getting json back, the variable after data. must match the same variable name in the backend, since that is how json work
                                                 //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
-                                                
+
             console.log("The token is", tokenString);
             
             setBtnPending(false);

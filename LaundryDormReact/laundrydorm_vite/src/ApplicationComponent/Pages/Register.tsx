@@ -59,15 +59,16 @@ export const Register = () => {
                 return Promise.reject(response);
             }
 
-            const tokenString = await response.text();//data we are getting back from the backend, the return statement from the backend
-                                                 //returning what the server send us back, as text since the backend is returning the token as plain string.
-                                                 //With login and register, although we are posting, we are also waiting for a token return!
+            const tokenString = await response.text();//data we are getting back from the backend
+                                                 //returning what the server send us back, in this case we are expecting string
+                                                //With login and register, although we are posting, we are also waiting for a token in return!
 
 
         
-            console.log("Datas", tokenString); //data has the data from the backend.
+            console.log("Datas", tokenString); //tokenString is the response.text we get from the backend
                                                 // If we are getting json back, the variable after data. must match the same variable name in the backend, since that is how json work
-                                                
+                                                //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
+
             localStorage.setItem("access_token", tokenString);
             console.log("The data & access token", tokenString);
 

@@ -81,6 +81,9 @@ const handleContactMouseLeave = () => {
 
     const [userInfo, setUsersInfo] = useState<UserInfo | null>(null);
 
+    
+    
+
     useEffect(() => {
       const token = localStorage.getItem("access_token");
       if(token){
@@ -131,7 +134,7 @@ const accountDropDownMenu = [
 ];
 
 const contactUsDropdown = [
-{name: "Rapport", link:"/report"}
+{name: "Meld feil", link:"/report"}
 ];
 
   return (
@@ -166,6 +169,7 @@ const contactUsDropdown = [
             <Link to={elements.link} 
             > 
             {elements.icon} 
+
             </Link>
             {/* Dropdown for vask*/}
             {elements.id === 1 && dropDownOpen && ( //dropDownOpen is the current state of the boolean/default value in the usestate
@@ -182,8 +186,22 @@ const contactUsDropdown = [
               {elements.id === 3 && accDownOpen && (
                 <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50"> {/* adjusted left so dropdown doesnt clips off the egde*/}
                   {accountDropDownMenu.map((accList, ids) => (
+                    //hide logg inn and registrer deg if userInfo exist
+
+                    
+
+
                     <li key={ids} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
-                      <Link to={accList.link}> {accList.name}</Link>
+                      
+
+                      <Link to={accList.link}> 
+                      
+
+                      {accList.name}
+
+                      </Link>
+
+
                     </li>
                   ))}
                 </ul>

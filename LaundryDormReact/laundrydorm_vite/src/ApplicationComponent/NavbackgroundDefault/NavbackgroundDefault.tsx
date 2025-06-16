@@ -5,7 +5,9 @@ import {useState, useRef, useEffect} from 'react'
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import {Link} from "react-router-dom"
 import {jwtDecode} from 'jwt-decode';
-
+import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
+import { FaEnvelope } from 'react-icons/fa';
+import { GiWashingMachine } from "react-icons/gi";
 
 export const NavbarDefault = () => {
 
@@ -62,13 +64,19 @@ const handleContactMouseLeave = () => {
   type UserInfo = { //Where we want to hold the information about the logged in user
     email: string; 
     name: string;
-    phoneNr: string
+    phoneNr: string;
+    expireDateTime: number;
+    issuer: string;
+    audience: string;
   };
 
   type MyJwtPayload = {
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": string; //due to how our claim is sending the information from the backend
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone": string; //due to how our claim is sending the information from the backend
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": string //due to how our claim is sending the information from the backend
+    exp: number; //expire date/time
+    iss: string; //issuer
+    aud: string;
   }
 
     const [userInfo, setUsersInfo] = useState<UserInfo | null>(null);
@@ -81,7 +89,10 @@ const handleContactMouseLeave = () => {
           setUsersInfo({
             email: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], //due to how our claim is sending the information from the backend
             name: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"], //due to how our claim is sending the information from the backend
-            phoneNr: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"] //due to how our claim is sending the information from the backend
+            phoneNr: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"], //due to how our claim is sending the information from the backend
+            expireDateTime: decode.exp,
+            issuer: decode.iss,
+            audience: decode.aud
           })
 
 
@@ -92,17 +103,17 @@ const handleContactMouseLeave = () => {
       }
 
     }, [] );
-    
+
     console.log("JWT token info",userInfo);
 
 
 
 
 const Navlinks = [
-{id: 1, name: "Vask", link:'/vask'},
-{id: 2, name: "Innboks", link: '/innboks'},
-{id: 3, name: "Konto", link: '/account'},
-{id: 4, name: "Om oss", link: '/aboutus'},
+{id: 1, name: "Vask", link:'/vask', icon: <GiWashingMachine />},
+{id: 2, name: "Innboks", link: '/innboks', icon:  <FaEnvelope />},
+{id: 3, name: "Konto", link: '/account', icon: <MdAccountCircle />},
+{id: 4, name: "Om oss", link: '/aboutus', icon: <MdPermDeviceInformation />},
 ];
 
 const toogleNav = () => setNavBar(!nav);
@@ -120,7 +131,7 @@ const accountDropDownMenu = [
 ];
 
 const contactUsDropdown = [
-{name: "Melde feil", link:"/report"}
+{name: "Rapport", link:"/report"}
 ];
 
   return (
@@ -154,11 +165,11 @@ const contactUsDropdown = [
           >
             <Link to={elements.link} 
             > 
-            {elements.name} 
+            {elements.icon} 
             </Link>
             {/* Dropdown for vask*/}
             {elements.id === 1 && dropDownOpen && ( //dropDownOpen is the current state of the boolean/default value in the usestate
-            <ul className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
+            <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50"> {/* adjusted left so dropdown doesnt clips off the egde*/}
               {laundryDownMenu.map((items, idx) => ( //map is an array method to loop over an array, and return a new array of elements
                 <li key={idx} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black"
                 >
@@ -169,7 +180,7 @@ const contactUsDropdown = [
             )}
               {/* Dropdown for account*/}
               {elements.id === 3 && accDownOpen && (
-                <ul className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
+                <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50"> {/* adjusted left so dropdown doesnt clips off the egde*/}
                   {accountDropDownMenu.map((accList, ids) => (
                     <li key={ids} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
                       <Link to={accList.link}> {accList.name}</Link>
@@ -179,7 +190,7 @@ const contactUsDropdown = [
               )}
               {/* Dropdown for contact us*/}
               {elements.id === 4 && contactDownOpen &&(
-                <ul className="absolute left-0 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
+                <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50"> 
                   {contactUsDropdown.map((contactList, idkeys) => (
                     <li key={idkeys} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
                       

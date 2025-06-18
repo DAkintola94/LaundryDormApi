@@ -1,12 +1,10 @@
 
 import profilePic from "../../assets/aboutpicture.jpg"
-import {NavbarDefault} from "../NavbackgroundDefault/NavbackgroundDefault"
-import {FooterDefault} from "../FooterDefault/FooterDefault"
+
 
 export const About = () => {
   return (
     <>
-    <div> <NavbarDefault /> </div>
     <section id="about-us" className="py-16">
         <div className="container mx-auto py-2 flex">
             <div className="w-1/2 flex flex-col px-16 justify-center text-center">
@@ -34,7 +32,6 @@ export const About = () => {
         </div>
         
     </section>
-    <div> <FooterDefault/> </div>
     </>
   );
 };

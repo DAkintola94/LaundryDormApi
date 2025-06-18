@@ -136,6 +136,8 @@ const accountDropDownMenu = [
 
       <ul className="hidden md:flex">
         {Navlinks.map(elements => ( //map is an array method to loop over an array, and return a new array of elements
+
+        
           <li
           key={elements.id}
           className="relative p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
@@ -156,11 +158,19 @@ const accountDropDownMenu = [
             {/* Dropdown for vask*/}
            {elements.id === 1 && dropDownOpen && (
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
-    {laundryDownMenu.map((items, idx) => (
+    {laundryDownMenu.map((items, idx) => {
+      if(!userInfo && (items.name === "Sett vask" || items.name=== "Reservasjon" || items.name==="Historikk")){
+        return null;
+      }
+
+        return ( //otherwise, if we dont enter the if statemet due to user logged in, render the rest of the names/link
+
       <li key={idx} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
         <Link to={items.link}>{items.name}</Link>
       </li>
-    ))}
+    );
+  })}
+      
   </ul>
 )}
 {/* Dropdown for account */}

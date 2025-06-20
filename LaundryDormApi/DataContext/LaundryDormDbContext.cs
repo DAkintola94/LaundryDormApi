@@ -16,9 +16,8 @@ namespace LaundryDormApi.DataContext
         public DbSet<ImageModel> Image { get; set; }
         public DbSet<MaintenanceLogModel> MaintenanceLog { get; set; }
         public DbSet<MachineModel> Machine { get; set; }
-        public DbSet<ReservationDto> Reservation { get; set; }
-
         public DbSet<Category> Category { get; set; }
+        public DbSet<SessionPeriodModel> SessionReservation { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,7 +28,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<AdviceSet>().HasKey(x => x.PosterId);
             modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
-            modelBuilder.Entity<ReservationDto>().HasKey(x => x.ReservationID);
+
 
 
             modelBuilder.Entity<LaundrySession>()
@@ -44,6 +43,12 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(ls => ls.MachineId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<LaundrySession>()
+                .HasOne(sp => sp.SessionPeriod)
+                .WithMany()
+                .HasForeignKey(spk => spk.SessionPeriodId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<MachineModel>()
                 .HasOne(im => im.Image)
                 .WithMany()
@@ -56,11 +61,6 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(ml => ml.MachineId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ReservationDto>() //keep?
-                .HasOne(rto => rto.Machine)
-                .WithMany()
-                .HasForeignKey(mId => mId.MachineId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MaintenanceLogModel>()
                 .HasOne(ls => ls.StatusState)
@@ -79,7 +79,8 @@ namespace LaundryDormApi.DataContext
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Ferdig" },
                new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Stoppet!" },
                new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Service pågår!" },
-               new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" }
+               new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" },
+               new LaundryStatusState { LaundryStatusID = 6, StatusDescription = "Reservert"}
            );
 
             //modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
@@ -106,6 +107,13 @@ namespace LaundryDormApi.DataContext
                 new Category { CategoryId = 3, CategoryName = "Feil" },
                 new Category { CategoryId = 4, CategoryName = "Annet" }
                 );
+
+            modelBuilder.Entity<SessionPeriodModel>().HasData(
+                new SessionPeriodModel { PeriodId = 1, PeriodTitle = "07:00 - 12:00" },
+                new SessionPeriodModel { PeriodId = 2, PeriodTitle = "12:00 - 17:00" },
+                new SessionPeriodModel { PeriodId = 3, PeriodTitle = "17:00 - 22:00" }
+                );
+
         }
 
     }

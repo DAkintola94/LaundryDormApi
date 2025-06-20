@@ -21,9 +21,6 @@ namespace LaundryDormApi.Model.ViewModel
         public string ConfirmPassword { get; set; }
 
         [Required]
-        public string UserName { get; set; }
-
-        [Required]
         public string UserFirstName { get; set; }
         [Required]
         public string UserLastName { get; set; }

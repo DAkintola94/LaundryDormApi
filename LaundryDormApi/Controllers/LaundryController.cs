@@ -16,15 +16,13 @@ namespace LaundryDormApi.Controllers
     {
         private readonly ILaundrySession _laundrySession;
         private readonly ILaundryStatusStateRepository _laundryStatusRepository;
-        private readonly IReservationRepository _reservationRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public LaundryController(ILaundrySession laundrySession, ILaundryStatusStateRepository laundryStatusRepository,
-            UserManager<ApplicationUser> userManager, IReservationRepository reservationRepository)
+            UserManager<ApplicationUser> userManager)
         {
             _laundrySession = laundrySession;
             _laundryStatusRepository = laundryStatusRepository;
-            _reservationRepository = reservationRepository;
             _userManager = userManager;
         }
 
@@ -68,27 +66,38 @@ namespace LaundryDormApi.Controllers
         [HttpPost]
         [Route("StartSession")]
         [AllowAnonymous]
-        public async Task<IActionResult> SetSession(LaundrySessionViewModel laundrySessionViewModel)
+        public async Task<IActionResult> InitiateSession(LaundrySessionViewModel laundrySessionViewModel)
         {
-            //var currentUser = _userManager.GetUserAsync(User);
+            var getSession = await _laundrySession.GetAllSession();
 
-            if(laundrySessionViewModel!=null) //&& currentUser
+            var isConflict = getSession.Any(s => //checking if there is any session with the same date (todays date) and session period id on the same day. You can use linq to get several datas from DB or list like this
+             s.ReservationDate == DateOnly.FromDateTime(DateTime.Now) && //using any because we are getting list in return. Remember to use FirstOrDefault if you want a single data value from the list
+             s.SessionPeriodId == laundrySessionViewModel.SessionId);
+
+
+            if (laundrySessionViewModel!=null)
             {
                 LaundrySession laundrySessionDomain = new LaundrySession
                 {
-                    ReservationTime = laundrySessionViewModel.ReservationTime,
                     UserEmail = laundrySessionViewModel.Email,
-                    //FirstName = currentUser.Result.FirstName,
-                    //LastName = currentUser.Result.LastName,
-                    //PhoneNumber = currentUser.Result.PhoneNumber,
+                    FirstName = laundrySessionViewModel.UserFirstName,
+                    LastName = laundrySessionViewModel.UserLastName,
+                    PhoneNumber = laundrySessionViewModel.PhoneNr,
                     Message = laundrySessionViewModel.UserMessage,
                     MachineId = laundrySessionViewModel.MachineId,
-                    SessionStart = laundrySessionViewModel.SessionStart,
-                    SessionEnd = laundrySessionViewModel.SessionEnd,
-                    LaundryStatusID = 1,
+                    ReservationDate = DateOnly.FromDateTime(DateTime.Now),
+                    ReservationTime = DateTime.Now,
+                    SessionPeriodId = laundrySessionViewModel.SessionId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+                    LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
                 };
-                await _laundrySession.InsertSession(laundrySessionDomain);
-                return Ok();
+
+                if(!isConflict) //if there is no conflict, insert value into database
+                {
+                    await _laundrySession.InsertSession(laundrySessionDomain);
+                    return Ok();
+                }
+
+                return BadRequest("Something went wrong");
               
             }
             return BadRequest("Value have been set");
@@ -111,22 +120,43 @@ namespace LaundryDormApi.Controllers
         [HttpPost]
         [Route("SetReservation")]
         [Authorize]
-        public async Task<IActionResult> InsertReservationTime(ReservationViewModel reservationViewModel)
+        public async Task<IActionResult> InsertReservationTime(LaundrySessionViewModel reservationVM)
         {
-            if(reservationViewModel!= null)
+            var getSession = await _laundrySession.GetAllSession();
+            
+
+            if(reservationVM!= null)
             {
-                ReservationDto reservationDto = new ReservationDto
+                LaundrySession reservationSessionDto = new LaundrySession
                 {
-                    ReservationTime = reservationViewModel.ReservationPeriodTime,
-                    ReservationDate = reservationViewModel.ReservationDate,
-                    ReservationHolder = reservationViewModel.Name,
-                    MachineId = reservationViewModel.MachineRoom
+                    ReservationTime = reservationVM.ReservationTime,
+                    ReservationDate = reservationVM.ReservationDate,
+                    UserEmail = reservationVM.UserMessage,
+                    PhoneNumber = reservationVM.PhoneNr,
+                    Message = reservationVM.UserMessage,
+
+                    SessionPeriodId = reservationVM.SessionId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+
+                    MachineId = 1,
+
+                    LaundryStatusID = 6
                 };
 
-                await _reservationRepository.InsertReservation(reservationDto);
-                return Ok(reservationDto);
+                var isConflict = getSession.Any(s =>
+                s.ReservationDate == reservationSessionDto.ReservationDate && //checking if the session from the database has the same date as the reservation date we are currently model swapping
+                s.SessionPeriodId == reservationSessionDto.SessionPeriodId //checking if the session from the database has the same session period id as the reservation session period id
+                );
+
+                if (!isConflict)
+                {
+                    await _laundrySession.InsertSession(reservationSessionDto);
+                    return Ok(reservationSessionDto);
+                }
+
+                return BadRequest("There is a conflict with the reservation time, please choose another time slot.");
+
             }
-            return BadRequest("Error, report to admin");
+            return BadRequest("An error occured, report to admin");
         }
   
     }

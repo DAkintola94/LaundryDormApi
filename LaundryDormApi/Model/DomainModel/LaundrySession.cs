@@ -16,10 +16,8 @@
         public LaundryStatusState? LaundryStatus { get; set; } //you can get the status name from the property inside the LaundryStatusState class
 
 
-
         public int? SessionPeriodId { get; set; }
         public SessionPeriodModel? SessionPeriod { get; set; } //you can get the session period value from the property inside the Sessionperiod class
-        public string? SessionPeriodName { get; set; }
 
 
         public int? MachineId { get; set; }

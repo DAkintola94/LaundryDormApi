@@ -13,27 +13,33 @@ namespace LaundryDormApi.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IMachineLogRepository _machineLogRepository;
-        private readonly IReservationRepository _reservationRepository;
-        public AdminController(IMachineLogRepository machineLogRepository, IReservationRepository reservationRepository)
+        private readonly ILaundrySession _sessionRepository;
+        public AdminController(IMachineLogRepository machineLogRepository, ILaundrySession sessionRepository)
         {
             _machineLogRepository = machineLogRepository;
-            _reservationRepository = reservationRepository;
+            _sessionRepository = sessionRepository;
         }
 
         [HttpGet]
-        [Route("EntireReservationLog")]
-        public async Task<IActionResult> DispayAllReservation()
+        [Route("EntireSessionLog")]
+        public async Task<IActionResult> DispayAllSessions()
         {
-            var getAllReservation = await _reservationRepository.GetAllReservation();
+            var getAllReservation = await _sessionRepository.GetAllSession();
             if(getAllReservation!= null)
             {
                 var getReservationData = getAllReservation.Select(
-                    x => new ReservationViewModel
+                    fromDb => new LaundrySessionViewModel
                     {
-                        ReservationPeriodTime = x.ReservationTime,
-                        ReservationDate = x.ReservationDate,
-                        Name = x.ReservationHolder,
-                        MachineRoom = x.MachineId
+                        ReservationTime = fromDb.ReservationTime,
+                        ReservationDate = fromDb.ReservationDate,
+                        Email = fromDb.UserEmail,
+                        UserMessage = fromDb.Message,
+                        PhoneNr = fromDb.PhoneNumber,
+                        SessionPeriodTime = fromDb.SessionPeriod?.PeriodTitle,
+                        SessionId = fromDb.LaundrySessionId,
+                        MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
+                        LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription, //using the model navigation property to get the laundry status name
+
                     });
                 return Ok(getReservationData);
             }

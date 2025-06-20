@@ -33,34 +33,25 @@ namespace LaundryDormApi.Controllers
         
         public async Task<IActionResult> CheckAvailability()
         {
-            var getAllOrders = await _laundryStatusRepository.GetAllStatus();
+            var getAllOrders = await _laundrySession.GetAllSession();
 
             if(getAllOrders!= null)
             {
-                return Ok(getAllOrders);
+                var getAvailabilityForUser = getAllOrders.Select(
+                    fromDb => new LaundrySessionViewModel
+                    {
+                        ReservationTime = fromDb.ReservationTime,
+                        ReservationDate = fromDb.ReservationDate,
+                        PhoneNr = fromDb.PhoneNumber,
+                        UserMessage = fromDb.Message,
+                        LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription,
+                        MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
+                    });
+
+                return Ok(getAllOrders); //sending to the frontend as JSON, remember to use the keyword "getAllOrders" to get the data from the database
             }
 
-            return BadRequest();
-            
-        }
-
-        [HttpPost]
-        [Route("DateAvailability")]
-        public async Task<IActionResult> CheckSingularAvailability(DiverseViewModel diverseViewModel)
-        {
-            var getAllLaundry = await _laundrySession.GetAllSession();
-            if(getAllLaundry != null && diverseViewModel != null)
-            {
-                var matchingDate = getAllLaundry.FirstOrDefault(sessionDate => sessionDate.ReservationTime.HasValue && sessionDate.ReservationTime.Value.Date == diverseViewModel.DateOfTime.Date);
-                //linq instead of foreach loop, also checks if it has value
-
-                if(matchingDate!= null)
-                {
-                    return Ok(matchingDate.ReservationTime); //this returns value back that js keyword "response" will catch
-                }
-            }
-
-            return BadRequest();
+            return BadRequest("Something went wrong");
         }
 
         [HttpPost]
@@ -131,7 +122,7 @@ namespace LaundryDormApi.Controllers
                 {
                     ReservationTime = reservationVM.ReservationTime,
                     ReservationDate = reservationVM.ReservationDate,
-                    UserEmail = reservationVM.UserMessage,
+                    UserEmail = reservationVM.Email,
                     PhoneNumber = reservationVM.PhoneNr,
                     Message = reservationVM.UserMessage,
 

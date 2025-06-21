@@ -16,7 +16,7 @@ export const Register = () => {
 
     const [firstName, regFirstName] = useState("");
     const [lastName, regLastName] = useState("");
-    const[phoneNumber, regPhoneNr] = useState("");
+    const [phoneNumber, regPhoneNr] = useState("");
     const [address, regAddress] = useState("");
     const [passWord, regPassword] = useState("");
     const [confirmPassWord, regConfirmPassword] = useState("");

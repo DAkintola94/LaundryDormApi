@@ -1,50 +1,152 @@
 import {NavbarDefault} from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
-import {useState} from "react"
+import {useState, useEffect} from "react"
+import {JWTInformation} from "./JWTInformation"
+
+
+
 
 export const Settvask = () => {
 
-  const [laundry, setLaundry] = useState();
+  const [pending, setPending] = useState(false);
+  const [formMessage, setFormMessage] = useState('')
+  const [formEmail, setFormEmail] = useState('');
+  const [formName, setFormName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
-  console.log(laundry, setLaundry);
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
+  type UsersInformation = {
+    email: string,
+    name: string,
+    phoneNr: string;
+    expireDateTime: number;
+    issuer: string;
+    audience: string;
+  };
+
+  const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
+
+  useEffect(() => {
+    const info = JWTInformation();  //getting data from the JWT page we created, that returns token value, and not jsx, html or react
+     setUsersInfo(info)                                 //useState "setUsersInfo" part is used to set the usersInfo part to become the UsersInformation object default 
+                                                        //this is needed since the data is being sent as object, and not single string
+
+     if(info){
+      setFormName(info?.name);
+      setFormEmail(info?.email);
+      setPhoneNumber(info?.phoneNr);
+     }
+    }, [])                                              //with the array as second argument means this effect will only run once
+
+
+  
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setPending(true);
+
+  const laundrySessionData = {
+    originName: formName,
+    originEmail: formEmail,
+    originMessage: formMessage,
+    originNr: phoneNumber,
+  };
+
+  const token = localStorage.getItem("access_token");
+  if (!token) {
+    setPending(false);
+    console.warn("No token found. User might not be logged in.");
+    return;
   }
-  
-  
+
+  try {
+    const response = await fetch('http://localhost:7054', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        //"Authorization": `Bearer ${access_token}` Maybe needed later?
+      },
+      body: JSON.stringify(laundrySessionData)
+    });
+
+    if (!response.ok) {
+      console.error("Failed to submit form:", response.statusText);
+      setPending(false);
+      return;
+    }
+
+    const data = await response.json(); //what the backend returns upon ok
+    console.log("Form submitted successfully:", data);
+    setPending(false);
+    
+  } catch (err) {
+    console.error("An error occurred while submitting the form:", err);
+    setPending(false);
+  }
+};
+
   return (
     <>
     <div className="laundryBG_set">
-      <form onSubmit={handleSubmit} className="w-full max-w-lg">
+      {/* If user is logged in*/}
+      <form onSubmit={handleSubmit} >
 
         <div>
           <NavbarDefault />
 
-    <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >  </label>
+    <div className="flex flex-wrap justify-center -mx-3 mb-6">
+        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0 py-10">
 
-this here
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
+             Navn
+           </label>
 
-    
-    
+           <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.name || ""} readOnly required></input>
+
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
+             Email
+           </label>
+
+           <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.email || ""} readOnly required></input>
+
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
+             Telefon nummer
+           </label>
+
+           <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.phoneNr || ""} readOnly required></input>
 
 
-  
+          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
+             Melding...
+           </label>
 
+           <textarea className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
+           rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" onChange={(evt) => setFormMessage(evt.target.value)} maxLength={150}></textarea>
 
-
-
-
-
+            { !pending && <button type="submit" className="mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold">Registrer</button> }
+        
+        {pending && 
+        <button disabled className="mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center"> {/*Move the button center instead*/}
+            {pending ? (
+                <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+            ) : (
+                <span className="w-5 h-5 mr-3" /> // invisible spacer. In other word, we are leaving only "w-5 h-5 mr-3" again, and not rendering the circle/path 
+            )}
+                Oppretter sessjon
+            </button>
+        }
+        
          <FooterDefault />
          
          </div>
 
       </div>
-
 
     </div>
 

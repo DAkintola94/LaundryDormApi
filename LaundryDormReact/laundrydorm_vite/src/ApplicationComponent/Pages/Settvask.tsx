@@ -10,10 +10,9 @@ export const Settvask = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formName, setFormName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [error, setError] = useState('');
+  const [errorMsg, setError] = useState('');
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
   const token = localStorage.getItem("access_token");
-
 
   console.log(token);
 
@@ -89,10 +88,9 @@ export const Settvask = () => {
 
   return (
     <>
+    {/* { !token? ( <div> Vennligst logg inn for å bruke denne funksjonen </div>) :       */}
+      
       <div className="laundryBG_set">
-        { !token && <div> Please log in to use this feature</div>
-        
-        }
         <form onSubmit={handleSubmit} >
 
           <div>
@@ -129,6 +127,9 @@ export const Settvask = () => {
 
                 <textarea className="appearance-none block w-full bg-white text-gray-700 border border-red-500 
            rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" onChange={(evt) => setFormMessage(evt.target.value)} maxLength={150}></textarea>
+           { errorMsg && 
+              <span className="text-red-400 mb-4"> {errorMsg} </span>
+           }
 
                 <label htmlFor="laundryTime" className="block uppercase text-xs text-gray-700 font-bold text-center">Velg tidspunkt</label> {/* NB! justify-center only works on flex containers, not for label since label is an inline element. use text-center for inline */}
                 <select id="laundryTime" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
@@ -167,8 +168,7 @@ export const Settvask = () => {
         </form>
 
       </div>
-
-
+      {/* } */} 
     </>
   )
 }

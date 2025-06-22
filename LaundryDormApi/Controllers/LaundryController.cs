@@ -64,21 +64,19 @@ namespace LaundryDormApi.Controllers
             var isConflict = getSession.Any(s => //checking if there is any session with the same date (todays date) and session period id on the same day. You can use linq to get several datas from DB or list like this
              s.ReservationDate == DateOnly.FromDateTime(DateTime.Now) && //using any because we are getting list in return. Remember to use FirstOrDefault if you want a single data value from the list
              s.SessionPeriodId == laundrySessionViewModel.SessionId);
-
+            //remember, its the foreignkey in SessionPeriod we are using to decide the time from xx:xx to xx:xx we want our laundry
 
             if (laundrySessionViewModel!=null)
             {
                 LaundrySession laundrySessionDomain = new LaundrySession
                 {
                     UserEmail = laundrySessionViewModel.Email,
-                    FirstName = laundrySessionViewModel.UserFirstName,
-                    LastName = laundrySessionViewModel.UserLastName,
+                    Name = laundrySessionViewModel.SessionUser, //our claim is sending the name as first name + last name. 
                     PhoneNumber = laundrySessionViewModel.PhoneNr,
                     Message = laundrySessionViewModel.UserMessage,
                     MachineId = laundrySessionViewModel.MachineId,
-                    ReservationDate = DateOnly.FromDateTime(DateTime.Now),
                     ReservationTime = DateTime.Now,
-                    SessionPeriodId = laundrySessionViewModel.SessionId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+                    SessionPeriodId = laundrySessionViewModel.SessionId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
                     LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
                 };
 

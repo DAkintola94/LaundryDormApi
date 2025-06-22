@@ -6,7 +6,7 @@ export const Report = () => {
 
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
-  const [category, setCategory] = useState('1');
+  const [category, setCategory] = useState('1'); //need a default value so it doesn't auto set the option value to 0
   const [email, setEmail] = useState('');
   const [isPending, setPendingButton] = useState(false);
   const [successMsg, setValidMessage] = useState('');
@@ -62,8 +62,8 @@ export const Report = () => {
 
             {successMsg && <span className="text-green-500 mb-4"> {successMsg} </span>}
 
-            <label htmlFor="kategori" className="text-white text-2xl"> Velg kategori </label>
-            <select id="kategori" onChange={(e) => setCategory(e.target.value)} name="category" className="mb-4 p-2 border rounded w-full max-w-md bg-white" required>
+            <label htmlFor="category" className="text-white text-2xl"> Velg kategori </label>
+            <select id="category" onChange={(e) => setCategory(e.target.value)} className="mb-4 p-2 border rounded w-full max-w-md bg-white" required>
               <option value="1"> Forbedring </option>
               <option value="2"> Vedlikehold </option>
               <option value="3"> Feil </option>

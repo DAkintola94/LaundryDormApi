@@ -1,5 +1,7 @@
 import React from 'react'
-import {MdAlternateEmail, MdContactPhone} from 'react-icons/md'
+import {MdAlternateEmail, MdContactPhone, MdOutlineDriveFileRenameOutline} from 'react-icons/md'
+import {FaAddressCard} from 'react-icons/fa'
+import { TbLockPassword} from 'react-icons/tb'
 import {useState} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
@@ -10,9 +12,8 @@ import { useNavigate } from 'react-router-dom'
 
 export const Register = () => {
 
-    const navigate = useNavigate(); //to navigate 
+    const navigate = useNavigate(); //to navigate to a certain site
 
-    {/*  <MdAccountCircle />      */}
 
     const [firstName, regFirstName] = useState("");
     const [lastName, regLastName] = useState("");
@@ -95,13 +96,13 @@ export const Register = () => {
 
     <div className="flex-1 flex flex-col items-center justify-center py-8">
         
-        <label className="text-white">Fornavn</label>
+        <label className="text-white flex items-center gap-2">Fornavn <MdOutlineDriveFileRenameOutline /> </label>
         <input type="text" onChange={(evt) => regFirstName(evt.target.value)} placeholder="Ola..." className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
-        <label className="text-white">Etternavn</label>
+        <label className="text-white flex items-center gap-2">Etternavn <MdOutlineDriveFileRenameOutline /> </label>
         <input type="text" onChange={(evt) => regLastName(evt.target.value)} placeholder="Nordman..." className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
-        <label className="text-white">Addresse</label>
+        <label className="text-white flex items-center gap-2">Addresse <FaAddressCard />  </label>
         <input type="text" onChange={(evt) => regAddress(evt.target.value)} placeholder="stevnavn..." className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
         <label className="text-white flex items-center gap-2" >Email <MdAlternateEmail /> </label>
@@ -110,13 +111,13 @@ export const Register = () => {
           <label className="text-white flex items-center gap-2">Telefon <MdContactPhone /> </label>
         <input type="text" onChange={(evt) => regPhoneNr(evt.target.value)} placeholder="+4712345678" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
-          <label className="text-white">Passord</label>
+          <label className="text-white flex items-center gap-2">Passord <TbLockPassword />   </label>
         <input type="password" onChange={(evt) => regPassword(evt.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
         {errorMessage && (
             <span className="text-red-400 mb-4"> {errorMessage}</span>
         )}
 
-          <label className="text-white">Bekreft passord</label>
+          <label className="text-white flex items-center gap-2">Bekreft passord <TbLockPassword />   </label>
         <input type="password" onChange={(evt) => regConfirmPassword(evt.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
 

@@ -1,7 +1,7 @@
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
 import { useState, useEffect } from "react"
-import { JWTInformation } from "./JWTInformation"
+import { JWTInformation } from "../Pages/JWTInformation"
 
 export const Settvask = () => {
 

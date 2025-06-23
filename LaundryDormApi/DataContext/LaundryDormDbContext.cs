@@ -19,6 +19,7 @@ namespace LaundryDormApi.DataContext
         public DbSet<Category> Category { get; set; }
         public DbSet<SessionPeriodModel> SessionReservation { get; set; }
 
+        public DbSet<SessionServiceModel> SessionService { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //seeding primarykey
@@ -28,7 +29,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<AdviceSet>().HasKey(x => x.PosterId);
             modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
-
+            modelBuilder.Entity<SessionServiceModel>().HasKey(x => x.Id);
 
 
             modelBuilder.Entity<LaundrySession>()
@@ -75,8 +76,8 @@ namespace LaundryDormApi.DataContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
-               new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Pågår" },
-               new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Ferdig" },
+               new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktivt tidspunkt" },
+               new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Utløpt" },
                new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Stoppet!" },
                new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Service pågår!" },
                new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" },

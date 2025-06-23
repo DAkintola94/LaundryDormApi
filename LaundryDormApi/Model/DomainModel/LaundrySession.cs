@@ -10,7 +10,6 @@
         public DateOnly? ReservationDate { get; set; } 
         public string? Message { get; set; }
 
-
         public int? LaundryStatusID { get; set; }
         public LaundryStatusState? LaundryStatus { get; set; } //you can get the status name from the property inside the LaundryStatusState class
 

@@ -16,13 +16,15 @@ namespace LaundryDormApi.Controllers
     {
         private readonly ILaundrySession _laundrySession;
         private readonly ILaundryStatusStateRepository _laundryStatusRepository;
+        private readonly IUpdateCountRepository _updateCountRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public LaundryController(ILaundrySession laundrySession, ILaundryStatusStateRepository laundryStatusRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, IUpdateCountRepository updateCountRepository)
         {
             _laundrySession = laundrySession;
             _laundryStatusRepository = laundryStatusRepository;
+            _updateCountRepository = updateCountRepository;
             _userManager = userManager;
 
         }
@@ -55,6 +57,19 @@ namespace LaundryDormApi.Controllers
             return BadRequest("Something went wrong");
         }
 
+
+
+
+        /// <summary>
+        ///Method to initialize session with value from the user
+        /// Using isConflict variable to check for time stamp conflict. isConflict becomes a boolean due to .Any condition checking
+        /// Remember to use FirstOrDefault if you want a single data value from the list
+        /// SessionPeriod is a foreignkey in LaundrySessionModel, which we are using for laundry timestamp
+        /// </summary>
+        /// <param name="laundrySessionViewModel">The data we are getting from our user as json. Variable for LaundrySessionViewModel for model-swapping.
+        /// Frontend gets the laundry timestamp the user desire, then modelswapping it with the domain model </param>
+        /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
+
         [HttpPost]
         [Route("StartSession")]
         [AllowAnonymous]
@@ -63,7 +78,7 @@ namespace LaundryDormApi.Controllers
             var getSession = await _laundrySession.GetAllSession();
 
             var isConflict = getSession.Any(s => //checking if there is any session with the same date (todays date) and session period id on the same day. You can use linq to get several datas from DB or list like this
-             s.ReservationDate == DateOnly.FromDateTime(DateTime.Now) && //using any because we are getting list in return. Remember to use FirstOrDefault if you want a single data value from the list
+             s.ReservationDate == DateOnly.FromDateTime(DateTime.Now) && 
              s.SessionPeriodId == laundrySessionViewModel.SessionId);
             
             //remember, its the foreignkey in SessionPeriod we are using to decide the time from xx:xx to xx:xx we want our laundry
@@ -97,96 +112,48 @@ namespace LaundryDormApi.Controllers
             return BadRequest("Value have been set");
         }
 
+
+        /// <summary>
+        ///Method used to go through the database and check if the timestap is within current period
+        ///Using Where to get matching condition as list, in-other to work with several values that we in the database/seeded
+        /// </summary>
+        /// <returns> Return null.</returns>
         [HttpPost]
         [Route("SessionFinish")]
         public async Task<IActionResult> FinishLaundrySession() 
         {
-            DateTime currentPeriod = DateTime.Now;
+            DateTime now = DateTime.Now;
+            var getLaundrySessions = await _laundrySession.GetAllSession();
 
-            DateTime firstLaundryTimePeriod =
-                new DateTime(currentPeriod.Year, currentPeriod.Month, currentPeriod.Day, 07, 00, 0);
-
-            DateTime secondLaundryTimePeriod =
-                new DateTime(currentPeriod.Year, currentPeriod.Month, currentPeriod.Day, 12, 00, 0);
-
-            DateTime thirdLaundryTimePeriod =
-                new DateTime(currentPeriod.Year, currentPeriod.Month, currentPeriod.Day, 17, 00, 0);
-
-            DateTime lastLaundryTimePeriod =
-                new DateTime(currentPeriod.Year, currentPeriod.Month, currentPeriod.Day, 23, 00, 0);
-
-
-            var getSessions = await _laundrySession.GetAllSession();
-
-
-
-            //use Where so we can work with id, it returns a !list! of all the matching condition
-            //use FirstOrDefault so we can get the id, since it returns the first element that matches the condition
-            //If we us ANY, we get a boolean that returns true if ANY of the condition matches
-
-            var firstSessionCheck = getSessions
-                .Where(x => x.ReservationTime.HasValue //Since reservationTime is set to date and time in model swapping, we have to do this
-                && x.ReservationTime.Value.Date == DateTime.Today // and if the value and date (excluding time) matches the current date today.
-                && x.SessionPeriodId == 1 
-                && firstLaundryTimePeriod < secondLaundryTimePeriod);
-
-
-            var secondSessionCheck = getSessions
-                .Where(x => x.ReservationTime.HasValue
-                && x.ReservationTime.Value.Date == DateTime.Today
-                && x.SessionPeriodId == 2
-                && secondLaundryTimePeriod > firstLaundryTimePeriod
-                && secondLaundryTimePeriod < thirdLaundryTimePeriod
-                );
-
-            var thirdSessionCheck = getSessions
-                .Where(x => x.ReservationTime.HasValue
-                && x.ReservationTime.Value.Date == DateTime.Today
-                && x.SessionPeriodId == 3
-                && thirdLaundryTimePeriod > secondLaundryTimePeriod
-                && thirdLaundryTimePeriod > firstLaundryTimePeriod
-                );
-
-            if(firstSessionCheck.Any())
+            var timePeriod = new[] //creating time stamp with array
             {
-                var firstSessionList = firstSessionCheck.Take(50).ToList();
+                new {Id = 1, Start = new DateTime(now.Year, now.Month, now.Day, 7, 0, 0), End = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0)}, //defining start to end with id, in array
+                new {Id = 2, Start = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0), End = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0)},
+                new {Id = 3, Start = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0), End = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0)}
+            };
 
-                var sessionValue = firstSessionList.Where(x => x.LaundryStatusID == 1); //.Where to get the conditions as list
+            int updatedCount = 0;
 
-                foreach (var elements in sessionValue) //We have to loop through the list to set the matching condition to 2, one by one
+            foreach(var periods in timePeriod)
+            {
+                var sessionPeriod = getLaundrySessions.Where(x => x.ReservationTime.HasValue //.Where to get the conditions as list, so we can work with id and other values
+                && x.ReservationTime.Value.Date == DateTime.Now
+                && x.SessionPeriodId == periods.Id //need loop in-other to loop through and match the timeperiod with the sessionPeriodId seeded
+                && x.LaundryStatusID == 1
+                ).ToList();
+
+                if(now > periods.End) //if current time exceeds the end period set
                 {
-                    elements.LaundryStatusID = 2;
-                    await _laundrySession.UpdateSession(elements);
+                    foreach(var sessionToUpdate in sessionPeriod) ////We need loop to loop through the list to set the matching condition to 2, one by one
+                    {
+                        sessionToUpdate.LaundryStatusID = 2;
+                        await _laundrySession.UpdateSession(sessionToUpdate);
+                        updatedCount++;
+                        await _updateCountRepository.UpdateCount(updatedCount);
+                    }
                 }
             }
-            if(secondSessionCheck.Any())
-            {
-                var secondSessionList = secondSessionCheck.Take(50).ToList();
-
-                var sessionValue = secondSessionCheck.Where(x => x.LaundryStatusID == 1); //.Where to get the conditions as list
-
-                foreach(var elements in sessionValue) //We have to loop through the list to set the matching condition to 2, one by one
-                {
-                    elements.LaundryStatusID = 1;
-                    await _laundrySession.UpdateSession(elements);
-                }
-
-            }
-
-            if(thirdSessionCheck.Any())
-            {
-                var thirdSessionValue = thirdSessionCheck.Where(x => x.LaundryStatusID == 1); //.Where to get the conditions as list
-
-                foreach(var elements in thirdSessionValue) //We have to loop through the list to set the matching condition to 2, one by one
-                {
-                    elements.LaundryStatusID = 3;
-                    await _laundrySession.UpdateSession(elements);
-                }
-
-            }
-
             return null;
-
         }
 
         [HttpPost]

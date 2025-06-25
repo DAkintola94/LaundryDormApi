@@ -1,7 +1,7 @@
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
 import { useState, useEffect } from "react"
-import { JWTInformation } from "../Pages/JWTInformation"
+import { JWTInformation } from "../Pages/JWTInformation" //importing JWT functions, its not sending jsx/html or react, its returning/sending token object value
 
 export const Settvask = () => {
 
@@ -14,7 +14,7 @@ export const Settvask = () => {
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
   const token = localStorage.getItem("access_token");
 
-  console.log(token);
+  console.log("The token value is",token);
 
   type UsersInformation = {
     email: string,

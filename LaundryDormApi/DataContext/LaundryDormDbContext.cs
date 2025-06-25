@@ -17,9 +17,8 @@ namespace LaundryDormApi.DataContext
         public DbSet<MaintenanceLogModel> MaintenanceLog { get; set; }
         public DbSet<MachineModel> Machine { get; set; }
         public DbSet<Category> Category { get; set; }
+        public DbSet<UpdateCountModel> UpdatedLaundryCount { get; set; }
         public DbSet<SessionPeriodModel> SessionReservation { get; set; }
-
-        public DbSet<SessionServiceModel> SessionService { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //seeding primarykey
@@ -29,7 +28,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<AdviceSet>().HasKey(x => x.PosterId);
             modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
-            modelBuilder.Entity<SessionServiceModel>().HasKey(x => x.Id);
+            modelBuilder.Entity<UpdateCountModel>().HasKey(x => x.UpdateCountId);
 
 
             modelBuilder.Entity<LaundrySession>()

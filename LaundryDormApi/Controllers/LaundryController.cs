@@ -44,9 +44,10 @@ namespace LaundryDormApi.Controllers
                     fromDb => new LaundrySessionViewModel
                     {
                         ReservationTime = fromDb.ReservationTime,
-                        ReservationDate = fromDb.ReservationDate,
                         PhoneNr = fromDb.PhoneNumber,
                         UserMessage = fromDb.Message,
+                        StartPeriod = fromDb.TimePeriod.Start, //getting the start time & end time via navigation property
+                        EndPeriod = fromDb.TimePeriod.End,     //foreignkey is set above, eager loading set in repository
                         LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription,
                         MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                     });
@@ -77,9 +78,9 @@ namespace LaundryDormApi.Controllers
         {
             var getSession = await _laundrySession.GetAllSession();
 
-            var isConflict = getSession.Any(s => //checking if there is any session with the same date (todays date) and session period id on the same day. You can use linq to get several datas from DB or list like this
-             s.ReservationDate == DateOnly.FromDateTime(DateTime.Now) && 
-             s.SessionPeriodId == laundrySessionViewModel.SessionId);
+            var isConflict = getSession.Any(s => //checking if there is any session with the same date (todays date) and session period id on the same day. You can use linq to get several data from DB or list like this
+             s.ReservationTime == DateTime.Today && 
+             s.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId);
             
             //remember, its the foreignkey in SessionPeriod we are using to decide the time from xx:xx to xx:xx we want our laundry
 
@@ -93,7 +94,7 @@ namespace LaundryDormApi.Controllers
                     Message = laundrySessionViewModel.UserMessage,
                     MachineId = laundrySessionViewModel.MachineId,
                     ReservationTime = DateTime.Now,
-                    SessionPeriodId = laundrySessionViewModel.SessionId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
+                    TimePeriodId = laundrySessionViewModel.SessionTimePeriodId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
                     LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
                 };
 
@@ -120,46 +121,45 @@ namespace LaundryDormApi.Controllers
         /// <returns> Return null.</returns>
         [HttpPost]
         [Route("SessionFinish")]
-        public async Task<IActionResult> FinishLaundrySession() 
+        public async Task<IActionResult> FinalizeExpiredLaundrySessions()
         {
-            DateTime now = DateTime.Now;
+            int? updatedCount = (await _updateCountRepository.GetCountNumber()) ?? 0; //get the count from the database (nullable), then update later
+
+            DateTime today = DateTime.Today; //localday, date, day
+            DateTime now = DateTime.Now;     //localtime, date, day, minute
+
+
             var getLaundrySessions = await _laundrySession.GetAllSession();
 
-            var timePeriod = new[] //creating time stamp with array
+            if(getLaundrySessions!= null)
             {
-                new {Id = 1, Start = new DateTime(now.Year, now.Month, now.Day, 7, 0, 0), End = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0)}, //defining start to end with id, in array
-                new {Id = 2, Start = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0), End = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0)},
-                new {Id = 3, Start = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0), End = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0)}
-            };
-
-            int updatedCount = 0;
-
-            foreach(var periods in timePeriod)
-            {
-                var sessionPeriod = getLaundrySessions.Where(x => x.ReservationTime.HasValue //.Where to get the conditions as list, so we can work with id and other values
-                && x.ReservationTime.Value.Date == DateTime.Now
-                && x.SessionPeriodId == periods.Id //need loop in-other to loop through and match the timeperiod with the sessionPeriodId seeded
+                var sessionPeriods = getLaundrySessions.Where(x //.Where to get the conditions as list, so we can work with id and other values
+                => x.TimePeriod != null  
+                && x.TimePeriod.End.Date < now // checking if the start time & end time is today, or before today (past time in the database)
                 && x.LaundryStatusID == 1
                 ).ToList();
 
-                if(now > periods.End) //if current time exceeds the end period set
+                foreach (var sessionToUpdate in sessionPeriods)
                 {
-                    foreach(var sessionToUpdate in sessionPeriod) ////We need loop to loop through the list to set the matching condition to 2, one by one
-                    {
-                        sessionToUpdate.LaundryStatusID = 2;
-                        await _laundrySession.UpdateSession(sessionToUpdate);
-                        updatedCount++;
-                        await _updateCountRepository.UpdateCount(updatedCount);
-                    }
+                        if (sessionToUpdate.TimePeriod.End < now) //We need loop to loop through the list to set the matching condition to 2, one by one
+                        {
+                            sessionToUpdate.LaundryStatusID = 2;
+                            await _laundrySession.UpdateSession(sessionToUpdate);
+
+                            updatedCount++;
+                            await _updateCountRepository.UpdateCount(updatedCount);
+                        }
                 }
+
             }
-            return null;
+
+            return Ok();
         }
 
         [HttpPost]
         [Route("SetReservation")]
         [Authorize]
-        public async Task<IActionResult> InsertReservationTime(LaundrySessionViewModel reservationVM)
+        public async Task<IActionResult> ReserveLaundrySlot(LaundrySessionViewModel reservationVM)
         {
             var getSession = await _laundrySession.GetAllSession();
             if(reservationVM!= null)
@@ -167,12 +167,12 @@ namespace LaundryDormApi.Controllers
                 LaundrySession reservationSessionDto = new LaundrySession
                 {
                     ReservationTime = reservationVM.ReservationTime,
-                    ReservationDate = reservationVM.ReservationDate,
                     UserEmail = reservationVM.Email,
                     PhoneNumber = reservationVM.PhoneNr,
                     Message = reservationVM.UserMessage,
 
-                    SessionPeriodId = reservationVM.SessionId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+                    TimePeriodId = reservationVM.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+                                                                       //ops, need to work on reservation, date needs to be exact to when the user want to reservate
 
                     MachineId = 1,
 

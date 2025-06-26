@@ -18,7 +18,7 @@ namespace LaundryDormApi.DataContext
         public DbSet<MachineModel> Machine { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<UpdateCountModel> UpdatedLaundryCount { get; set; }
-        public DbSet<SessionPeriodModel> SessionReservation { get; set; }
+        public DbSet<TimePeriodModel> TimeStamp { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //seeding primarykey
@@ -29,7 +29,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
             modelBuilder.Entity<UpdateCountModel>().HasKey(x => x.UpdateCountId);
-
+            modelBuilder.Entity<TimePeriodModel>().HasKey(x => x.PeriodId);
 
             modelBuilder.Entity<LaundrySession>()
                 .HasOne(ls => ls.LaundryStatus)
@@ -44,9 +44,9 @@ namespace LaundryDormApi.DataContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<LaundrySession>()
-                .HasOne(sp => sp.SessionPeriod)
+                .HasOne(tp => tp.TimePeriod)
                 .WithMany()
-                .HasForeignKey(spk => spk.SessionPeriodId)
+                .HasForeignKey(id => id.TimePeriodId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MachineModel>()
@@ -108,10 +108,28 @@ namespace LaundryDormApi.DataContext
                 new Category { CategoryId = 4, CategoryName = "Annet" }
                 );
 
-            modelBuilder.Entity<SessionPeriodModel>().HasData(
-                new SessionPeriodModel { PeriodId = 1, PeriodTitle = "07:00 - 12:00" },
-                new SessionPeriodModel { PeriodId = 2, PeriodTitle = "12:00 - 17:00" },
-                new SessionPeriodModel { PeriodId = 3, PeriodTitle = "17:00 - 22:00" }
+            DateTime now = DateTime.Now; //variable for current date.
+
+            modelBuilder.Entity<TimePeriodModel>().HasData( //setting a custom date that we want according to the time period
+                new TimePeriodModel 
+                { PeriodId = 1, 
+                    Start = new DateTime(now.Year, now.Month, now.Day, 7, 0, 0), 
+                    End = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0) 
+                },
+
+                new TimePeriodModel
+                { PeriodId = 2,
+                Start = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0),
+                End = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0)
+                },
+
+                new TimePeriodModel
+                {
+                    PeriodId = 3,
+                    Start = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0),
+                    End = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0)
+                }
+                
                 );
 
         }

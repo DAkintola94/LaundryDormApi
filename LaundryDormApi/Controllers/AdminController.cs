@@ -31,11 +31,11 @@ namespace LaundryDormApi.Controllers
                     fromDb => new LaundrySessionViewModel
                     {
                         ReservationTime = fromDb.ReservationTime,
-                        ReservationDate = fromDb.ReservationDate,
                         Email = fromDb.UserEmail,
                         UserMessage = fromDb.Message,
                         PhoneNr = fromDb.PhoneNumber,
-                        SessionPeriodTime = fromDb.SessionPeriod?.PeriodTitle,
+                        StartPeriod = fromDb.TimePeriod?.Start,
+                        EndPeriod = fromDb.TimePeriod?.End,
                         SessionId = fromDb.LaundrySessionId,
                         MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                         LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription, //using the model navigation property to get the laundry status name

@@ -18,7 +18,7 @@ namespace LaundryDormApi.Repository
             return await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
-                .Include(sp => sp.SessionPeriod)
+                .Include(tp => tp.TimePeriod)
                 .ToListAsync();
         }
 
@@ -27,7 +27,7 @@ namespace LaundryDormApi.Repository
             return await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
-                .Include(sp => sp.SessionPeriod)
+                .Include(tp => tp.TimePeriod)
                 .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
         }
 
@@ -36,7 +36,7 @@ namespace LaundryDormApi.Repository
             var getLaundrySessionById = await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
-                .Include(sp => sp.SessionPeriod)
+                .Include(tp => tp.TimePeriod)
                 .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
 
             if(getLaundrySessionById !=null )

@@ -117,6 +117,7 @@ namespace LaundryDormApi.Controllers
         /// <summary>
         ///Method used to go through the database and check if the timestap is within current period
         ///Using Where to get matching condition as list, in-other to work with several values that we in the database/seeded
+        ///With the use of null-coalescing operator to get count values from the database
         /// </summary>
         /// <returns> Return null.</returns>
         [HttpPost]
@@ -135,7 +136,7 @@ namespace LaundryDormApi.Controllers
             {
                 var sessionPeriods = getLaundrySessions.Where(x //.Where to get the conditions as list, so we can work with id and other values
                 => x.TimePeriod != null  
-                && x.TimePeriod.End.Date < now // checking if the start time & end time is today, or before today (past time in the database)
+                && x.TimePeriod.End < now // checking if the start time & end time is today, or before today (past time in the database)
                 && x.LaundryStatusID == 1
                 ).ToList();
 

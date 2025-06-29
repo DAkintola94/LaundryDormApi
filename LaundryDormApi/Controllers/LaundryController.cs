@@ -184,7 +184,7 @@ namespace LaundryDormApi.Controllers
             }
             catch (Exception err )
             {
-                return StatusCode(500, $"An error occured {err}");
+                return StatusCode(500, $"An error occurred while trying to finalize expired laundry sessions {err}");
             }
 
            
@@ -198,39 +198,50 @@ namespace LaundryDormApi.Controllers
         {
             var getSession = await _laundrySession.GetAllSession();
 
-            if(reservationViewModel!= null && getSession!= null)
+            if(reservationViewModel!= null 
+                && getSession!= null 
+                && reservationViewModel.ReservationTime.HasValue)
             {
-                LaundrySession reservationSessionDto = new LaundrySession
+                try
                 {
-                    ReservationTime = reservationViewModel.ReservationTime,
-                    UserEmail = reservationViewModel.Email,
-                    PhoneNumber = reservationViewModel.PhoneNr,
-                    Message = reservationViewModel.UserMessage,
+                    LaundrySession reservationSessionDto = new LaundrySession
+                    {
+                        ReservationTime = reservationViewModel.ReservationTime,
+                        UserEmail = reservationViewModel.Email,
+                        PhoneNumber = reservationViewModel.PhoneNr,
+                        Message = reservationViewModel.UserMessage,
 
-                    TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
-                                                                       //ops, need to work on reservation, date needs to be exact to when the user want to reservate
+                        TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+                                                                                 //ops, need to work on reservation, date needs to be exact to when the user want to reservate
 
-                    MachineId = 1,
+                        MachineId = 1,
 
-                    LaundryStatusID = 6  //FK for laundrystatus. Sets the status based on what we seeded in DBContext
-                };
+                        LaundryStatusID = 6  //FK for laundrystatus. Sets the status based on what we seeded in DBContext
+                    };
 
-                var isConflict = getSession.Any(sFromDb =>
-                sFromDb.ReservationTime.HasValue
-                && sFromDb.ReservationTime.Value.Date == reservationViewModel.ReservationTime.Value.Date //checking if the session from the database has the same date as the reservation date we are currently model swapping
-                && sFromDb.TimePeriodId == reservationViewModel.SessionTimePeriodId //checking if the session from the db has the same session period id (start, end period) as the users desire 
-                );
+                    var isConflict = getSession.Any(sFromDb =>
+                    sFromDb.ReservationTime.HasValue
+                    && sFromDb.ReservationTime.Value.Date == reservationViewModel.ReservationTime.Value.Date //checking if the session from the database has the same date as the reservation date we are currently model swapping
+                    && sFromDb.TimePeriodId == reservationViewModel.SessionTimePeriodId //checking if the session from the db has the same session period id (start, end period) as the users desire 
+                    );
 
-                if (!isConflict)
-                {
-                    await _laundrySession.InsertSession(reservationSessionDto);
-                    return Ok(reservationSessionDto);
+                    if (!isConflict)
+                    {
+                        await _laundrySession.InsertSession(reservationSessionDto);
+                        return Ok(reservationSessionDto);
+                    }
+
+                    return BadRequest("There is a conflict with the reservation time, please choose another time slot.");
+
                 }
-
-                return BadRequest("There is a conflict with the reservation time, please choose another time slot.");
+                catch (Exception ex)
+                {
+                    StatusCode(500, $"An error occurred while trying to reserve laundry sloth {ex}");
+                }
+                
 
             }
-            return BadRequest("An error occured, report to admin");
+            return BadRequest("An error occurred, report to admin");
         }
 
     }

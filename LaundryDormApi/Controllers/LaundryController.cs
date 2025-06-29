@@ -63,9 +63,10 @@ namespace LaundryDormApi.Controllers
 
         /// <summary>
         ///Method to initialize session with value from the user
-        /// Using isConflict variable to check for time stamp conflict. isConflict becomes a boolean due to .Any condition checking
+        /// Using isConflict variable to check for time stamp conflict. isConflict variable becomes a boolean due to .Any condition checking
         /// Remember to use FirstOrDefault if you want a single data value from the list
-        /// SessionPeriod is a foreignkey in LaundrySessionModel, which we are using for laundry timestamp
+        /// SessionPeriod is a foreignkey in LaundrySessionModel, which we are using for laundry timestamp period. Its seeded in DBContext
+        /// We check if the data from the user, the id of their desired time choice matches the id from DB
         /// </summary>
         /// <param name="laundrySessionViewModel">The data we are getting from our user as json. Variable for LaundrySessionViewModel for model-swapping.
         /// Frontend gets the laundry timestamp the user desire, then modelswapping it with the domain model </param>
@@ -76,41 +77,67 @@ namespace LaundryDormApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> InitiateSession(LaundrySessionViewModel laundrySessionViewModel)
         {
+            DateTime today = DateTime.Today;
+
             var getSession = await _laundrySession.GetAllSession();
 
-            var isConflict = getSession.Any(s => //checking if there is any session with the same date (todays date) and session period id on the same day. You can use linq to get several data from DB or list like this
-             s.ReservationTime == DateTime.Today && 
-             s.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId);
-            
-            //remember, its the foreignkey in SessionPeriod we are using to decide the time from xx:xx to xx:xx we want our laundry
-
-            if (laundrySessionViewModel!=null)
+            if(getSession == null)
             {
-                LaundrySession laundrySessionDomain = new LaundrySession
-                {
-                    UserEmail = laundrySessionViewModel.Email,
-                    Name = laundrySessionViewModel.SessionUser, //our claim is sending the name as first name + last name. Therefore, this single variable is enough 
-                    PhoneNumber = laundrySessionViewModel.PhoneNr,
-                    Message = laundrySessionViewModel.UserMessage,
-                    MachineId = laundrySessionViewModel.MachineId,
-                    ReservationTime = DateTime.Now,
-                    TimePeriodId = laundrySessionViewModel.SessionTimePeriodId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
-                    LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
-                };
-
-                if(!isConflict) //if there is no conflict, insert value into database
-                {
-                    var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain); //need to do it like this if we want the correct id
-                                                                                                           //the variable is attached to ef core, which have inserted the object in db and given it an id
-                                                                                                            //now we can retreive the correct id of the session and work with it
-                    
-
-                    return Ok(new {id = addedLaundrySession.LaundrySessionId}); //returning the id of the session that was recently created/added in the database
-                }
-
-                return BadRequest("Something went wrong");
+                return Ok("There is no session in the database"); //returning ok (leaving the method) because nothing crashed, but our list was empty
             }
-            return BadRequest("Value have been set");
+
+            try
+            {
+                if (laundrySessionViewModel != null
+                && laundrySessionViewModel.ReservationTime.HasValue //remember to send the reservation time from frontend as valid date
+                && laundrySessionViewModel.ReservationTime.Value.Date == today)
+                {
+
+                    var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works
+                    sFromDb.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId
+                    && sFromDb.ReservationTime.HasValue
+                    && sFromDb.ReservationTime.Value.Date == laundrySessionViewModel.ReservationTime.Value.Date
+                    );
+
+                    LaundrySession laundrySessionDomain = new LaundrySession
+                    {
+                        UserEmail = laundrySessionViewModel.Email,
+                        Name = laundrySessionViewModel.SessionUser, //our claim is sending the name as first name + last name. Therefore, this single variable is enough 
+                        PhoneNumber = laundrySessionViewModel.PhoneNr,
+                        Message = laundrySessionViewModel.UserMessage,
+                        MachineId = laundrySessionViewModel.MachineId,
+                        ReservationTime = DateTime.Now,
+                        TimePeriodId = laundrySessionViewModel.SessionTimePeriodId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
+                        LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
+                    };
+
+                    if (!isConflict ) //if there is no conflict, insert value into database
+                    {
+                        var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain); //Need variable if we want to extract an id, or any other data later on
+                                                                                                             
+
+                        if(addedLaundrySession == null)
+                        {
+                            return BadRequest("An error occured, unable to insert session registration into database");
+                        }
+
+                        return Ok(new { id = addedLaundrySession.LaundrySessionId } + " is the newly created session ID"); //returning the id of the session that was recently created/added in the database
+                    }
+
+                    else
+                    {
+                        return BadRequest("Session initiation was in conflict with registered time in the database");
+                    }
+
+                }
+            }
+
+            catch(Exception exp)
+            {
+                return StatusCode(500, "An error occured " + exp); //use StatusCode when there is an unexpected server-side error (unhandled exception)
+            }
+          
+            return BadRequest("A value have been set");
         }
 
 
@@ -121,7 +148,7 @@ namespace LaundryDormApi.Controllers
         /// </summary>
         /// <returns> Return null.</returns>
         [HttpPost]
-        [Route("SessionFinish")]
+        [Route("FinalizeLaundrySession")]
         public async Task<IActionResult> FinalizeExpiredLaundrySessions()
         {
             int? updatedCount = (await _updateCountRepository.GetCountNumber()) ?? 0; //get the count from the database (nullable), then update later
@@ -132,16 +159,18 @@ namespace LaundryDormApi.Controllers
 
             var getLaundrySessions = await _laundrySession.GetAllSession();
 
-            if(getLaundrySessions!= null)
+            try
             {
-                var sessionPeriods = getLaundrySessions.Where(x //.Where to get the conditions as list, so we can work with id and other values
-                => x.TimePeriod != null  
-                && x.TimePeriod.End < now // checking if the start time & end time is today, or before today (past time in the database)
-                && x.LaundryStatusID == 1
-                ).ToList();
-
-                foreach (var sessionToUpdate in sessionPeriods)
+                if (getLaundrySessions != null)
                 {
+                    var sessionPeriods = getLaundrySessions.Where(x //.Where to get the conditions as list, so we can work with id (FK in this case) and other values
+                    => x.TimePeriod != null
+                    && x.TimePeriod.End < now // checking if the start time & end time is today, or before today (past time from the database)
+                    && x.LaundryStatusID == 1 //checking if laundry status from db is active
+                    ).ToList();
+
+                    foreach (var sessionToUpdate in sessionPeriods)
+                    {
                         if (sessionToUpdate.TimePeriod.End < now) //We need loop to loop through the list to set the matching condition to 2, one by one
                         {
                             sessionToUpdate.LaundryStatusID = 2;
@@ -150,39 +179,46 @@ namespace LaundryDormApi.Controllers
                             updatedCount++;
                             await _updateCountRepository.UpdateCount(updatedCount);
                         }
+                    }
                 }
-
+            }
+            catch (Exception err )
+            {
+                return StatusCode(500, $"An error occured {err}");
             }
 
-            return Ok();
+           
+            return Ok("No session to update in the database");
         }
 
         [HttpPost]
         [Route("SetReservation")]
         [Authorize]
-        public async Task<IActionResult> ReserveLaundrySlot(LaundrySessionViewModel reservationVM)
+        public async Task<IActionResult> ReserveLaundrySlot(LaundrySessionViewModel reservationViewModel)
         {
             var getSession = await _laundrySession.GetAllSession();
-            if(reservationVM!= null)
+
+            if(reservationViewModel!= null && getSession!= null)
             {
                 LaundrySession reservationSessionDto = new LaundrySession
                 {
-                    ReservationTime = reservationVM.ReservationTime,
-                    UserEmail = reservationVM.Email,
-                    PhoneNumber = reservationVM.PhoneNr,
-                    Message = reservationVM.UserMessage,
+                    ReservationTime = reservationViewModel.ReservationTime,
+                    UserEmail = reservationViewModel.Email,
+                    PhoneNumber = reservationViewModel.PhoneNr,
+                    Message = reservationViewModel.UserMessage,
 
-                    TimePeriodId = reservationVM.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
+                    TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
                                                                        //ops, need to work on reservation, date needs to be exact to when the user want to reservate
 
                     MachineId = 1,
 
-                    LaundryStatusID = 6
+                    LaundryStatusID = 6  //FK for laundrystatus. Sets the status based on what we seeded in DBContext
                 };
 
-                var isConflict = getSession.Any(s =>
-                s.ReservationDate == reservationSessionDto.ReservationDate && //checking if the session from the database has the same date as the reservation date we are currently model swapping
-                s.SessionPeriodId == reservationSessionDto.SessionPeriodId //checking if the session from the database has the same session period id as the reservation session period id
+                var isConflict = getSession.Any(sFromDb =>
+                sFromDb.ReservationTime.HasValue
+                && sFromDb.ReservationTime.Value.Date == reservationViewModel.ReservationTime.Value.Date //checking if the session from the database has the same date as the reservation date we are currently model swapping
+                && sFromDb.TimePeriodId == reservationViewModel.SessionTimePeriodId //checking if the session from the db has the same session period id (start, end period) as the users desire 
                 );
 
                 if (!isConflict)

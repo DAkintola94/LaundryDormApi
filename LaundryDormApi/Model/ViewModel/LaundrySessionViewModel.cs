@@ -12,8 +12,8 @@ namespace LaundryDormApi.Model.ViewModel
         public string? Email { get; set; }
         public DateTime? ReservationTime { get; set; } = DateTime.Now;
 
-        public DateTime? StartPeriod { get; set; }
-        public DateTime? EndPeriod { get; set; }
+        public DateTime? StartPeriod { get; set; } //dont delete, its for viewing start session
+        public DateTime? EndPeriod { get; set; } //dont delete, its for viewing end session
 
 
         public string? UserMessage { get; set; }

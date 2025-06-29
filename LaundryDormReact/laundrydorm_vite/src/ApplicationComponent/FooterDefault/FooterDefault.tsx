@@ -19,7 +19,7 @@ export const FooterDefault = () => {
                  </a>
                 </li>
                 <li>
-                    <a href="https://www.linkedin.com/in/dennis-akintola-294a6a285/" 
+                    <a href="https://www.linkedin.com/in/dennis-oni-akintola/" 
                     target="blank"
                     rel="noopener noreferrer"
                     className="">

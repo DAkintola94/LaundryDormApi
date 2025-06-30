@@ -3,6 +3,7 @@ using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,8 +30,11 @@ namespace LaundryDormApi.Controllers
 
         }
 
-
-
+        /// <summary>
+        /// Showing all available sloth to the user
+        /// Filter out data that does not match, for instance, reserved dates or laundries that are already "finished"
+        /// </summary>
+        /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
         [HttpGet]
         [Route("Availability")]
         
@@ -38,38 +42,44 @@ namespace LaundryDormApi.Controllers
         {
             var getAllOrders = await _laundrySession.GetAllSession();
 
-            if(getAllOrders!= null)
+            if(getAllOrders != null)
             {
-                var getAvailabilityForUser = getAllOrders.Select(
-                    fromDb => new LaundrySessionViewModel
+                try
+                {
+                    var filteredOrders = getAllOrders.Where(axeFromView => //Filtering data we don't want to show first. With a NOT condition
+                    !(axeFromView.LaundryStatusID == 2 && axeFromView.ReservedDate.HasValue)) //Not condition can be done like this when using LINQ
+                    .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
                     {
-                        ReservationTime = fromDb.ReservationTime,
-                        PhoneNr = fromDb.PhoneNumber,
-                        UserMessage = fromDb.Message,
-                        StartPeriod = fromDb.TimePeriod.Start, //getting the start time & end time via navigation property
-                        EndPeriod = fromDb.TimePeriod.End,     //foreignkey is set above, eager loading set in repository
-                        LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription,
-                        MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
+                        ReservationTime = showFromDb.ReservationTime,
+                        PhoneNr = showFromDb.PhoneNumber,
+                        UserMessage = showFromDb.Message,
+                        StartPeriod = showFromDb.TimePeriod.Start, //getting the start time & end time via navigation property
+                        EndPeriod = showFromDb.TimePeriod.End,     //foreign-key is set above, eager loading set in repository
+                        LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
+                        MachineName = showFromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                     });
 
-                return Ok(getAllOrders); //sending to the frontend as JSON, remember to use the keyword "getAllOrders" to get the data from the database
+                    return Ok(filteredOrders);
+                }
+                catch(Exception ex)
+                {
+                    StatusCode(500, "An unexpected error occurred" + ex);
+                }
             }
-
-            return BadRequest("Something went wrong");
+                return Ok("Session list is currently empty"); //sending to the frontend as JSON, remember to use the keyword "getAllOrders" to get the data from the database
         }
-
-
 
 
         /// <summary>
         ///Method to initialize session with value from the user
         /// Using isConflict variable to check for time stamp conflict. isConflict variable becomes a boolean due to .Any condition checking
         /// Remember to use FirstOrDefault if you want a single data value from the list
-        /// SessionPeriod is a foreignkey in LaundrySessionModel, which we are using for laundry timestamp period. Its seeded in DBContext
+        /// SessionPeriod is a foreign-key in LaundrySessionModel, which we are using for laundry timestamp period. Its seeded in DBContext
         /// We check if the data from the user, the id of their desired time choice matches the id from DB
+        /// We compare date only with time only for conflict. One is for the desired reservation date n day from the database, The other is for the users choice from the server
         /// </summary>
         /// <param name="laundrySessionViewModel">The data we are getting from our user as json. Variable for LaundrySessionViewModel for model-swapping.
-        /// Frontend gets the laundry timestamp the user desire, then modelswapping it with the domain model </param>
+        /// Frontend gets the laundry timestamp the user desire, then model-swapping it with the domain model </param>
         /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
 
         [HttpPost]
@@ -94,10 +104,10 @@ namespace LaundryDormApi.Controllers
                 {
 
                     var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works
-                    sFromDb.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId
-                    && sFromDb.ReservationTime.HasValue
-                    && sFromDb.ReservationTime.Value.Date == laundrySessionViewModel.ReservationTime.Value.Date
-                    );
+                     sFromDb.ReservedDate.HasValue
+                    && sFromDb.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId
+                    && sFromDb.ReservedDate.Value == DateOnly.FromDateTime(laundrySessionViewModel.ReservationTime.Value) //comparing dateonly with time only, to check for conflict on the SAME DAY!!
+                    );   
 
                     LaundrySession laundrySessionDomain = new LaundrySession
                     {
@@ -142,7 +152,7 @@ namespace LaundryDormApi.Controllers
 
 
         /// <summary>
-        ///Method used to go through the database and check if the timestap is within current period
+        ///Method used to go through the database and check if the timestamp is within current period
         ///Using Where to get matching condition as list, in-other to work with several values that we in the database/seeded
         ///With the use of null-coalescing operator to get count values from the database
         /// </summary>
@@ -153,8 +163,8 @@ namespace LaundryDormApi.Controllers
         {
             int? updatedCount = (await _updateCountRepository.GetCountNumber()) ?? 0; //get the count from the database (nullable), then update later
 
-            DateTime today = DateTime.Today; //localday, date, day
-            DateTime now = DateTime.Now;     //localtime, date, day, minute
+            DateTime today = DateTime.Today; //local-day, date, day
+            DateTime now = DateTime.Now;     //local-time, date, day, minute
 
 
             var getLaundrySessions = await _laundrySession.GetAllSession();
@@ -191,6 +201,19 @@ namespace LaundryDormApi.Controllers
             return Ok("No session to update in the database");
         }
 
+
+
+        /// <summary>
+        ///Method to make our user reserve session
+        /// Using isConflict variable to check for time stamp conflict. isConflict variable becomes a boolean due to .Any condition checking
+        /// Remember to use FirstOrDefault if you want a single data value from the list
+        /// SessionPeriod is a foreignkey in LaundrySessionModel, which we are using for laundry timestamp period. Its seeded in DBContext
+        /// We check if the data from the user, the id of their desired time choice matches the id from DB
+        /// ReservedDate will be compared to any other value from the database to check for conflict
+        /// </summary>
+        /// <param name="reservationViewModel">The data we are getting from our user. Variable for LaundrySessionViewModel for model-swapping.
+        /// Frontend gets the laundry timestamp the user desire, then modelswapping it with the domain model </param>
+        /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
         [HttpPost]
         [Route("SetReservation")]
         [Authorize]
@@ -206,22 +229,23 @@ namespace LaundryDormApi.Controllers
                 {
                     LaundrySession reservationSessionDto = new LaundrySession
                     {
-                        ReservationTime = reservationViewModel.ReservationTime,
-                        UserEmail = reservationViewModel.Email,
+                        ReservationTime = reservationViewModel.ReservationTime, //The time and date the user created the reservation
+                        ReservedDate = reservationViewModel.ReservationDate,    //The date our user desire to book the laundry session ahead of time
+                        UserEmail = reservationViewModel.Email, 
                         PhoneNumber = reservationViewModel.PhoneNr,
                         Message = reservationViewModel.UserMessage,
 
                         TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
                                                                                  //ops, need to work on reservation, date needs to be exact to when the user want to reservate
 
-                        MachineId = 1,
+                        MachineId = 1, //default machine type for now
 
                         LaundryStatusID = 6  //FK for laundrystatus. Sets the status based on what we seeded in DBContext
                     };
 
                     var isConflict = getSession.Any(sFromDb =>
-                    sFromDb.ReservationTime.HasValue
-                    && sFromDb.ReservationTime.Value.Date == reservationViewModel.ReservationTime.Value.Date //checking if the session from the database has the same date as the reservation date we are currently model swapping
+                    sFromDb.ReservedDate.HasValue
+                    && sFromDb.ReservedDate == reservationViewModel.ReservationDate //checking if the session from the database has the same date as the reservation date we are currently model swapping
                     && sFromDb.TimePeriodId == reservationViewModel.SessionTimePeriodId //checking if the session from the db has the same session period id (start, end period) as the users desire 
                     );
 
@@ -231,20 +255,15 @@ namespace LaundryDormApi.Controllers
                         return Ok(reservationSessionDto);
                     }
 
-                    return BadRequest("There is a conflict with the reservation time, please choose another time slot.");
+                    return Ok("There was a conflict with the reservation time, please choose another time.");
 
                 }
                 catch (Exception ex)
                 {
                     StatusCode(500, $"An error occurred while trying to reserve laundry sloth {ex}");
                 }
-                
-
             }
             return BadRequest("An error occurred, report to admin");
         }
-
     }
-
-    
 }

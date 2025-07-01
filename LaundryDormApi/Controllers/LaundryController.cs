@@ -51,8 +51,8 @@ namespace LaundryDormApi.Controllers
                         ReservationTime = showFromDb.ReservationTime,
                         PhoneNr = showFromDb.PhoneNumber,
                         UserMessage = showFromDb.Message,
-                        StartPeriod = showFromDb.TimePeriod.Start, //getting the start time & end time via navigation property
-                        EndPeriod = showFromDb.TimePeriod.End,     //foreign-key is set above, eager loading set in repository
+                        StartPeriod = showFromDb.TimePeriod?.Start, //getting the start time & end time via navigation property
+                        EndPeriod = showFromDb.TimePeriod?.End,     //foreign-key is set above, eager loading set in repository
                         LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
                         MachineName = showFromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                     });
@@ -179,7 +179,7 @@ namespace LaundryDormApi.Controllers
 
                     foreach (var sessionToUpdate in sessionPeriods)
                     {
-                        if (sessionToUpdate.TimePeriod.End < now) //We need loop to loop through the list to set the matching condition to 2, one by one
+                        if (sessionToUpdate.TimePeriod?.End < now) //We need loop to loop through the list to set the matching condition to 2, one by one
                         {
                             sessionToUpdate.LaundryStatusID = 2;
                             await _laundrySession.UpdateSession(sessionToUpdate);

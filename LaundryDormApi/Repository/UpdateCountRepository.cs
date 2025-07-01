@@ -29,13 +29,21 @@ namespace LaundryDormApi.Repository
         /// <returns> Returns an object variable in the end.</returns>
         public async Task<UpdateCountModel> UpdateCount(int? countValue)
         {
-            UpdateCountModel countModel = new UpdateCountModel
+            try
             {
-                AmountOfCount = countValue
-            };
+                UpdateCountModel countModel = new UpdateCountModel
+                {
+                    AmountOfCount = countValue
+                };
                 _context.Update(countModel);
                 await _context.SaveChangesAsync();
                 return countModel;
+            } 
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occured when trying to insert value {countValue}. {ex}");
+            }
+            
         }
 
         /// <summary>

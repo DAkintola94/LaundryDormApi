@@ -22,7 +22,7 @@ namespace LaundryDormApi.Controllers
         [Route("AdviceFetcher")]
         public async Task<IActionResult> InitiateAdvice([FromBody] AdviceViewModel adviceViewModel)
         {
-            if(ModelState.IsValid)
+            if(adviceViewModel != null)
             {
                 AdviceSet adviceDomainModel = new AdviceSet
                 {

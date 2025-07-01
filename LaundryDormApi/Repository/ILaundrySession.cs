@@ -9,6 +9,5 @@ namespace LaundryDormApi.Repository
         public Task<LaundrySession?> GetSessionById(int id);
         public Task<LaundrySession> DeleteSessionById(int id);
         public Task<LaundrySession?> InsertSession(LaundrySession laundrySession);
-
     }
 }

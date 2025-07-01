@@ -16,15 +16,13 @@ namespace LaundryDormApi.Controllers
     public class LaundryController : ControllerBase
     {
         private readonly ILaundrySession _laundrySession;
-        private readonly ILaundryStatusStateRepository _laundryStatusRepository;
         private readonly IUpdateCountRepository _updateCountRepository;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public LaundryController(ILaundrySession laundrySession, ILaundryStatusStateRepository laundryStatusRepository,
+        public LaundryController(ILaundrySession laundrySession,
             UserManager<ApplicationUser> userManager, IUpdateCountRepository updateCountRepository)
         {
             _laundrySession = laundrySession;
-            _laundryStatusRepository = laundryStatusRepository;
             _updateCountRepository = updateCountRepository;
             _userManager = userManager;
 
@@ -85,7 +83,7 @@ namespace LaundryDormApi.Controllers
         [HttpPost]
         [Route("StartSession")]
         [AllowAnonymous]
-        public async Task<IActionResult> InitiateSession(LaundrySessionViewModel laundrySessionViewModel)
+        public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel)
         {
             DateTime today = DateTime.Today;
 
@@ -217,7 +215,7 @@ namespace LaundryDormApi.Controllers
         [HttpPost]
         [Route("SetReservation")]
         [Authorize]
-        public async Task<IActionResult> ReserveLaundrySlot(LaundrySessionViewModel reservationViewModel)
+        public async Task<IActionResult> ReserveLaundrySlot([FromBody]LaundrySessionViewModel reservationViewModel)
         {
             var getSession = await _laundrySession.GetAllSession();
 

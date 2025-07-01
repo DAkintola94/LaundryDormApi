@@ -21,7 +21,6 @@ namespace LaundryDormApi.Model.ViewModel
         public DateOnly? ReservationDate { get; set; } 
         public int? MachineId { get; set; }
         public string? MachineName { get; set; }
-        public string? SessionPeriodTime { get; set; } 
 
     }
 }

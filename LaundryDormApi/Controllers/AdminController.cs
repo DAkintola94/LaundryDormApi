@@ -20,6 +20,35 @@ namespace LaundryDormApi.Controllers
             _sessionRepository = sessionRepository;
         }
 
+        [HttpPost]
+        [Route("SessionId")]
+
+        public async Task<IActionResult> SessionHistoricId(int id)
+        {
+            var getSessionById = await _sessionRepository.GetSessionById(id);
+
+            if(getSessionById != null)
+            {
+                LaundrySessionViewModel laundrySessionViewModel = new LaundrySessionViewModel
+                {
+                    Email = getSessionById.UserEmail,
+                    EndPeriod = getSessionById.TimePeriod?.End,
+                    StartPeriod = getSessionById.TimePeriod?.Start,
+                    SessionId = getSessionById.LaundrySessionId,
+                    SessionTimePeriodId = getSessionById.TimePeriodId,
+                    PhoneNr = getSessionById.PhoneNumber,
+                    UserMessage = getSessionById.Message,
+                    MachineId = getSessionById.Machine?.MachineId,
+                    LaundryStatusDescription = getSessionById.LaundryStatus?.StatusDescription,
+                    MachineName = getSessionById.Machine?.MachineName,
+                };
+
+                return Ok(laundrySessionViewModel);
+            }
+
+            return Ok("There was no session in the database");
+        }
+
         [HttpGet]
         [Route("EntireSessionLog")]
         public async Task<IActionResult> DispayAllSessions()
@@ -31,6 +60,7 @@ namespace LaundryDormApi.Controllers
                     fromDb => new LaundrySessionViewModel
                     {
                         ReservationTime = fromDb.ReservationTime,
+                        ReservationDate = fromDb.ReservedDate,
                         Email = fromDb.UserEmail,
                         UserMessage = fromDb.Message,
                         PhoneNr = fromDb.PhoneNumber,

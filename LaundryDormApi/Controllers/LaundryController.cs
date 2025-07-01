@@ -28,6 +28,23 @@ namespace LaundryDormApi.Controllers
 
         }
 
+        //[HttpGet]
+        //[Route("UserSessionHistoric")]
+        
+        //public async Task<IActionResult> PreviewSessionHistoric([FromBody]TokenRepository tokenValue)
+        //{
+        //    var getSessionById = await _laundrySession.GetSessionById(id);
+
+        //    if(getSessionById != null) //make sure the user can only see its own session only
+        //    {
+
+        //    }
+
+        //}
+
+
+
+
         /// <summary>
         /// Showing all available sloth to the user
         /// Filter out data that does not match, for instance, reserved dates or laundries that are already "finished"
@@ -49,7 +66,6 @@ namespace LaundryDormApi.Controllers
                     .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
                     {
                         ReservationTime = showFromDb.ReservationTime,
-                        PhoneNr = showFromDb.PhoneNumber,
                         UserMessage = showFromDb.Message,
                         StartPeriod = showFromDb.TimePeriod?.Start, //getting the start time & end time via navigation property
                         EndPeriod = showFromDb.TimePeriod?.End,     //foreign-key is set above, eager loading set in repository

@@ -29,12 +29,11 @@ namespace LaundryDormApi.Controllers
             {
                 ImageModel imageDomain = new ImageModel
                 {
-                    ImageFile = imageViewModel.File,
+                    ImageFile = imageViewModel.File, //IFormFile
                     ImageName = imageViewModel.FileName,
                     ImageExtension = Path.GetExtension(imageViewModel.File.FileName),
-                    ImageSizeInBytes = imageViewModel.File.Length, //simply checking the length of the file
+                    ImageSizeInBytes = imageViewModel.File.Length, //simply checking the length/size of the file
                     ImageDescription = imageViewModel.FileDescription,
-
                 };
                 await _imageRepository.Upload(imageDomain);
                 return Ok(imageDomain);

@@ -6,6 +6,5 @@ namespace LaundryDormApi.Repository
     {
         Task<ImageModel> Upload(ImageModel imageModel);
 
-
     }
 }

@@ -52,7 +52,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<MachineModel>()
                 .HasOne(im => im.Image)
                 .WithMany()
-                .HasForeignKey(im => im.ImageFK_ID)
+                .HasForeignKey(imageId => imageId.ImageFK_ID)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MaintenanceLogModel>()
@@ -83,23 +83,45 @@ namespace LaundryDormApi.DataContext
                new LaundryStatusState { LaundryStatusID = 6, StatusDescription = "Reservert"}
            );
 
-            //modelBuilder.Entity<MachineModel>().HasData( //seeding data, always seed when its something that will be permanent in the database/problem domain
-            //new MachineModel {
-            //MachineId = 1, MachineName = "Balay",
-            //ModelName = "Random",
-            //IsOperational = true,
-            //Location = "Laundry room 1",
-            //ImageFK_ID = new Guid ("08dd3e4e-9f82-4ada-8b37-2fb04b78b08b") //Attaching/seeding the image to the specific machine through foreign key 
-            //},
+            modelBuilder.Entity<MachineModel>().HasData( //seeding machine model version in the database, FK is based on the GUID PK for the image table
+            new MachineModel {
+            MachineId = 1, MachineName = "Siemen",
+            ModelName = "washing machine",
+            IsOperational = true,
+            Location = "Laundry room 1",
+            ImageFK_ID = new Guid ("a1b2c3d4-e5f6-7890-abcd-ef1234567890") //Attaching/seeding the image to the specific machine through foreign key 
+            },
 
-            //new MachineModel {
-            //MachineId = 2,
-            //MachineName = "Samsung washing machine",
-            //ModelName = "WW90CGC04DAH model",
-            //IsOperational = true,
-            //Location = "Laundry room 2",
-            //ImageFK_ID = new Guid("08dd3e4e-b027-40cf-8a90-8803586722a5") //Attaching/seeding the image to the specific machine through foreign key 
-            //});
+            new MachineModel {
+            MachineId = 2,
+            MachineName = "Samsung washing machine",
+            ModelName = "WW90CGC04DAH model",
+            IsOperational = true,
+            Location = "Laundry room 2",
+            ImageFK_ID = new Guid("b7e2a1c4-3f6a-4e2e-9b7a-2c8e1d4f5a6b") //Attaching/seeding the image to the specific machine through foreign key 
+            });
+
+            modelBuilder.Entity<ImageModel>().HasData( //seeding image PATH into the database. OBS!! Make sure the image already exist in ServerImages folder
+                new ImageModel
+                {
+                    ImageId = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+                    ImageDescription = "Siemen machine picture",
+                    ImageName = "washing machine",
+                    ImageExtension = ".jpg",
+                    ImagePath = "https://localhost:7054/Images/Siemen.jpg",
+                    ImageSizeInBytes = 337200
+                },
+
+                new ImageModel
+                {
+                    ImageId = new Guid("b7e2a1c4-3f6a-4e2e-9b7a-2c8e1d4f5a6b"),
+                    ImageDescription ="Balay washing machine",
+                    ImageName = "BalayMachine",
+                    ImageExtension =".jpg",
+                    ImagePath = "https://localhost:7054/Images/Balay.jpg",
+                    ImageSizeInBytes = 380876
+                }
+                );
 
             modelBuilder.Entity<Category>().HasData(
                 new Category { CategoryId = 1, CategoryName = "Forbedring" },

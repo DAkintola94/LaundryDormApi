@@ -1,4 +1,5 @@
 ﻿using LaundryDormApi.Model.DomainModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace LaundryDormApi.Model.ViewModel
 {
@@ -9,8 +10,10 @@ namespace LaundryDormApi.Model.ViewModel
                                             //its view model and not inserted in DbContext, so it won't autogenerate or cry about primary key!
         public string? SessionUser { get; set; }
         public string? PhoneNr { get; set; }
+
+        [EmailAddress]
         public string? Email { get; set; }
-        public DateTime? ReservationTime { get; set; } = DateTime.Now;
+        public DateTime? ReservationTime { get; set; } = DateTime.Now; //The time when the "booking" was created
 
         public DateTime? StartPeriod { get; set; } //dont delete, its for viewing start session
         public DateTime? EndPeriod { get; set; } //dont delete, its for viewing end session

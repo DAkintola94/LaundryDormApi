@@ -12,7 +12,7 @@ namespace LaundryDormApi.Controllers
     
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class LaundryController : ControllerBase
     {
         private readonly ILaundrySession _laundrySession;
@@ -28,11 +28,22 @@ namespace LaundryDormApi.Controllers
 
         }
 
+
+        /// <summary>
+        /// Retrieves a specific session for the authenticated user. 
+        /// Validates that the session belongs to the user based on information extracted from the provided JWT token.
+        /// </summary>
+        /// <param name="tokenValue">The bearer token sent from the frontend containing the user's authentication claims.</param>
+        /// <returns>Returns the session model if the user is authorized to access it.</returns>
+
+
         //[HttpGet]
         //[Route("UserSessionHistoric")]
-        
-        //public async Task<IActionResult> PreviewSessionHistoric([FromBody]TokenRepository tokenValue)
+
+        //public async Task<IActionResult> PreviewSessionHistoric([FromBody]LoginResponse tokenValue) //token bearer sent from the frontend
         //{
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //
         //    var getSessionById = await _laundrySession.GetSessionById(id);
 
         //    if(getSessionById != null) //make sure the user can only see its own session only
@@ -50,6 +61,8 @@ namespace LaundryDormApi.Controllers
         /// Filter out data that does not match, for instance, reserved dates or laundries that are already "finished"
         /// </summary>
         /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
+        /// 
+
         [HttpGet]
         [Route("Availability")]
         
@@ -85,16 +98,26 @@ namespace LaundryDormApi.Controllers
 
 
         /// <summary>
-        ///Method to initialize session with value from the user
-        /// Using isConflict variable to check for time stamp conflict. isConflict variable becomes a boolean due to .Any condition checking
-        /// Remember to use FirstOrDefault if you want a single data value from the list
-        /// SessionPeriod is a foreign-key in LaundrySessionModel, which we are using for laundry timestamp period. Its seeded in DBContext
-        /// We check if the data from the user, the id of their desired time choice matches the id from DB
-        /// We compare date only with time only for conflict. One is for the desired reservation date n day from the database, The other is for the users choice from the server
+        /// Initiates a laundry session with values provided by the user.
+        /// Information about the will be sent from the JWT Token
         /// </summary>
-        /// <param name="laundrySessionViewModel">The data we are getting from our user as json. Variable for LaundrySessionViewModel for model-swapping.
-        /// Frontend gets the laundry timestamp the user desire, then model-swapping it with the domain model </param>
-        /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
+        /// <remarks>
+        /// - Uses the <c>isConflict</c> flag (a boolean based on a LINQ <c>.Any()</c> check) to determine if a scheduling conflict exists.
+        /// - If <c>isConflict</c> is <c>false</c>, the session is added to the database.
+        /// - The <c>SessionPeriod</c> is a foreign key in <c>LaundrySessionModel</c>, seeded in the <c>DbContext</c>, used to map the desired time period.
+        /// - Date-only comparison is used to match reservation conflicts on the same day (ignoring time of day).
+        /// - Uses model-swapping from <c>LaundrySessionViewModel</c> to the domain model <c>LaundrySession</c>.
+        /// </remarks>
+        /// <param name="laundrySessionViewModel">
+        /// JSON object from the frontend containing user input. 
+        /// Includes the desired reservation timestamp and other session details, which are mapped to the domain model.
+        /// </param>
+        /// <returns>
+        /// Returns the newly created session ID on success. 
+        /// Returns <c>BadRequest</c> if a conflict exists or if the model is invalid. 
+        /// Returns <c>StatusCode(500)</c> if a server-side exception occurs.
+        /// </returns>
+
 
         [HttpPost]
         [Route("StartSession")]
@@ -104,11 +127,6 @@ namespace LaundryDormApi.Controllers
             DateTime today = DateTime.Today;
 
             var getSession = await _laundrySession.GetAllSession();
-
-            if(getSession == null)
-            {
-                return Ok("There is no session in the database"); //returning ok (leaving the method) because nothing crashed, but our list was empty
-            }
 
             try
             {
@@ -166,11 +184,19 @@ namespace LaundryDormApi.Controllers
 
 
         /// <summary>
-        ///Method used to go through the database and check if the timestamp is within current period
-        ///Using Where to get matching condition as list, in-other to work with several values that we in the database/seeded
-        ///With the use of null-coalescing operator to get count values from the database
+        /// Finalizes expired laundry sessions by checking if their time periods have passed.
         /// </summary>
-        /// <returns> Return null.</returns>
+        /// <remarks>
+        /// - Queries all laundry sessions from the database and filters those with a non-null <c>TimePeriod</c>, 
+        ///   an <c>End</c> time earlier than the current time, and a <c>LaundryStatusID</c> indicating they are active (value = 1).
+        /// - Updates each expired session by setting its <c>LaundryStatusID</c> to 2 (indicating completed or expired).
+        /// - Uses a nullable integer and the null-coalescing operator to safely retrieve and increment a count from the repository.
+        /// - The count is updated in the database for each finalized session.
+        /// </remarks>
+        /// <returns>
+        /// Returns <c>Ok</c> with a message if no sessions are updated, or a <c>StatusCode(500)</c> if an error occurs during processing.
+        /// </returns>
+
         [HttpPost]
         [Route("FinalizeLaundrySession")]
         public async Task<IActionResult> FinalizeExpiredLaundrySessions()
@@ -218,16 +244,25 @@ namespace LaundryDormApi.Controllers
 
 
         /// <summary>
-        ///Method to make our user reserve session
-        /// Using isConflict variable to check for time stamp conflict. isConflict variable becomes a boolean due to .Any condition checking
-        /// Remember to use FirstOrDefault if you want a single data value from the list
-        /// SessionPeriod is a foreignkey in LaundrySessionModel, which we are using for laundry timestamp period. Its seeded in DBContext
-        /// We check if the data from the user, the id of their desired time choice matches the id from DB
-        /// ReservedDate will be compared to any other value from the database to check for conflict
+        /// Reserves a laundry session for the authenticated user based on their selected time and date.
         /// </summary>
-        /// <param name="reservationViewModel">The data we are getting from our user. Variable for LaundrySessionViewModel for model-swapping.
-        /// Frontend gets the laundry timestamp the user desire, then modelswapping it with the domain model </param>
-        /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
+        /// <remarks>
+        /// - Checks for conflicts by comparing the user's desired reservation date and time period ID against existing sessions in the database.
+        /// - Uses the <c>isConflict</c> flag to determine if any existing session overlaps with the user's requested slot (based on <c>ReservedDate</c> and <c>TimePeriodId</c>).
+        /// - If no conflict is found, the session is saved to the database with a default machine ID and a pre-seeded laundry status ID (value = 6).
+        /// - <c>SessionPeriod</c> is a foreign key in the <c>LaundrySessionModel</c> and represents the desired time block (e.g., morning, afternoon).
+        /// - The frontend sends the desired time/date, which is mapped from the <c>LaundrySessionViewModel</c> to the domain model.
+        /// </remarks>
+        /// <param name="reservationViewModel">
+        /// The user’s reservation data, passed as a JSON object from the frontend. 
+        /// This includes the reservation date, selected time period, contact details, and optional message.
+        /// </param>
+        /// <returns>
+        /// Returns <c>Ok</c> with the newly created session if successful, 
+        /// or an <c>Ok</c> with a conflict message if the slot is already taken. 
+        /// Returns <c>BadRequest</c> if validation fails or input is invalid.
+        /// </returns>
+
         [HttpPost]
         [Route("SetReservation")]
         [Authorize]

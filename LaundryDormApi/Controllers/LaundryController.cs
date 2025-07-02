@@ -49,6 +49,8 @@ namespace LaundryDormApi.Controllers
         //
         //    var getSessionById = await _laundrySession.GetSessionById(id);
 
+        // The standard is to return 401 when a token is expired
+
         //    if(getSessionById != null) //make sure the user can only see its own session only
         //    {
 

@@ -97,12 +97,16 @@ namespace LaundryDormApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddAuthorization();
+            builder.Services.AddAuthorization(); //Enables authentication middleware, which processes incoming HTTP requests and sets properties like HttpContext.User.
+                                                 // Middleware is like a chain of small programs that run before your controller gets the request, and often after the controller sends back a response.
+                                                 // Think of it as a set of steps your request goes through:
+                                                 // Checking authentication
+                                                 // Logging requests
+                                                 // Handling errors
+                                                 // Modifying requests or responses
 
-            var jwtKey = builder.Configuration["Jwt:Key"];
-
-            var testerKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? string.Empty));
-            Console.WriteLine(testerKey);
+            var jwtKey = builder.Configuration["Jwt:Key"]; 
+            // Configuration reads settings (like secrets or URLs) from outside the code, such as appsettings.json or environment variables
 
             builder.Services.AddAuthentication(options =>
             {
@@ -127,7 +131,6 @@ namespace LaundryDormApi
                     (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Jwt not configurated")))
                 });
 
-            
 
             var app = builder.Build();
 

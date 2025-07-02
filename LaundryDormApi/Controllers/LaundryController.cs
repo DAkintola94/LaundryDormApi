@@ -33,6 +33,8 @@ namespace LaundryDormApi.Controllers
         /// Retrieves a specific laundry session for the logged-in user.
         /// The JWT token (Bearer token) sent from the frontend is automatically validated by ASP.NET Core's authentication middleware.
         /// If valid, the user information from the token becomes available through HttpContext.User, allowing the method to verify ownership of the session.
+        /// 'User' is a built-in property available in controllers (inherited from ControllerBase) that represents the current authenticated user's claims.
+        /// It is automatically populated by ASP.NET Core middleware during the processing of the current HTTP request.
         /// </summary>
         /// <param name="tokenValue">The JWT token sent from the frontend (handled automatically via Authorization header).</param>
         /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
@@ -43,7 +45,7 @@ namespace LaundryDormApi.Controllers
 
         //public async Task<IActionResult> PreviewSessionHistoric([FromBody]LoginResponse tokenValue) //token bearer sent from the frontend
         //{
-        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Gets the current user's ID from the authentication token in the HTTP request context
         //
         //    var getSessionById = await _laundrySession.GetSessionById(id);
 
@@ -70,6 +72,8 @@ namespace LaundryDormApi.Controllers
         public async Task<IActionResult> CheckAvailability()
         {
             var getAllOrders = await _laundrySession.GetAllSession();
+
+           
 
             if(getAllOrders != null)
             {

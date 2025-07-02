@@ -30,11 +30,12 @@ namespace LaundryDormApi.Controllers
 
 
         /// <summary>
-        /// Retrieves a specific session for the authenticated user. 
-        /// Validates that the session belongs to the user based on information extracted from the provided JWT token.
+        /// Retrieves a specific laundry session for the logged-in user.
+        /// The JWT token (Bearer token) sent from the frontend is automatically validated by ASP.NET Core's authentication middleware.
+        /// If valid, the user information from the token becomes available through HttpContext.User, allowing the method to verify ownership of the session.
         /// </summary>
-        /// <param name="tokenValue">The bearer token sent from the frontend containing the user's authentication claims.</param>
-        /// <returns>Returns the session model if the user is authorized to access it.</returns>
+        /// <param name="tokenValue">The JWT token sent from the frontend (handled automatically via Authorization header).</param>
+        /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
 
 
         //[HttpGet]

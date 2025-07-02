@@ -65,7 +65,7 @@ export const Settvask = () => {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          //"Authorization": `Bearer ${access_token}` needed later?
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(laundrySessionData)
       });

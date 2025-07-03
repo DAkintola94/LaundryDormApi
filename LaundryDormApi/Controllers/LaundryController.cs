@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LaundryDormApi.Controllers
 {
@@ -40,23 +41,29 @@ namespace LaundryDormApi.Controllers
         /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
 
 
-        //[HttpGet]
-        //[Route("UserSessionHistoric")]
+        [HttpGet]
+        [Route("UserSessionHistoric")]
 
-        //public async Task<IActionResult> PreviewSessionHistoric() //token bearer sent from the frontend
-        //{
-        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Gets the current user's ID from the authentication token in the HTTP request context
-        //
-        //    var getSessionById = await _laundrySession.GetSessionById(id);
+        public async Task<IActionResult> PreviewSessionHistoric() //token bearer sent from the frontend
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Gets the current user's ID from the authentication token in the HTTP request context
+                                                 //Asp.net core middleware has already decoded the JWT token from the request and populated httpcontext.User for us
+                                                 //HttpContext is populating User (a ClaimsPrincipal) with the claims that we already embedded in the JWT token repository.
 
-        // The standard is to return 401 when a token is expired
+            
+        
+            //var getSessionById = await _laundrySession.GetSessionById(id);
 
-        //    if(getSessionById != null) //make sure the user can only see its own session only
-        //    {
+                                    // The standard is to return 401 when a token is expired
 
-        //    }
+           //if(getSessionById != null) //make sure the user can only see its own session only
+           //{
 
-        //}
+            //}
+
+            return null;
+
+        }
 
 
 

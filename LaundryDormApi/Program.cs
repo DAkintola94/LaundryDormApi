@@ -190,7 +190,9 @@ namespace LaundryDormApi
 
             app.UseCors("MyAllowSpecificOrigins");
 
-            app.UseAuthentication();
+            app.UseAuthentication(); //middleware for extracting JWT from the Authorization header 
+                                       //decodes the token, and pulls out the claims we added
+                                       //stores them in HttpContext.User
 
             app.UseAuthorization();
 

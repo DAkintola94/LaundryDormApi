@@ -31,19 +31,19 @@ namespace LaundryDormApi.Controllers
 
         /// <summary>
         /// Retrieves a specific laundry session for the logged-in user.
-        /// The JWT token (Bearer token) sent from the frontend is automatically validated by ASP.NET Core's authentication middleware.
+        /// The JWT token (Bearer token) sent from the frontend is automatically validated by ASP.NET Core's authentication middleware from program.cs
         /// If valid, the user information from the token becomes available through HttpContext.User, allowing the method to verify ownership of the session.
         /// 'User' is a built-in property available in controllers (inherited from ControllerBase) that represents the current authenticated user's claims.
         /// It is automatically populated by ASP.NET Core middleware during the processing of the current HTTP request.
+        /// With this, we don't need the JWT token as parameter
         /// </summary>
-        /// <param name="tokenValue">The JWT token sent from the frontend (handled automatically via Authorization header).</param>
         /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
 
 
         //[HttpGet]
         //[Route("UserSessionHistoric")]
 
-        //public async Task<IActionResult> PreviewSessionHistoric([FromBody]LoginResponse tokenValue) //token bearer sent from the frontend
+        //public async Task<IActionResult> PreviewSessionHistoric() //token bearer sent from the frontend
         //{
         //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Gets the current user's ID from the authentication token in the HTTP request context
         //
@@ -237,7 +237,11 @@ namespace LaundryDormApi.Controllers
                             await _updateCountRepository.UpdateCount(updatedCount);
                         }
                     }
+
+                    return Ok("Laundry sessions have been updated");
                 }
+
+                
             }
             catch (Exception err )
             {
@@ -272,7 +276,7 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("SetReservation")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> ReserveLaundrySlot([FromBody]LaundrySessionViewModel reservationViewModel)
         {
             var getSession = await _laundrySession.GetAllSession();
@@ -311,7 +315,7 @@ namespace LaundryDormApi.Controllers
                         return Ok(reservationSessionDto);
                     }
 
-                    return Ok("There was a conflict with the reservation time, please choose another time.");
+                    return Ok("There was a conflict with the reservation, please choose another reservation date.");
 
                 }
                 catch (Exception ex)

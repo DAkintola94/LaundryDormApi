@@ -95,15 +95,42 @@ namespace LaundryDormApi
 
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "LaundryDorm Api", Version = "v1" });
+                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme //telling Swagger that our API requires a security scheme, like a JWT Bearer token
+                {
+                    Name="Authorization",
+                    In = ParameterLocation.Header, //Authorization to be passed as header
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement //telling Swagger that our API requires a security scheme, like a JWT Bearer token
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            },
+
+                            Scheme = "Oauth2",
+                            Name = JwtBearerDefaults.AuthenticationScheme,
+                            In = ParameterLocation.Header
+                        },
+                         new List<string>()
+                    }
+
+                });
+
+            });
 
             builder.Services.AddAuthorization(); //Enables authentication middleware, which processes incoming HTTP requests and sets properties like HttpContext.User.
                                                  // Middleware is like a chain of small programs that run before your controller gets the request, and often after the controller sends back a response.
-                                                 // Think of it as a set of steps your request goes through:
-                                                 // Checking authentication
-                                                 // Logging requests
-                                                 // Handling errors
-                                                 // Modifying requests or responses
+                                                 
 
             var jwtKey = builder.Configuration["Jwt:Key"]; 
             // Configuration reads settings (like secrets or URLs) from outside the code, such as appsettings.json or environment variables
@@ -134,13 +161,22 @@ namespace LaundryDormApi
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline. 
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            //Configuring Middleware
+            // Middleware is like a chain of small programs that run before your controller gets the request, and often after the controller sends back a response.
+            // Think of it as a set of steps your request goes through:
+            // Checking authentication
+            // Logging requests
+            // Handling errors
+            // Modifying requests or responses
 
             app.UseHttpsRedirection();
 

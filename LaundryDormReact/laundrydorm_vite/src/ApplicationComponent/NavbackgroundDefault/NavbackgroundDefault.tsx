@@ -68,16 +68,14 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
     aud: string;
   }
 
-    const [userInfo, setUsersInfo] = useState<UserInfo | null>(null);
+    const [userInfo, setUsersInfo] = useState<UserInfo | null>(null); //using it to set or get value from the UserInfo object
 
-    
-    
 
     useEffect(() => {
       const token = localStorage.getItem("access_token");
       if(token){
         try {
-          const decode = jwtDecode<MyJwtPayload>(token);
+          const decode = jwtDecode<MyJwtPayload>(token); //important section, as you decoded JWT here and store it in localstorage which is global
           setUsersInfo({
             email: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], //due to how our claim is sending the information from the backend
             name: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"], //due to how our claim is sending the information from the backend
@@ -87,7 +85,8 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
             audience: decode.aud
           })
 
-
+          //localStorage.setItem("decodedPayload", JSON.stringify(userInfo)); //using JSON.stringify to serialize the objects before storing them
+                                                                          //Use JSON.Parse if you want to convert it back to its original object form
         } catch (err){
           console.error("Invalid token",err);
         }
@@ -109,9 +108,9 @@ const Navlinks = [
 const toogleNav = () => setNavBar(!nav);
 
 const laundryDownMenu = [ 
-  {name: "Sett vask", link:"/laundry"},
   {name: "Reservasjon", link:"/reservation"},
   {name: "Historikk", link:"/historic"},
+  {name: "Ledighet", link:"/availability"}
 ];
 
 const accountDropDownMenu = [
@@ -159,7 +158,7 @@ const accountDropDownMenu = [
            {elements.id === 1 && dropDownOpen && (
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
     {laundryDownMenu.map((items, idx) => {
-      if(!userInfo && (items.name === "Sett vask" || items.name=== "Reservasjon" || items.name==="Historikk")){
+      if(!userInfo && (items.name=== "Reservasjon" || items.name==="Historikk" || items.name==="Ledighet")){
         return null;
       }
 
@@ -193,7 +192,8 @@ const accountDropDownMenu = [
             <button
               className="w-full text-left"
               onClick={() => {
-                localStorage.removeItem("access_token");
+                localStorage.removeItem("access_token"); //removes all info about user, global
+                
                 navigate('/', { replace: true });
               }}
             >

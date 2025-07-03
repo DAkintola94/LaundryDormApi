@@ -15,18 +15,29 @@ namespace LaundryDormApi.Repository
 
         public async Task<IEnumerable<LaundrySession>> GetAllSession()
         {
-            return await _context.Laundry
+            try
+            {
+                return await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
+                .Include(tp => tp.TimePeriod)
                 .ToListAsync();
+            } catch(Exception ex)
+            {
+                throw new Exception($"An error occurred when trying to fetch data from the database: {ex}");
+            }
+            
         }
 
         public async Task<LaundrySession?> GetSessionById(int id)
         {
-            return await _context.Laundry
+            
+                return await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
+                .Include(tp => tp.TimePeriod)
                 .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
+            //No point with try catch since we are accepting a null value in return if nothing is found
         }
 
         public async Task<LaundrySession?> DeleteSessionById(int id)
@@ -34,6 +45,7 @@ namespace LaundryDormApi.Repository
             var getLaundrySessionById = await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
+                .Include(tp => tp.TimePeriod)
                 .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
 
             if(getLaundrySessionById !=null )

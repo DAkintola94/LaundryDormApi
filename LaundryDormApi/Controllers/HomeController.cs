@@ -38,9 +38,7 @@ namespace LaundryDormApi.Controllers
         {
             var getDataFromDb = await _laundrySession.GetAllSession();
 
-                //_logger.LogInformation($"Data was fetched from the database : {JsonSerializer.Serialize(getDataFromDb)} ");
-
-                var currentUser = await _userManager.GetUserAsync(User);
+                //var currentUser = await _userManager.GetUserAsync(User);
 
                 if (getDataFromDb != null)  //&& currentUser != null
                 {
@@ -56,8 +54,6 @@ namespace LaundryDormApi.Controllers
                             ReservationTime = x.ReservationTime,
                             UserMessage = x.Message,
                             MachineId = x.MachineId,
-                            SessionStart = x.SessionStart,
-                            SessionEnd = x.SessionEnd,
                             MachineName = x.Machine?.MachineName
                         }
                         );
@@ -89,9 +85,7 @@ namespace LaundryDormApi.Controllers
                     //PhoneNumber = currentUser.PhoneNumber,
                     ReservationTime = laundrySessionViewModel.ReservationTime,
                     Message = laundrySessionViewModel.UserMessage,
-                    MachineId = laundrySessionViewModel.MachineId,
-                    SessionStart = laundrySessionViewModel.SessionStart,
-                    SessionEnd = laundrySessionViewModel.SessionEnd
+                    MachineId = laundrySessionViewModel.MachineId
                 };
                 //await _laundrySession.InsertSession(laundrySession);
                 return Ok(laundrySessionViewModel);

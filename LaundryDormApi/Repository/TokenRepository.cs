@@ -16,14 +16,14 @@ namespace LaundryDormApi.Repository
             _configuration = configuration;
         }
 
-       public string CreateJWTToken(ApplicationUser user, List<string> roles)
+       public string CreateJWTToken(ApplicationUser applicationUser, List<string> roles)
         {
             var claims = new List<Claim> //claims are the information that we want to store about the user, in the token that is being sent to the client
             {
-                new Claim (ClaimTypes.Email, user.Email ?? string.Empty),
-                new Claim (ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty),
-                new Claim (ClaimTypes.Name, $"{user.FirstName} {user.LastName}" ?? string.Empty),
-                new Claim (ClaimTypes.NameIdentifier, user.Id ?? string.Empty)
+                new Claim (ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+                new Claim (ClaimTypes.MobilePhone, applicationUser.PhoneNumber ?? string.Empty),
+                new Claim (ClaimTypes.Name, $"{applicationUser.FirstName} {applicationUser.LastName}" ?? string.Empty),
+                new Claim (ClaimTypes.NameIdentifier, applicationUser.Id ?? string.Empty)
             };
 
             foreach (var role in roles)
@@ -32,14 +32,9 @@ namespace LaundryDormApi.Repository
             }
 
            
-
-
             var encodeKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new Exception("Key not found")));
 
             var creds = new SigningCredentials(encodeKey, SecurityAlgorithms.HmacSha256);
-
-            //var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? string.Empty)),
-                //SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],

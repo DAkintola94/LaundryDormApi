@@ -35,7 +35,6 @@ namespace LaundryDormApi.Controllers
                     FirstName = regViewModel.UserFirstName,
                     LastName = regViewModel.UserLastName,
                     Address = regViewModel.UserAddress,
-                    UserName = regViewModel.UserName, //identity which we inherit from already has UserName property, no need to create on in the model
                     Email = regViewModel.Email, //identity which we inherit from already has email property, no need to create on in the model
                     PhoneNumber = regViewModel.PhoneNumber //-||-
                 };

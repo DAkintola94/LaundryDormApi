@@ -14,11 +14,21 @@ namespace LaundryDormApi.Repository
 
         public async Task<IEnumerable<AdviceSet>> GetAllAdvice()
         {
-            var getAdviceFromDb = await _context.Advice
+            try
+            {
+                var getAdviceFromDb = await _context.Advice
                 .Include(c => c.CategoryModel)
                 .Take(50).ToListAsync();
 
-            return getAdviceFromDb;
+                return getAdviceFromDb;
+            } catch(Exception ex)
+
+            {
+                throw new Exception($"An error occured: {ex}");
+                //We dont have to return or throw anything outside the try catch scope because when exception is thrown
+                //the method execution is immediately stopped. Whole point with return in the first place
+            }
+            
         }
 
         public async Task<AdviceSet?> GetAdviceById(int id)
@@ -29,7 +39,7 @@ namespace LaundryDormApi.Repository
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<AdviceSet?> DeleteAdviceById(int id)
+        public async Task<AdviceSet> DeleteAdviceById(int id)
         {
             var adviceIdFromDb = await _context.Advice
                 .Include(c => c.CategoryModel)
@@ -42,10 +52,11 @@ namespace LaundryDormApi.Repository
                 return adviceIdFromDb;
             }
 
-            return null;
+            throw new KeyNotFoundException($"An error occurred, poster id: {id} could not be found "); 
+            //You can throw an error instead of returning anything (null)
         }
 
-        public async Task<AdviceSet?> InsertAdvice(AdviceSet adviceSet)
+        public async Task<AdviceSet> InsertAdvice(AdviceSet adviceSet)
         {
             if(adviceSet!= null)
             {
@@ -54,10 +65,10 @@ namespace LaundryDormApi.Repository
                 return adviceSet;
             }
 
-            return null;
+            throw new KeyNotFoundException($"An error occurred, {adviceSet} could not be added into the database");
         }
 
-        public async Task<AdviceSet?> UpdateAdvice(AdviceSet adviceSet)
+        public async Task<AdviceSet> UpdateAdvice(AdviceSet adviceSet)
         {
             if(adviceSet != null)
             { 
@@ -66,7 +77,7 @@ namespace LaundryDormApi.Repository
                  return adviceSet;
             }
 
-            return null;
+            throw new KeyNotFoundException($"An error occurred when trying to update {adviceSet}");
         }
 
 

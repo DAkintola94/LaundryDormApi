@@ -8,7 +8,7 @@
         public bool IsOperational { get; set; }
         public string? Location { get; set; }
         public ImageModel? Image { get; set; }
-        public Guid ImageFK_ID { get; set; }
+        public Guid ImageFK_ID { get; set; } //Foreign-key for the image id
 
     }
 }

@@ -13,27 +13,63 @@ namespace LaundryDormApi.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IMachineLogRepository _machineLogRepository;
-        private readonly IReservationRepository _reservationRepository;
-        public AdminController(IMachineLogRepository machineLogRepository, IReservationRepository reservationRepository)
+        private readonly ILaundrySession _sessionRepository;
+        public AdminController(IMachineLogRepository machineLogRepository, ILaundrySession sessionRepository)
         {
             _machineLogRepository = machineLogRepository;
-            _reservationRepository = reservationRepository;
+            _sessionRepository = sessionRepository;
+        }
+
+        [HttpPost]
+        [Route("SessionId")]
+
+        public async Task<IActionResult> SessionHistoricId(int id)
+        {
+            var getSessionById = await _sessionRepository.GetSessionById(id);
+
+            if(getSessionById != null)
+            {
+                LaundrySessionViewModel laundrySessionViewModel = new LaundrySessionViewModel
+                {
+                    Email = getSessionById.UserEmail,
+                    EndPeriod = getSessionById.TimePeriod?.End,
+                    StartPeriod = getSessionById.TimePeriod?.Start,
+                    SessionId = getSessionById.LaundrySessionId,
+                    SessionTimePeriodId = getSessionById.TimePeriodId,
+                    PhoneNr = getSessionById.PhoneNumber,
+                    UserMessage = getSessionById.Message,
+                    MachineId = getSessionById.Machine?.MachineId,
+                    LaundryStatusDescription = getSessionById.LaundryStatus?.StatusDescription,
+                    MachineName = getSessionById.Machine?.MachineName,
+                };
+
+                return Ok(laundrySessionViewModel);
+            }
+
+            return Ok("There was no session in the database");
         }
 
         [HttpGet]
-        [Route("EntireReservationLog")]
-        public async Task<IActionResult> DispayAllReservation()
+        [Route("EntireSessionLog")]
+        public async Task<IActionResult> DispayAllSessions()
         {
-            var getAllReservation = await _reservationRepository.GetAllReservation();
+            var getAllReservation = await _sessionRepository.GetAllSession();
             if(getAllReservation!= null)
             {
                 var getReservationData = getAllReservation.Select(
-                    x => new ReservationViewModel
+                    fromDb => new LaundrySessionViewModel
                     {
-                        ReservationPeriodTime = x.ReservationTime,
-                        ReservationDate = x.ReservationDate,
-                        Name = x.ReservationHolder,
-                        MachineRoom = x.MachineId
+                        ReservationTime = fromDb.ReservationTime,
+                        ReservationDate = fromDb.ReservedDate,
+                        Email = fromDb.UserEmail,
+                        UserMessage = fromDb.Message,
+                        PhoneNr = fromDb.PhoneNumber,
+                        StartPeriod = fromDb.TimePeriod?.Start,
+                        EndPeriod = fromDb.TimePeriod?.End,
+                        SessionId = fromDb.LaundrySessionId,
+                        MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
+                        LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription, //using the model navigation property to get the laundry status name
+
                     });
                 return Ok(getReservationData);
             }

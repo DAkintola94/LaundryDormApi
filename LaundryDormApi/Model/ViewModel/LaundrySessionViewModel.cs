@@ -18,9 +18,9 @@ namespace LaundryDormApi.Model.ViewModel
         public DateTime? StartPeriod { get; set; } //dont delete, its for viewing start session
         public DateTime? EndPeriod { get; set; } //dont delete, its for viewing end session
 
-
         public string? UserMessage { get; set; }
         public string? LaundryStatusDescription { get; set; }
+
         public DateOnly? ReservationDate { get; set; } 
         public int? MachineId { get; set; }
         public string? MachineName { get; set; }

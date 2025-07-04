@@ -2,7 +2,7 @@
 
 namespace LaundryDormApi.Model.DomainModel
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser //Inheriting from IdentityUser class
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -1,9 +1,12 @@
 ﻿using LaundryDormApi.Model.DomainModel;
 using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Security.Claims;
 
 namespace LaundryDormApi.Controllers
 {
@@ -36,7 +39,8 @@ namespace LaundryDormApi.Controllers
                     LastName = regViewModel.UserLastName,
                     Address = regViewModel.UserAddress,
                     Email = regViewModel.Email, //identity which we inherit from already has email property, no need to create on in the model
-                    PhoneNumber = regViewModel.PhoneNumber //-||-
+                    UserName = regViewModel.Email, //Since identity requires username, use email as username, and dont let the user write a username
+                    PhoneNumber = regViewModel.PhoneNumber //--
                 };
             
              var result = await _userManager.CreateAsync(applicationUser, regViewModel.Password);
@@ -68,6 +72,8 @@ namespace LaundryDormApi.Controllers
             }
             return Unauthorized("Something went wrong");   
         }
+
+
         [HttpPost]
         [Route("LoginAuth")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
@@ -90,24 +96,56 @@ namespace LaundryDormApi.Controllers
                     }
 
                 }
-                
+                //logout is up to the frontend, by clearing the stored token from localstorage
             }
 
             return Unauthorized("Username or password wrong");
          }
 
-        [HttpPost]
-        [Route("LogOut")]
-        public async Task<IActionResult> LogOut()
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if(currentUser!= null)
-            {
-                await _signInManager.SignOutAsync();
-                return NoContent();
-            }
 
-            return Unauthorized("No user found");
+        /// <summary>
+        /// Retrieves the authenticated user's profile information based on the JWT token provided in the request (frontend).
+        /// </summary>
+        /// <remarks>
+        /// - Extracts the decoded user's identity information from the JWT token via ASP.NET Core's authentication middleware.
+        /// - Uses <c>UserManager</c> to get the <c>ApplicationUser</c> entity from the database.
+        /// - Maps relevant user properties into a <c>RegisterViewModel</c> for client-side consumption.
+        /// - Returns a default message for any missing user data fields.
+        /// </remarks>
+        /// <returns>
+        /// Returns <c>200 OK</c> with a populated <c>RegisterViewModel</c> if the user is authenticated.
+        /// Returns <c>401 Unauthorized</c> if no user is authenticated.
+        /// </returns>
+        [HttpGet]
+        [Route("ProfilePage")]
+        [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
+        public async Task<IActionResult> UsersProfile()
+        {
+
+            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; 
+            //var usersEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            // You can also do this
+
+
+            var currentUsers = await _userManager.GetUserAsync(User); // Gets the current user's information from the authentication token in the HTTP request context
+                                                                      //Asp.net core middleware has already decoded the JWT token sent from the frontend and populated httpcontext.User for us
+                                                                      //HttpContext is populating User (a ClaimsPrincipal) with the claims that we already embedded in the JWT token repository.
+
+            if (currentUsers!= null)
+            {  
+                RegisterViewModel registerViewModel = new RegisterViewModel
+                {
+                    Email = currentUsers.Email ?? "Users email was not found",
+                    PhoneNumber = currentUsers.PhoneNumber ?? "Users phonenumber was not found",
+                    UserFirstName = currentUsers.FirstName ?? "Users first name is undefined",
+                    UserLastName = currentUsers.LastName ?? "Users last name is undefined",
+                    ProfileId = currentUsers.Id ?? "Users Id was not found",
+                    UserAddress = currentUsers.Address ?? "Users address was not found"
+                };
+
+                return Ok(registerViewModel); //send the users information that the frontend can pick up
+            }
+            return Unauthorized("No user is signed in");
         }
 
     }

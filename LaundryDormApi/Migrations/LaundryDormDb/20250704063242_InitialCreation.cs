@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -270,9 +270,9 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 columns: new[] { "PeriodId", "End", "Start" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 7, 2, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 2, 7, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, new DateTime(2025, 7, 2, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 2, 12, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, new DateTime(2025, 7, 2, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 2, 17, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 4, 7, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, new DateTime(2025, 7, 4, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(

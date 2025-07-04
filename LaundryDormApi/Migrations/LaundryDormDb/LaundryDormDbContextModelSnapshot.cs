@@ -349,20 +349,20 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             PeriodId = 1,
-                            End = new DateTime(2025, 7, 2, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 2, 7, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 4, 7, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PeriodId = 2,
-                            End = new DateTime(2025, 7, 2, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 2, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PeriodId = 3,
-                            End = new DateTime(2025, 7, 2, 23, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 2, 17, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 4, 23, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 

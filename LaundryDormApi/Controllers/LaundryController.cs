@@ -26,9 +26,7 @@ namespace LaundryDormApi.Controllers
             _laundrySession = laundrySession;
             _updateCountRepository = updateCountRepository;
             _userManager = userManager;
-
         }
-
 
         /// <summary>
         /// Retrieves a specific laundry session for the logged-in user.
@@ -42,30 +40,44 @@ namespace LaundryDormApi.Controllers
 
 
         [HttpGet]
-        [Route("UserSessionHistoric")]
+        [Route("SessionHistoric")]
+        [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
 
-        public async Task<IActionResult> PreviewSessionHistoric() //token bearer sent from the frontend
+        public async Task<IActionResult> PreviewSessionHistoric() 
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Gets the current user's ID from the authentication token in the HTTP request context
-                                                 //Asp.net core middleware has already decoded the JWT token from the request and populated httpcontext.User for us
-                                                 //HttpContext is populating User (a ClaimsPrincipal) with the claims that we already embedded in the JWT token repository.
+            var currentUser = await _userManager.GetUserAsync(User);
+            var getAllSession = await _laundrySession.GetAllSession();
 
-            
-        
-            //var getSessionById = await _laundrySession.GetSessionById(id);
+            if(currentUser == null)
+            {
+                return Unauthorized("You must be logged in to use this function");
+            }
 
-                                    // The standard is to return 401 when a token is expired
+            if(getAllSession == null)
+            {
+                return Ok("No laundry session found");
+            }
 
-           //if(getSessionById != null) //make sure the user can only see its own session only
-           //{
+            var usersValidSession = getAllSession.Where(usersDB =>
+            usersDB.PhoneNumber == currentUser.PhoneNumber //checking if phonenumber from database matches the current logged in user phonenumber
+            && usersDB.UserEmail == currentUser.Email) //checking if the email from database matches the current logged in users email
+                .Select(fromDb => new LaundrySessionViewModel
+                {
+                    Email = fromDb.UserEmail,
+                    PhoneNr = fromDb.PhoneNumber,
+                    SessionUser = fromDb.Name,
+                    ReservationDate = fromDb?.ReservedDate,
+                    ReservationTime = fromDb?.ReservationTime,
+                    LaundryStatusDescription = fromDb?.LaundryStatus?.StatusDescription,
+                    StartPeriod = fromDb?.TimePeriod?.Start,
+                    EndPeriod = fromDb?.TimePeriod?.End,
+                    MachineName = fromDb?.Machine?.MachineName,
+                    UserMessage = fromDb?.Message,
+                    SessionId = fromDb?.LaundrySessionId
+                });
 
-            //}
-
-            return null;
-
+            return Ok(usersValidSession);
         }
-
-
 
 
         /// <summary>
@@ -81,8 +93,6 @@ namespace LaundryDormApi.Controllers
         public async Task<IActionResult> CheckAvailability()
         {
             var getAllOrders = await _laundrySession.GetAllSession();
-
-           
 
             if(getAllOrders != null)
             {
@@ -135,12 +145,19 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("StartSession")]
-        [AllowAnonymous]
+        [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
+                    //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
         public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel)
         {
             DateTime today = DateTime.Today;
 
+            var currentUser = await _userManager.GetUserAsync(User);
             var getSession = await _laundrySession.GetAllSession();
+
+            if(currentUser == null)
+            {
+                return Unauthorized("Unauthorized user");
+            }
 
             try
             {
@@ -157,9 +174,9 @@ namespace LaundryDormApi.Controllers
 
                     LaundrySession laundrySessionDomain = new LaundrySession
                     {
-                        UserEmail = laundrySessionViewModel.Email,
-                        Name = laundrySessionViewModel.SessionUser, //our claim is sending the name as first name + last name. Therefore, this single variable is enough 
-                        PhoneNumber = laundrySessionViewModel.PhoneNr,
+                        UserEmail = currentUser.Email,
+                        Name = currentUser.FirstName + currentUser.LastName, //getting information from the current logged in user, through the token sent, and decoded in the middleware
+                        PhoneNumber = currentUser.PhoneNumber,
                         Message = laundrySessionViewModel.UserMessage,
                         MachineId = laundrySessionViewModel.MachineId,
                         ReservationTime = DateTime.Now,
@@ -213,13 +230,14 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("FinalizeLaundrySession")]
+        //[Authorize(Roles ="")] //The bearer token sent from the frontend will be populated in User through the middleware
+        //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent.
         public async Task<IActionResult> FinalizeExpiredLaundrySessions()
         {
             int? updatedCount = (await _updateCountRepository.GetCountNumber()) ?? 0; //get the count from the database (nullable), then update later
 
             DateTime today = DateTime.Today; //local-day, date, day
             DateTime now = DateTime.Now;     //local-time, date, day, minute
-
 
             var getLaundrySessions = await _laundrySession.GetAllSession();
 
@@ -255,7 +273,6 @@ namespace LaundryDormApi.Controllers
                 return StatusCode(500, $"An error occurred while trying to finalize expired laundry sessions {err}");
             }
 
-           
             return Ok("No session to update in the database");
         }
 
@@ -283,10 +300,17 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("SetReservation")]
-        //[Authorize]
+        [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
+                    //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
         public async Task<IActionResult> ReserveLaundrySlot([FromBody]LaundrySessionViewModel reservationViewModel)
         {
             var getSession = await _laundrySession.GetAllSession();
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if(currentUser == null)
+            {
+                return Unauthorized("Invalid user");
+            }
 
             if(reservationViewModel!= null 
                 && getSession!= null 
@@ -296,10 +320,12 @@ namespace LaundryDormApi.Controllers
                 {
                     LaundrySession reservationSessionDto = new LaundrySession
                     {
+                        UserEmail = currentUser.Email,
+                        PhoneNumber = currentUser.PhoneNumber,
+                        Name = currentUser.FirstName + currentUser.LastName,
+
                         ReservationTime = reservationViewModel.ReservationTime, //The time and date the user created the reservation
                         ReservedDate = reservationViewModel.ReservationDate,    //The date our user desire to book the laundry session ahead of time
-                        UserEmail = reservationViewModel.Email, 
-                        PhoneNumber = reservationViewModel.PhoneNr,
                         Message = reservationViewModel.UserMessage,
 
                         TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context

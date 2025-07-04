@@ -25,7 +25,11 @@ namespace LaundryDormApi.Model.ViewModel
         [Required]
         public string UserLastName { get; set; }
         [Required]
+
+        [MaxLength(8)]
         public string PhoneNumber { get; set; }
+
+        public string? ProfileId { get; set; }
 
     }
 }

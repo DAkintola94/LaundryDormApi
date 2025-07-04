@@ -88,10 +88,16 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("Availability")]
-        
+        [Authorize]
         public async Task<IActionResult> CheckAvailability()
         {
             var getAllOrders = await _laundrySession.GetAllSession();
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if(currentUser == null)
+            {
+                return Unauthorized("Unauthorized user");
+            }
 
             if(getAllOrders != null)
             {
@@ -116,7 +122,8 @@ namespace LaundryDormApi.Controllers
                     StatusCode(500, "An unexpected error occurred" + ex);
                 }
             }
-                return Ok("Session list is currently empty"); //sending to the frontend as JSON, remember to use the keyword "getAllOrders" to get the data from the database
+                return Ok($"There is no available date {new List<LaundrySessionViewModel>()}"); 
+            //returning message and an empty list
         }
 
 
@@ -206,7 +213,7 @@ namespace LaundryDormApi.Controllers
             {
                 return StatusCode(500, "An error occured " + exp); //use StatusCode when there is an unexpected server-side error (unhandled exception)
             }
-          
+        
             return BadRequest("A value have been set");
         }
 
@@ -226,7 +233,7 @@ namespace LaundryDormApi.Controllers
         /// </returns>
         [HttpPost]
         [Route("FinalizeLaundrySession")]
-        //[Authorize(Roles ="")] //The bearer token sent from the frontend will be populated in User through the middleware
+        //[Authorize(Roles ="Admin")] //The bearer token sent from the frontend will be populated in User through the middleware
         //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent.
         public async Task<IActionResult> FinalizeExpiredLaundrySessions()
         {
@@ -258,11 +265,8 @@ namespace LaundryDormApi.Controllers
                             await _updateCountRepository.UpdateCount(updatedCount);
                         }
                     }
-
                     return Ok("Laundry sessions have been updated");
                 }
-
-                
             }
             catch (Exception err )
             {
@@ -271,8 +275,6 @@ namespace LaundryDormApi.Controllers
 
             return Ok("No session to update in the database");
         }
-
-
 
         /// <summary>
         /// Reserves a laundry session for the authenticated user based on their selected time and date.

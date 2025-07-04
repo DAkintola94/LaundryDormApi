@@ -55,13 +55,13 @@ namespace LaundryDormApi.Controllers
 
             if(getAllSession == null)
             {
-                return Ok("No laundry session found");
+                return Ok(new List<LaundrySessionViewModel>()); //returning empty list
             }
 
             var usersValidSession = getAllSession.Where(usersDB =>
             usersDB.PhoneNumber == currentUser.PhoneNumber //checking if phonenumber from database matches the current logged in user phonenumber
             && usersDB.UserEmail == currentUser.Email) //checking if the email from database matches the current logged in users email
-                .Select(fromDb => new LaundrySessionViewModel
+                .Select(fromDb => new LaundrySessionViewModel //then model swap and show content that belongs to user
                 {
                     Email = fromDb.UserEmail,
                     PhoneNr = fromDb.PhoneNumber,

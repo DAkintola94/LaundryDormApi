@@ -66,9 +66,7 @@ namespace LaundryDormApi.Controllers
                 }
 
             }
-
                 return BadRequest(new { Errors = result.Errors.Select(e => e.Description).ToList(), Message = "Error attempting to register " });
-
             }
             return Unauthorized("Something went wrong");   
         }

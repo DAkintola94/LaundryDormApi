@@ -22,6 +22,7 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("SessionId")]
+        //[Authorize(Roles ="")]
 
         public async Task<IActionResult> SessionHistoricId(int id)
         {
@@ -46,11 +47,12 @@ namespace LaundryDormApi.Controllers
                 return Ok(laundrySessionViewModel);
             }
 
-            return Ok("There was no session in the database");
+            return Ok($"Session {id} was not in the database");
         }
 
         [HttpGet]
         [Route("EntireSessionLog")]
+        //[Authorize(Roles ="")]
         public async Task<IActionResult> DispayAllSessions()
         {
             var getAllReservation = await _sessionRepository.GetAllSession();

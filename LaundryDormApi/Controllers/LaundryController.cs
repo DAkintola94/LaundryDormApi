@@ -79,7 +79,6 @@ namespace LaundryDormApi.Controllers
             return Ok(usersValidSession);
         }
 
-
         /// <summary>
         /// Showing all available sloth to the user
         /// Filter out data that does not match, for instance, reserved dates or laundries that are already "finished"
@@ -141,8 +140,6 @@ namespace LaundryDormApi.Controllers
         /// Returns <c>BadRequest</c> if a conflict exists or if the model is invalid. 
         /// Returns <c>StatusCode(500)</c> if a server-side exception occurs.
         /// </returns>
-
-
         [HttpPost]
         [Route("StartSession")]
         [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
@@ -227,7 +224,6 @@ namespace LaundryDormApi.Controllers
         /// <returns>
         /// Returns <c>Ok</c> with a message if no sessions are updated, or a <c>StatusCode(500)</c> if an error occurs during processing.
         /// </returns>
-
         [HttpPost]
         [Route("FinalizeLaundrySession")]
         //[Authorize(Roles ="")] //The bearer token sent from the frontend will be populated in User through the middleware

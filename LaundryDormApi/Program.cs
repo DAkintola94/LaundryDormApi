@@ -180,9 +180,10 @@ namespace LaundryDormApi
 
             app.UseHttpsRedirection();
 
-            app.UseStaticFiles(new StaticFileOptions
+            app.UseStaticFiles(new StaticFileOptions //middleware that configure ASP.NET core to serve static files (image) from the ServerImages folder in project dir
+                                                       //This makes any file placed in ServerImages folder to be access via a URL starting with /ServerImages
             {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "ServerImages")),
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "ServerImages")), //The folder we aim to serve
                 RequestPath = "/ServerImages"
             });
 

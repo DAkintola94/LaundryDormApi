@@ -108,6 +108,7 @@ const Navlinks = [
 const toogleNav = () => setNavBar(!nav);
 
 const laundryDownMenu = [ 
+  {name: "Bok vask", link:"/vask"},
   {name: "Reservasjon", link:"/reservation"},
   {name: "Historikk", link:"/historic"},
   {name: "Ledighet", link:"/availability"}
@@ -158,7 +159,7 @@ const accountDropDownMenu = [
            {elements.id === 1 && dropDownOpen && (
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
     {laundryDownMenu.map((items, idx) => {
-      if(!userInfo && (items.name=== "Reservasjon" || items.name==="Historikk" || items.name==="Ledighet")){
+      if(!userInfo && (items.name=== "Reservasjon" || items.name==="Historikk" || items.name==="Ledighet" ||items.name==="Bok vask")){
         return null;
       }
 

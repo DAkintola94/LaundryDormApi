@@ -34,7 +34,7 @@ export const Login = () => {
             if(!response.ok) //read Register or report for promises understanding
             {
                 setBtnPending(false);
-                setErrorMessage("Det oppstod en feil");
+                setErrorMessage("Det oppstod en feil, vennligst kontakt admin");
                 throw new Error("Login failed"); //Throw makes us go straight to the catch block
             }
 

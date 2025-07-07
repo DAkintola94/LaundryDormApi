@@ -190,15 +190,14 @@ namespace LaundryDormApi.Controllers
 
                     if (!isConflict ) //if there is no conflict, insert value into database
                     {
-                        var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain); //Need variable if we want to extract an id, or any other data later on
-                                                                                                             
+                        var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain); //Need variable if we want to extract an id, or any other data later on                                                                        
 
                         if(addedLaundrySession == null)
                         {
                             return BadRequest("An error occured, unable to insert session registration into database");
                         }
 
-                        return Ok(new { id = addedLaundrySession.LaundrySessionId } + " is the newly created session ID"); //returning the id of the session that was recently created/added in the database
+                        return Ok(new { backendSessionId = addedLaundrySession.LaundrySessionId}); //returning the id of the session that was recently created/added in the database
                     }
 
                     else

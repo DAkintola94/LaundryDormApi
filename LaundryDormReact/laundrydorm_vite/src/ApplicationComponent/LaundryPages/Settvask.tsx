@@ -2,18 +2,30 @@ import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
 import { useState, useEffect } from "react"
 import { JWTInformation } from "../Pages/JWTInformation" //importing JWT functions, its not sending jsx/html or react, its returning/sending token object value
+import { useNavigate } from "react-router-dom";
+import { MdError } from "react-icons/md";
 
 export const Settvask = () => {
-
+  const navigate = useNavigate();
   const [pending, setPending] = useState(false);
   const [formMessage, setFormMessage] = useState('')
   const [formEmail, setFormEmail] = useState('');
   const [formName, setFormName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [expiredDate, setExpiredDate] = useState<number | null>(null);
   const [errorMsg, setError] = useState('');
-  const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
-  const token = localStorage.getItem("access_token");
+  const [sessionId, setSessionId] = useState<number | null>(null); //either be a number or null before we get a value
 
+  const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
+  const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
+  
+  const token = localStorage.getItem("access_token");
+  
+  console.log(expiredDate);
+
+  console.log(formEmail);
+  console.log(formName);
+  console.log(phoneNumber);
   console.log("The token value is",token);
 
   type UsersInformation = {
@@ -24,6 +36,7 @@ export const Settvask = () => {
     issuer: string;
     audience: string;
   };
+
 
   const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
 
@@ -36,9 +49,16 @@ export const Settvask = () => {
       setFormName(info?.name); //using useState setter to set the name, email and phone number we retreive from JWT page 
       setFormEmail(info?.email);
       setPhoneNumber(info?.phoneNr);
+      setExpiredDate(info?.expireDateTime);
     }
 
-  }, [])                                              //with the array as second argument means this effect will only run once
+    const currentTime = Date.now() / 1000; //current time in seconds
+
+    const tokenExpiredDate = info?.expireDateTime;
+    if(tokenExpiredDate && currentTime > tokenExpiredDate){ //checking if current time is larger than token's expired time, in second
+        localStorage.removeItem("access_token");
+    }
+  }, []) //with the array as second argument means this effect will only run once
 
 
   const handleSubmit = async (e) => {
@@ -46,10 +66,8 @@ export const Settvask = () => {
     setPending(true);
 
     const laundrySessionData = { //variable name on the left, that gets value from the right, needs to match our variable model name in c sharp
-      SessionUser: formName,
-      Email: formEmail,
       UserMessage: formMessage,
-      PhoneNr: phoneNumber,
+      MachineId: Number(machineId), //converting to Number
       SessionId: Number(laundryTime), //its for the time period the user want to set their laundry, backend
     };
 
@@ -61,13 +79,18 @@ export const Settvask = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:7054', {
+      const response = await fetch('http://localhost:7054/api/Laundry/StartSession', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}` //Sending Jwt token to the backend. 
+          //Always send the token to the backend like this when you want to verify users information!
         },
-        body: JSON.stringify(laundrySessionData)
+        body: JSON.stringify(laundrySessionData) //We have to stringify the data on frontend because 
+        //the fetch API and most HTTP clients send data as string in the request body, not as javascript object.
+        //HTTP request (like POST) send the body as a string, not as javascript object.
+        
+        //[FromBody] tells ASP.NET core to parse the incoming JSON string and convert it into a c sharp model object
       });
 
       if (!response.ok) {
@@ -77,8 +100,19 @@ export const Settvask = () => {
       }
 
       const data = await response.json(); //what the backend returns upon ok
-      console.info("Form submitted successfully:", data);
+      console.info("Form submitted successfully, session ID is ", data.id);
+      setSessionId(data.backendSessionId); //setter for sessionId we got from the frontend. Since we are returning {id: ***, message: '''}
+
+      console.log(sessionId);
+
       setPending(false);
+
+      navigate('/src/ApplicationComponent/Pages/SuccessPage.tsx', {
+        replace: true, //prevent user from going back
+        state: {
+          ID: data.backendSessionId, //Value we want to pass to the redirected page
+        }
+    });
 
     } catch (err) {
       console.error("An error occurred while submitting the form:", err);
@@ -86,9 +120,15 @@ export const Settvask = () => {
     }
   };
 
+
+
   return (
     <>
-    {/* { !token? ( <div> Vennligst logg inn for å bruke denne funksjonen </div>) :       */}
+    { !token? ( <div className="flex items-center justify-center text-red-600 font-bold gap-2"> 
+      < MdError className="text-1xl"/>
+      <span> Vennligst logg inn for å bruke denne funksjonen </span>
+       </div>
+      ) :     
       
       <div className="laundryBG_set">
         <form onSubmit={handleSubmit} >
@@ -104,25 +144,18 @@ export const Settvask = () => {
                 </label>
 
                 <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.name || ""} readOnly required></input>
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.name || ""} readOnly></input>
 
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
                   Email
                 </label>
 
                 <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.email || ""} readOnly required></input>
-
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
-                  Telefon nummer
-                </label>
-
-                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.phoneNr || ""} readOnly required></input>
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.email || ""} readOnly></input>
 
 
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
-                  Melding...
+                  Melding til andre beboer...
                 </label>
 
                 <textarea className="appearance-none block w-full bg-white text-gray-700 border border-red-500 
@@ -139,9 +172,16 @@ export const Settvask = () => {
                   <option value="3">kl. 17:00 - 22:00</option>
                 </select>
 
+                <label htmlFor="machineId" className="block uppercase text-xs text-gray-700 font-bold text-center">Velg vaskemaskin</label> {/* NB! justify-center only works on flex containers, not for label since label is an inline element. use text-center for inline */}
+                <select id="machineId" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                 onChange={(evt) => setMachineId(evt.target.value)}>
+                  <option value="1"> Siemen vaskemaskin </option>
+                  <option value="2"> Samsung vaskemaskin </option>
+                </select>
+
                 {!pending && <button type="submit" 
                 className="mt-4 mx-auto mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold items-center justify-center flex">
-                Registrer</button>} {/*mt is for margin-top, gives space between labels/form*/}
+                Opprett vask</button>} {/*mt is for margin-top, gives space between labels/form*/}
 
                 {pending &&
                   <button disabled className=" mt-4 mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center"> {/*Move the button center instead*/}
@@ -153,7 +193,7 @@ export const Settvask = () => {
                     ) : (
                       <span className="w-5 h-5 mr-3" /> // invisible spacer. In other word, we are leaving only "w-5 h-5 mr-3" again, and not rendering the circle/path 
                     )}
-                    Sessjon opprettes
+                    Vennligst vent
                   </button>
                 }
 
@@ -168,7 +208,7 @@ export const Settvask = () => {
         </form>
 
       </div>
-      {/* } */} 
+    }  
     </>
   )
 }

@@ -1,6 +1,7 @@
 ﻿using LaundryDormApi.Model.DomainModel;
 using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,7 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("ExportAdvice")]
+        [Authorize(Roles= "Admin")]
         public async Task<IActionResult> GetAdvice()
         {
             var getAdviceFromDb = await _adviceRepository.GetAllAdvice();

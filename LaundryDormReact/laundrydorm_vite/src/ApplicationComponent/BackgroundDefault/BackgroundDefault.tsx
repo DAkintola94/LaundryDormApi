@@ -1,11 +1,37 @@
 //import React from 'react'
 //import bgCity from '../../../assets/city_lake.jpg'
-//import {useState} from "react"
+import {useState, useEffect} from "react"
 import blueLaundry from '../../assets/blue_laundry.png'
 import bgCss from '../../ApplicationComponent/BackgroundDefault/BackgroundDefault.module.css'
+import { JWTInformation } from "../Pages/JWTInformation" //importing JWT functions, its not sending jsx/html or react, its returning/sending token object value
 import 'aos/dist/aos.css'
 
 export const BackgroundDefault = () => {
+
+    type UsersInformation = {
+    email: string,
+    name: string,
+    phoneNr: string;
+    expireDateTime: number;
+    issuer: string;
+    audience: string;
+  };
+  const [usersName, setUsersName] = useState('');
+
+  const token = localStorage.getItem("access_token");
+  const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
+  console.log(usersInfo);
+  
+  useEffect(() => {
+    const info = JWTInformation();  //getting data from the JWT page we created, that returns token value, and not jsx, html or react
+    setUsersInfo(info)                                 //useState "setUsersInfo" part is used to set the usersInfo part to become the UsersInformation object default 
+    //this is needed since the data is being sent as object, and not single string
+
+    if (info) {
+      setUsersName(info?.name); //using useState setter to set the name, email and phone number we retreive from JWT page 
+    }
+
+  }, [])
 
   return (
     <div className={bgCss.backgroundImage}> 
@@ -17,6 +43,9 @@ export const BackgroundDefault = () => {
             <p data-aos="fade-up"
             className="text-[#eed963]
             text-3xl font-semibold"> Bok vask nå
+            {token && usersName &&(
+              <span> {usersName} </span> //showing the users name if its populated
+            )}
             </p>
             <h1 data-aos="fade-up"
             data-aos-delay="600" className="text-4xl md:text-6xl font-bold text-[#eed963]"> Eller reserve på forhånd </h1>

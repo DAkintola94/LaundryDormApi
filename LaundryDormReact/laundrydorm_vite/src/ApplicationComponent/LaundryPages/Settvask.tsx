@@ -12,16 +12,20 @@ export const Settvask = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formName, setFormName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [expiredDate, setExpiredDate] = useState<number | null>(null);
   const [errorMsg, setError] = useState('');
   const [sessionId, setSessionId] = useState<number | null>(null); //either be a number or null before we get a value
+
   const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
+  
   const token = localStorage.getItem("access_token");
+  
+  console.log(expiredDate);
 
   console.log(formEmail);
   console.log(formName);
   console.log(phoneNumber);
-
   console.log("The token value is",token);
 
   type UsersInformation = {
@@ -32,6 +36,7 @@ export const Settvask = () => {
     issuer: string;
     audience: string;
   };
+
 
   const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
 
@@ -44,6 +49,14 @@ export const Settvask = () => {
       setFormName(info?.name); //using useState setter to set the name, email and phone number we retreive from JWT page 
       setFormEmail(info?.email);
       setPhoneNumber(info?.phoneNr);
+      setExpiredDate(info?.expireDateTime);
+    }
+
+    const currentTime = Date.now() / 1000; //current time in seconds
+
+    const tokenExpiredDate = info?.expireDateTime;
+    if(tokenExpiredDate && currentTime > tokenExpiredDate){ //checking if current time is larger than token's expired time, in second
+        localStorage.removeItem("access_token");
     }
   }, []) //with the array as second argument means this effect will only run once
 
@@ -54,7 +67,7 @@ export const Settvask = () => {
 
     const laundrySessionData = { //variable name on the left, that gets value from the right, needs to match our variable model name in c sharp
       UserMessage: formMessage,
-      MachineId: machineId,
+      MachineId: Number(machineId), //converting to Number
       SessionId: Number(laundryTime), //its for the time period the user want to set their laundry, backend
     };
 
@@ -66,7 +79,7 @@ export const Settvask = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:7054', {
+      const response = await fetch('http://localhost:7054/api/Laundry/StartSession', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
@@ -107,6 +120,8 @@ export const Settvask = () => {
     }
   };
 
+
+
   return (
     <>
     { !token? ( <div className="flex items-center justify-center text-red-600 font-bold gap-2"> 
@@ -140,7 +155,7 @@ export const Settvask = () => {
 
 
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
-                  Melding...
+                  Melding til andre beboer...
                 </label>
 
                 <textarea className="appearance-none block w-full bg-white text-gray-700 border border-red-500 
@@ -178,7 +193,7 @@ export const Settvask = () => {
                     ) : (
                       <span className="w-5 h-5 mr-3" /> // invisible spacer. In other word, we are leaving only "w-5 h-5 mr-3" again, and not rendering the circle/path 
                     )}
-                    Sessjon opprettes
+                    Vennligst vent
                   </button>
                 }
 

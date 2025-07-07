@@ -95,6 +95,14 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
     }, [] );
 
+    
+
+    if(userInfo?.expireDateTime){
+      const currentTime = Date.now() / 1000; //Current time in seconds
+
+    }
+
+
     console.log("JWT token info",userInfo);
 
 

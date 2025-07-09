@@ -16,10 +16,12 @@ const [successId] = useState<number | null>(location.state.ID);
         </div>
 
         ) : 
-        <div className="flex items-center justify-center font-bold gap-2"> 
+      <div className="successPageBg">
+        <div className="flex items-center justify-center font-bold gap-2 py-8"> 
         <FaCheckCircle className="text-1xl"/>
-        <span> Vask informasjon er lagret. Opprettet vask ID er {successId} </span>
+        <span> Vaskinformasjon ble opprettet og lagret. Vask ID: {successId} </span>
         </div>
+      </div>
     }
     </>
   )

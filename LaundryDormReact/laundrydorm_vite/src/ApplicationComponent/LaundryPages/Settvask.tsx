@@ -97,7 +97,8 @@ export const Settvask = () => {
 
       const data = await response.json(); //what the backend returns upon ok
       console.info("Form submitted successfully, session ID is ", data.id);
-      setSessionId(data.backendSessionId); //setter for sessionId we got from the frontend. Since we are returning {id: ***, message: '''}
+      setSessionId(data.backendSessionId); //setter for sessionId we got in response from the backend.
+      //data is the response we are getting, the next variable is the variable name of the json the backend sends !must match!
 
       console.log(sessionId);
 
@@ -115,8 +116,6 @@ export const Settvask = () => {
       setPending(false);
     }
   };
-
-
 
   return (
     <>

@@ -165,9 +165,7 @@ namespace LaundryDormApi.Controllers
 
             try
             {
-                if (laundrySessionViewModel != null
-                && laundrySessionViewModel.ReservationTime.HasValue //remember to send the reservation time from frontend as valid date
-                && laundrySessionViewModel.ReservationTime.Value.Date == today)
+                if (laundrySessionViewModel != null && laundrySessionViewModel.ReservationTime.HasValue) //remember to send the reservation time from frontend as valid date
                 {
 
                     var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works

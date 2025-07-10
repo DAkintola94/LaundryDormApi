@@ -29,6 +29,12 @@ export const BackgroundDefault = () => {
 
     if (info) {
       setUsersName(info?.name); //using useState setter to set the name, email and phone number we retreive from JWT page 
+       const currentTime = Date.now() / 1000; //current time in seconds
+
+    const tokenExpiredDate = info?.expireDateTime;
+    if(tokenExpiredDate && currentTime > tokenExpiredDate){ //checking if current time is larger than token's expired time, in second
+        localStorage.removeItem("access_token");
+    }
     }
 
   }, [])
@@ -42,17 +48,17 @@ export const BackgroundDefault = () => {
         <div className="text-center space-y-5 py-14">
             <p data-aos="fade-up"
             className="text-[#eed963]
-            text-3xl font-semibold"> Bok vask nå
+            text-3xl font-semibold"> Velkommen
             {token && usersName &&(
               <span> {usersName} </span> //showing the users name if its populated
             )}
             </p>
             <h1 data-aos="fade-up"
-            data-aos-delay="600" className="text-4xl md:text-6xl font-bold text-[#eed963]"> Eller reserve på forhånd </h1>
+            data-aos-delay="600" className="text-4xl md:text-3xl font-bold text-[#eed963]"> Bok vask nå, eller reserve på forhånd </h1>
             <p
             data-aos="fade-up"
             data-aos-delay="1000"
-            className="tracking-[8px] text-base sm:text-xl font-semibold"
+            className=" text-base sm:text-xl font-semibold"
             >
                 www.laundrydorm.com
             </p>

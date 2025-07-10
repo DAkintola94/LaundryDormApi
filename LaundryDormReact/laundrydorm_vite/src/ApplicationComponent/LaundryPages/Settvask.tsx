@@ -18,6 +18,7 @@ export const Settvask = () => {
 
   const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
+
   
   const token = localStorage.getItem("access_token");
   
@@ -51,13 +52,6 @@ export const Settvask = () => {
       setPhoneNumber(info?.phoneNr);
       setExpiredDate(info?.expireDateTime);
     }
-
-    const currentTime = Date.now() / 1000; //current time in seconds
-
-    const tokenExpiredDate = info?.expireDateTime;
-    if(tokenExpiredDate && currentTime > tokenExpiredDate){ //checking if current time is larger than token's expired time, in second
-        localStorage.removeItem("access_token");
-    }
   }, []) //with the array as second argument means this effect will only run once
 
 
@@ -66,10 +60,12 @@ export const Settvask = () => {
     setPending(true);
 
     const laundrySessionData = { //variable name on the left, that gets value from the right, needs to match our variable model name in c sharp
-      UserMessage: formMessage,
-      MachineId: Number(machineId), //converting to Number
-      SessionId: Number(laundryTime), //its for the time period the user want to set their laundry, backend
-    };
+      userMessage: formMessage,
+      machineId: Number(machineId), //converting to Number
+      sessionTimePeriodId: Number(laundryTime), //its for the time period the user want to set their laundry, backend
+      reservationTime: new Date().toISOString(), //reservation time/date
+
+    }; 
 
     if (!token) {
       setPending(false);
@@ -79,7 +75,7 @@ export const Settvask = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:7054/api/Laundry/StartSession', {
+      const response = await fetch('https://localhost:7054/api/Laundry/StartSession', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
@@ -101,13 +97,14 @@ export const Settvask = () => {
 
       const data = await response.json(); //what the backend returns upon ok
       console.info("Form submitted successfully, session ID is ", data.id);
-      setSessionId(data.backendSessionId); //setter for sessionId we got from the frontend. Since we are returning {id: ***, message: '''}
+      setSessionId(data.backendSessionId); //setter for sessionId we got in response from the backend.
+      //data is the response we are getting, the next variable is the variable name of the json the backend sends !must match!
 
       console.log(sessionId);
 
       setPending(false);
 
-      navigate('/src/ApplicationComponent/Pages/SuccessPage.tsx', {
+      navigate('/success', {
         replace: true, //prevent user from going back
         state: {
           ID: data.backendSessionId, //Value we want to pass to the redirected page
@@ -119,8 +116,6 @@ export const Settvask = () => {
       setPending(false);
     }
   };
-
-
 
   return (
     <>

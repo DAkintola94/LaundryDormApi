@@ -35,6 +35,10 @@ namespace LaundryDormApi.Controllers
         /// 'User' is a built-in property available in controllers (inherited from ControllerBase) that represents the current authenticated user's claims.
         /// It is automatically populated by ASP.NET Core middleware during the processing of the current HTTP request.
         /// With this, we don't need the JWT token as parameter
+        /// <param name="dateFilter" name="dateQuery"> from query, the question mark after the url. 
+        /// GET: /api/Laundry/SessionHistoric?dateFilter=ReservationTime&dateQuery=Date
+        /// The repository is responsible for what the variable choose to display upon query
+        /// </param>
         /// </summary>
         /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
 
@@ -43,10 +47,11 @@ namespace LaundryDormApi.Controllers
         [Route("SessionHistoric")]
         [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
 
-        public async Task<IActionResult> PreviewSessionHistoric() 
+        public async Task<IActionResult> PreviewSessionHistoric([FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
+            [FromQuery] string? statusFilter, [FromQuery] string statusQuery) 
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var getAllSession = await _laundrySession.GetAllSession();
+            var getAllSession = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery);
 
             if(currentUser == null)
             {

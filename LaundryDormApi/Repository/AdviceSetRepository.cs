@@ -16,7 +16,8 @@ namespace LaundryDormApi.Repository
             ,string? emailFilter = null, string? emailQuery = null,
             string? categoryFilter = null, string? categoryQuery = null,
             string? dateFilter = null, string? dateQuery = null,
-            string? sortBy = null, bool isAscending = true)
+            string? sortBy = null, bool isAscending = true,
+            int pageNumber = 1, int pageSize = 50)
         {
             
             
@@ -104,7 +105,9 @@ namespace LaundryDormApi.Repository
                 }
             }
 
-            return await getAdviceFromDb.ToListAsync(); 
+            int skipResult = (pageNumber - 1) * pageSize;
+
+            return await getAdviceFromDb.Skip(skipResult).Take(pageSize).ToListAsync(); 
             //by returning at the end, we can apply multiple filters and sort in sequences, and get all the values at last
         }
 

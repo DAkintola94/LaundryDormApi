@@ -50,13 +50,14 @@ namespace LaundryDormApi.Controllers
             [FromQuery] string? mailFilter, [FromQuery] string? mailQuery,
             [FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
             [FromQuery] string? categoryFilter, [FromQuery] string? categoryQuery,
-            [FromQuery] string? sortBy, bool? isAscending
+            [FromQuery] string? sortBy, bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50
             )
         {
             var getAdviceFromDb = await _adviceRepository.GetAllAdvice(namefilter, nameQuery, mailFilter, mailQuery, 
                 categoryFilter, categoryQuery, 
                 dateFilter, dateQuery, 
-                sortBy, isAscending ?? true);
+                sortBy, isAscending ?? true, pageNumber, pageSize);
 
             if(getAdviceFromDb!= null)
             {

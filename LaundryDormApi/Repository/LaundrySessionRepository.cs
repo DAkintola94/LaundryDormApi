@@ -16,7 +16,10 @@ namespace LaundryDormApi.Repository
         //parameter is null by default, and also nullable
         //We are returning data, regardless if filter value are requested by users or not. Due to making the parameter nullable
         public async Task<IEnumerable<LaundrySession>> GetAllSession(string? dateFilter = null, string? dateQuery = null, 
-            string? statusFilter = null, string? statusQuery = null) //active laundry
+            string? statusFilter = null, string? statusQuery = null,
+            string? sortBy = null, bool isAscending = true,
+            int pageNumber = 1, int pageSize = 50
+            )
         {
             var getSession = _context.Laundry
                 .Include(ls => ls.LaundryStatus)
@@ -24,7 +27,7 @@ namespace LaundryDormApi.Repository
                 .Include(tp => tp.TimePeriod)
                 .AsQueryable(); //getSession is never null, AsQueryable() always returns a valid object
 
-            //Applying sorting, filtering, paganation in between, before returning the value
+            //filtering
 
             if (!string.IsNullOrEmpty(dateFilter) && !string.IsNullOrEmpty(dateQuery))
             {
@@ -58,9 +61,38 @@ namespace LaundryDormApi.Repository
                         );
                     }
                 }
-                // Add more filterQuery options here as needed
+                // Add more filtering options here as needed
             }
-            return await getSession.ToListAsync();
+
+            //sorting 
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                if (sortBy.Equals("ReservationTime", StringComparison.OrdinalIgnoreCase))
+                {
+                    getSession = isAscending ?
+                        getSession.OrderBy(x => x.ReservationTime) : //orderby (EFCORE) is asc boolean is true 
+                        getSession.OrderByDescending(x => x.ReservationTime); //desc if asc boolean is not true
+                }
+
+                else if (sortBy.Equals("ReserveDate", StringComparison.OrdinalIgnoreCase))
+                {
+                    getSession = isAscending ?
+                        getSession.OrderBy(x => x.ReservedDate) :
+                        getSession.OrderByDescending(x => x.ReservedDate); //both are ternary condition for checking ascending boolean, else.
+                }
+
+                else if (sortBy.Equals("LaundryStatusDescription", StringComparison.OrdinalIgnoreCase))
+                {
+                    getSession = isAscending
+                    ? getSession.OrderBy(x => x.LaundryStatus != null ? x.LaundryStatus.StatusDescription : string.Empty)
+                    : getSession.OrderByDescending(x => x.LaundryStatus != null ? x.LaundryStatus.StatusDescription : string.Empty);
+                }
+            }
+
+            var skipResult = (pageNumber - 1) * pageSize;
+
+
+            return await getSession.Skip(skipResult).Take(pageSize).ToListAsync();
         }
 
         public async Task<LaundrySession?> GetSessionById(int id)

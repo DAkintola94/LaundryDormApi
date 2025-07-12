@@ -29,30 +29,46 @@ namespace LaundryDormApi.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific laundry session for the logged-in user.
-        /// The JWT token (Bearer token) sent from the frontend is automatically validated by ASP.NET Core's authentication middleware from program.cs
-        /// If valid, the user information from the token becomes available through HttpContext.User, allowing the method to verify ownership of the session.
-        /// 'User' is a built-in property available in controllers (inherited from ControllerBase) that represents the current authenticated user's claims.
-        /// It is automatically populated by ASP.NET Core middleware during the processing of the current HTTP request.
-        /// With this, we don't need the JWT token as parameter
-        /// <param name="dateFilter" name="dateQuery"> from query, the question mark after the url. 
-        /// GET: /api/Laundry/SessionHistoric?dateFilter=ReservationTime&dateQuery=Date
-        /// The repository is responsible for what the variable choose to display upon query
-        /// </param>
+        /// Retrieves all laundry sessions for the logged-in user, with optional filtering by date and status.
+        /// The JWT (Bearer) token sent from the frontend is automatically validated by ASP.NET Core's authentication middleware.
+        /// If valid, user information is available via <c>HttpContext.User</c> for verifying session ownership.
         /// </summary>
-        /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
-
-
+        /// <param name="dateFilter">
+        /// The name of the date field to filter by (e.g., <c>"ReservationTime"</c> or <c>"ReservedDate"</c>).
+        /// </param>
+        /// <param name="dateQuery">
+        /// The date value to filter by, as a string (e.g., <c>"2025-07-12"</c>). Parsed to <c>DateTime</c> or <c>DateOnly</c> as needed.
+        /// </param>
+        /// <param name="statusFilter">
+        /// The name of the status field to filter by (e.g., <c>"LaundryStatusDescription"</c>).
+        /// </param>
+        /// <param name="statusQuery">
+        /// The status value to filter by (e.g., <c>"Aktivt tidspunkt"</c>).
+        /// </param>
+        /// <param name="sortBy">
+        /// (Optional) The field name to sort the results by.
+        /// </param>
+        /// <param name="isAscending">
+        /// (Optional) Whether to sort the results in ascending order. <c>true</c> for ascending, <c>false</c> for descending.
+        /// </param>
+        /// <returns>
+        /// Returns a list of the user's laundry sessions matching the filters, or an error response if unauthorized.
+        /// </returns>
         [HttpGet]
         [Route("SessionHistoric")]
         [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
-
         public async Task<IActionResult> PreviewSessionHistoric([FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
-            [FromQuery] string? statusFilter, [FromQuery] string statusQuery) 
+            [FromQuery] string? statusFilter, [FromQuery] string statusQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10) 
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var getAllSession = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery);
-
+            var getAllSession = await 
+                _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, 
+                sortBy, isAscending ?? true, //If isAscending is null, the bool is true
+                                             //For the repository to accept nullable bool
+                pageNumber, pageSize);
+                                                                                                                            
             if(currentUser == null)
             {
                 return Unauthorized("You must be logged in to use this function");

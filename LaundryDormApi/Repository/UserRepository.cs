@@ -21,7 +21,7 @@ namespace LaundryDormApi.Repository
         {
             var getUsers = _authContext.Users.Where(x => !(x.Email == "sysadmin@test.com")).AsQueryable(); 
 
-                                                    //making sure user with that email doesnt show up
+                                                    //Excluding the user with that email from the list
                                                                                                  //as queryable returns IQuerable<T>
                                                                                                  //which allows us to build up our query with additional filters, sort, etc
 
@@ -91,27 +91,18 @@ namespace LaundryDormApi.Repository
         }
 
 
-        public async Task <ApplicationUser> CreateUser(ApplicationUser applicationUser)
-        {
-            if(applicationUser != null)
-            {
-                await _authContext.AddAsync(applicationUser);
-                await _authContext.SaveChangesAsync();
-                return applicationUser;
-            }
-            return null;
-        }
-
         public async Task<ApplicationUser?> GetUserById(string idValue)
         {
-            return await _authContext.Users.Where(x => x.Id != null
+            return await _authContext.Users.Where(x => !(x.Email == "sysadmin@test.com") //Excluding the user with that email from the list
+            && x.Id != null
             && x.Id == idValue).FirstOrDefaultAsync();
         }
 
         public async Task<ApplicationUser?> DeleteUser(string idValue)
         {
 
-            var userById = await _authContext.Users.Where(x => x.Id != null
+            var userById = await _authContext.Users.Where(x => !(x.Email == "sysadmin@test.com") //Excluding the user with that email from the list
+            && x.Id != null
             && x.Id == idValue).FirstOrDefaultAsync();
 
             if(userById != null)

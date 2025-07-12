@@ -22,7 +22,7 @@ namespace LaundryDormApi.Repository
             )
         {
             var getSession = _context.Laundry
-                .Include(ls => ls.LaundryStatus)
+                .Include(ls => ls.LaundryStatus) //remember, include is same as innerjoin in SQL 
                 .Include(m => m.Machine)
                 .Include(tp => tp.TimePeriod)
                 .AsQueryable(); //getSession is never null, AsQueryable() always returns a valid object
@@ -33,7 +33,6 @@ namespace LaundryDormApi.Repository
             {
                 if(dateFilter.Equals("ReservationTime", StringComparison.OrdinalIgnoreCase))
                 {
-
                     if(DateTime.TryParse(dateQuery, out var date)) //converting dateQuery variable into datetime, and making it a new variable
                     {
                         getSession = getSession.Where(x => x.ReservationTime.HasValue
@@ -41,27 +40,26 @@ namespace LaundryDormApi.Repository
                     }
                 }
 
-                else if (dateFilter.Equals("ReserveDate", StringComparison.OrdinalIgnoreCase))
+                else if(dateFilter.Equals("ReserveDate", StringComparison.OrdinalIgnoreCase))
                 {
                     if(DateOnly.TryParse(dateQuery, out var dateOnly)) //converting dateQuery variable into datetime, and making it a new variable
                     {
                         getSession = getSession.Where(x => x.ReservedDate.HasValue
                         && x.ReservedDate.Value == dateOnly);
                     }
-            
-                }
-
-                if (!string.IsNullOrEmpty(statusFilter) && !string.IsNullOrEmpty(statusQuery))
-                {
-                    if (statusFilter.Equals("LaundryStatusDescription", StringComparison.OrdinalIgnoreCase))
-                    {
-                        getSession = getSession.Where(x => x.LaundryStatus != null
-                        && x.LaundryStatus.StatusDescription != null
-                        && x.LaundryStatus.StatusDescription.Contains(dateQuery)
-                        );
-                    }
                 }
                 // Add more filtering options here as needed
+            }
+
+            if (!string.IsNullOrEmpty(statusFilter) && !string.IsNullOrEmpty(statusQuery))
+            {
+                if (statusFilter.Equals("LaundryStatusDescription", StringComparison.OrdinalIgnoreCase))
+                {
+                    getSession = getSession.Where(x => x.LaundryStatus != null
+                    && x.LaundryStatus.StatusDescription != null
+                    && x.LaundryStatus.StatusDescription.Contains(statusQuery)
+                    );
+                }
             }
 
             //sorting 
@@ -84,15 +82,17 @@ namespace LaundryDormApi.Repository
                 else if (sortBy.Equals("LaundryStatusDescription", StringComparison.OrdinalIgnoreCase))
                 {
                     getSession = isAscending
-                    ? getSession.OrderBy(x => x.LaundryStatus != null ? x.LaundryStatus.StatusDescription : string.Empty)
-                    : getSession.OrderByDescending(x => x.LaundryStatus != null ? x.LaundryStatus.StatusDescription : string.Empty);
+                    ? getSession.OrderBy(asc => asc.LaundryStatus != null ? asc.LaundryStatus.StatusDescription : string.Empty)
+                    : getSession.OrderByDescending(desc => desc.LaundryStatus != null ? desc.LaundryStatus.StatusDescription : string.Empty);
                 }
+                // Add more sorting options here if needed
             }
 
-            var skipResult = (pageNumber - 1) * pageSize;
+            var skipResult = (pageNumber - 1) * pageSize; //pagination
 
 
             return await getSession.Skip(skipResult).Take(pageSize).ToListAsync();
+            //by returning at the end, we can apply multiple filters and sort in sequences, and get all the values at last
         }
 
         public async Task<LaundrySession?> GetSessionById(int id)

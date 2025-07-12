@@ -9,11 +9,8 @@ namespace LaundryDormApi.Model.DomainModel
         public string Message { get; set; }
         public string Email { get; set; }
         public DateOnly Date { get; set; } 
-
-
         public int CategoryID { get; set; }
         public Category? CategoryModel { get; set; }
         public string? CategoryType { get; set; }
-
     }
 }

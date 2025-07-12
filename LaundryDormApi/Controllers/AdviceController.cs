@@ -46,9 +46,17 @@ namespace LaundryDormApi.Controllers
         [HttpGet]
         [Route("ExportAdvice")]
         [Authorize(Roles= "Admin")]
-        public async Task<IActionResult> GetAdvice()
+        public async Task<IActionResult> GetAdvice([FromQuery] string? namefilter, [FromQuery] string? nameQuery, 
+            [FromQuery] string? mailFilter, [FromQuery] string? mailQuery,
+            [FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
+            [FromQuery] string? categoryFilter, [FromQuery] string? categoryQuery,
+            [FromQuery] string? sortBy, bool? isAscending
+            )
         {
-            var getAdviceFromDb = await _adviceRepository.GetAllAdvice();
+            var getAdviceFromDb = await _adviceRepository.GetAllAdvice(namefilter, nameQuery, mailFilter, mailQuery, 
+                categoryFilter, categoryQuery, 
+                dateFilter, dateQuery, 
+                sortBy, isAscending ?? true);
 
             if(getAdviceFromDb!= null)
             {
@@ -59,7 +67,7 @@ namespace LaundryDormApi.Controllers
                     Date = adviceDB.Date, //retreiving the date that was auto created through model logic
                     EmailAddress = adviceDB.Email,
                     PosterId = adviceDB.PosterId,
-                    CategoryName = adviceDB.CategoryModel.CategoryName //Getting the value from the category, its also mapped as foreign key, this is just retrieving its value based on the id that is on.
+                    CategoryName = adviceDB.CategoryModel?.CategoryName //Getting the value from the category, its also mapped as foreign key, this is just retrieving its value based on the id that is on.
                 }).ToList();
 
                 return Ok(adviceViewModel);

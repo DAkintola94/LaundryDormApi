@@ -90,19 +90,6 @@ namespace LaundryDormApi.Repository
             return await getUsers.Skip(skipResult).Take(pageSize).ToListAsync();
         }
 
-        
-        //public async Task<ApplicationUser> UpdateUser(ApplicationUser applicationUser)
-        //{
-        //
-          //  if(applicationUser != null)
-            //{
-              //   _authContext.Update(applicationUser);
-                //await _authContext.SaveChangesAsync();
-            //    return applicationUser;
-            //}
-
-            //return null;
-        //}
 
         public async Task <ApplicationUser> CreateUser(ApplicationUser applicationUser)
         {

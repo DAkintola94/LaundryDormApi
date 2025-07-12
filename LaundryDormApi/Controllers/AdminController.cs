@@ -180,12 +180,12 @@ namespace LaundryDormApi.Controllers
                     {
                         var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { "Admin" });
 
-                        LoginResponse loginResponse = new LoginResponse
-                        {
-                            JwtToken = jwtToken
-                        };
+                        //LoginResponse loginResponse = new LoginResponse
+                        //{
+                        //    JwtToken = jwtToken
+                        //};
 
-                        return Ok(loginResponse); //returning jwtToken, although its a model
+                        return Ok("New admin user created"); 
                     }
                     else
                     {
@@ -198,14 +198,6 @@ namespace LaundryDormApi.Controllers
             return Unauthorized("Something went wrong");
 
         }
-
-        //[HttpPost]
-        //[Route("UpdateUser")]
-        //[Authorize]
-        //public async Task<IActionResult> UpdateUsersInformation()
-        //{
-        //    var findUser = await _userRepository.UpdateUser
-        //}
 
 
         [HttpGet]

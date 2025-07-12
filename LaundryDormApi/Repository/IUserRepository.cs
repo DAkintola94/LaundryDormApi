@@ -11,7 +11,6 @@ namespace LaundryDormApi.Repository
             string? sortBy = null, bool isAscending = true);
         Task<ApplicationUser?> GetUserById(string idValue);
         Task<ApplicationUser> DeleteUser(string idValue);
-        //Task<ApplicationUser> UpdateUser(ApplicationUser applicationUser);
         Task<ApplicationUser> CreateUser(ApplicationUser applicationUser);
     }
 }

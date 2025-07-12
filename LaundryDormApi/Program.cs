@@ -43,6 +43,7 @@ namespace LaundryDormApi
             builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();
             builder.Services.AddScoped<IUpdateCountRepository, UpdateCountRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()

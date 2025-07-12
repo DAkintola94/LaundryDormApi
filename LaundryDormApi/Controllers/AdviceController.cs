@@ -50,7 +50,7 @@ namespace LaundryDormApi.Controllers
             [FromQuery] string? mailFilter, [FromQuery] string? mailQuery,
             [FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
             [FromQuery] string? categoryFilter, [FromQuery] string? categoryQuery,
-            [FromQuery] string? sortBy, bool? isAscending,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50
             )
         {

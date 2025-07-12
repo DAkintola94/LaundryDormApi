@@ -3,6 +3,7 @@ using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LaundryDormApi.Controllers
@@ -14,16 +15,24 @@ namespace LaundryDormApi.Controllers
     {
         private readonly IMachineLogRepository _machineLogRepository;
         private readonly ILaundrySession _sessionRepository;
-        public AdminController(IMachineLogRepository machineLogRepository, ILaundrySession sessionRepository)
+        private readonly IUserRepository _userRepository;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITokenRepository _tokenRepository;
+        public AdminController(IMachineLogRepository machineLogRepository, ILaundrySession sessionRepository, IUserRepository userRepository
+            ,SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ITokenRepository tokenRepository)
         {
             _machineLogRepository = machineLogRepository;
             _sessionRepository = sessionRepository;
+            _userRepository = userRepository;
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _tokenRepository = tokenRepository;
         }
 
         [HttpPost]
         [Route("SessionId")]
         //[Authorize(Roles ="")]
-
         public async Task<IActionResult> SessionHistoricId(int id)
         {
             var getSessionById = await _sessionRepository.GetSessionById(id);
@@ -77,6 +86,126 @@ namespace LaundryDormApi.Controllers
             }
             return BadRequest("Error, something went wrong");
         }
+
+        [HttpGet]
+        [Route("UsersOverview")]
+        [Authorize]
+        public async Task<IActionResult> DisplayUsers([FromQuery] string? mailFilter, [FromQuery] string? mailQuery, 
+            [FromQuery] string? firstNameFilter, [FromQuery] string? firstNameQuery,
+            [FromQuery] string? lastNameFilter, [FromQuery] string? lastNameQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1, int pageSize = 50 
+            )
+        {
+            var getUsers = await _userRepository.GetAllUsers(mailFilter, mailQuery, 
+                firstNameFilter, firstNameQuery, 
+                lastNameFilter, lastNameQuery, 
+                pageNumber, pageSize, 
+                sortBy, isAscending ?? true);
+
+            if(getUsers!= null)
+            {
+                getUsers.Select(fromDb => new RegisterViewModel
+                {
+                    Email = fromDb.Email ?? string.Empty,
+                    UserFirstName = fromDb.FirstName ?? string.Empty,
+                    UserLastName = fromDb.LastName ?? string.Empty,
+                    PhoneNumber = fromDb.PhoneNumber ?? string.Empty,
+                    ProfileId = fromDb.Id ?? string.Empty,
+                });
+                return Ok(getUsers);
+            }
+
+            return Ok("The list was empty");
+        }
+
+        [HttpPost]
+        [Route("DeleteUser")]
+        [Authorize]
+        public async Task<IActionResult> DeleteMember(string usersId)
+        {
+            var deleteUser = await _userRepository.DeleteUser(usersId);
+            if(deleteUser != null)
+            {
+                return Ok("User have been deleted");
+            }
+
+            return BadRequest($"No user with the id {usersId} in the database");
+        }
+
+        [HttpPost]
+        [Route("FindUser")]
+        [Authorize]
+        public async Task<IActionResult> GetUserId(string id)
+        {
+            var findUser = await _userRepository.GetUserById(id);
+            if(findUser != null)
+            {
+                RegisterViewModel registerViewModel = new RegisterViewModel
+                {
+                    ProfileId = findUser.Id,
+                    UserFirstName = findUser.FirstName,
+                    UserLastName = findUser.LastName,
+                    Email = findUser.Email ?? string.Empty,
+                    PhoneNumber = findUser.PhoneNumber ?? string.Empty
+                };
+                return Ok(registerViewModel);
+            }
+            return Ok($"No user with the id {id} in the database");
+        }
+
+        [HttpPost]
+        [Route("CreateUser")]
+        [Authorize]
+        public async Task<IActionResult> CreateAdmin([FromBody]RegisterViewModel regViewModel)
+        {
+            if (regViewModel != null && ModelState.IsValid)
+            {
+                ApplicationUser applicationUser = new ApplicationUser
+                {
+                    FirstName = regViewModel.UserFirstName,
+                    LastName = regViewModel.UserLastName,
+                    Address = regViewModel.UserAddress,
+                    Email = regViewModel.Email, //identity which we inherit from already has email property, no need to create on in the model
+                    UserName = regViewModel.Email, //Since identity requires username, use email as username, and dont let the user write a username
+                    PhoneNumber = regViewModel.PhoneNumber //--
+                };
+
+                var result = await _userManager.CreateAsync(applicationUser, regViewModel.Password);
+
+                if (result.Succeeded)
+                {
+                    var identityRole = await _userManager.AddToRoleAsync(applicationUser, "Admin");
+
+                    if (identityRole.Succeeded)
+                    {
+                        var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { "Admin" });
+
+                        LoginResponse loginResponse = new LoginResponse
+                        {
+                            JwtToken = jwtToken
+                        };
+
+                        return Ok(loginResponse); //returning jwtToken, although its a model
+                    }
+                    else
+                    {
+                        return BadRequest(identityRole.Errors + "No user by that role");
+                    }
+
+                }
+                return BadRequest(new { Errors = result.Errors.Select(e => e.Description).ToList(), Message = "Error attempting to register " });
+            }
+            return Unauthorized("Something went wrong");
+
+        }
+
+        //[HttpPost]
+        //[Route("UpdateUser")]
+        //[Authorize]
+        //public async Task<IActionResult> UpdateUsersInformation()
+        //{
+        //    var findUser = await _userRepository.UpdateUser
+        //}
 
 
         [HttpGet]

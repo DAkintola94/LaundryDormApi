@@ -109,7 +109,7 @@ namespace LaundryDormApi.DataContext
         ////Seeding data for driverUser
 
         //var adminId = "2";
-        //var adminUser = new ApplicationUser //Creating a driver user
+        //var adminUser = new ApplicationUser 
         //{
         //    Id = adminId, //All this is possible because of IdentityUser
         //    UserName = "admin@test.com",

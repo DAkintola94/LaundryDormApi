@@ -111,7 +111,7 @@ namespace LaundryDormApi.Repository
             //by returning at the end, we can apply multiple filters and sort in sequences, and get all the values at last
         }
 
-        public async Task<AdviceSet?> GetAdviceById(int id)
+        public async Task<AdviceSet?> GetAdviceById(int id) //getting a single post by its single PK id. No reason for query logic!
         {
             return await _context.Advice
                 .Include(c => c.CategoryModel)

@@ -38,7 +38,6 @@ namespace LaundryDormApi
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<ILaundrySession, LaundrySessionRepository>();
-            builder.Services.AddScoped<IMachineLogRepository, MachineLogRepository>();
             builder.Services.AddScoped<IAdviceSetRepository, AdviceSetRepository>();
             builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();

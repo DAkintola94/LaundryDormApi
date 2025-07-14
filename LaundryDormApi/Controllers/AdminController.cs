@@ -14,16 +14,14 @@ namespace LaundryDormApi.Controllers
 
     public class AdminController : ControllerBase
     {
-        private readonly IMachineLogRepository _machineLogRepository;
         private readonly ILaundrySession _sessionRepository;
         private readonly IUserRepository _userRepository;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenRepository _tokenRepository;
-        public AdminController(IMachineLogRepository machineLogRepository, ILaundrySession sessionRepository, IUserRepository userRepository
+        public AdminController(ILaundrySession sessionRepository, IUserRepository userRepository
             ,SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ITokenRepository tokenRepository)
         {
-            _machineLogRepository = machineLogRepository;
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
             _signInManager = signInManager;
@@ -199,72 +197,6 @@ namespace LaundryDormApi.Controllers
                 return Unauthorized("Something went wrong, report to admin");
         }
 
-
-        [HttpGet]
-        [Route("Log")]
-        public async Task<IActionResult> DisplayLog()
-        {
-            var getLogs = await _machineLogRepository.GetAllLog();
-            var currentUser = await _userManager.GetUserAsync(User);
-
-            if(getLogs!= null && currentUser != null)
-            {
-                var maintenanceViewModel = getLogs.Select(logsFromDb => new MaintenanceViewModel //Intend is to map, we are receiving an IEnumerable of MaintenanceLogModel and we are converting it to IEnumerable of MaintenanceViewModel
-                {
-                    Machine_Id = logsFromDb.MachineId,
-                    Maintenance_Log_Id = logsFromDb.MaintenanceLogId,
-                    Machine_Name = logsFromDb.MachineName,
-                    Problem_Description = logsFromDb.IssueDescription,
-                    AuthorizedBy = logsFromDb.VerifiedByAdmin
-                });
-
-                return Ok(maintenanceViewModel);
-            }
-
-            return BadRequest("An error occured");
-        }
-
-
-        [HttpPost]
-        [Route("Maintenance")]
-        public async Task<IActionResult> StartMaintenance([FromBody] MaintenanceViewModel maintenanceVLog)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-
-            if(maintenanceVLog == null && currentUser == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            MaintenanceLogModel maintenanceDomain = new MaintenanceLogModel
-            {
-                MachineId = maintenanceVLog.Machine_Id,
-                IssueDescription = maintenanceVLog.Problem_Description,
-                VerifiedByAdmin = currentUser.FirstName + currentUser.LastName,
-                LaundryStatusIdentifier = 4 //setting and seeding the status of the machine
-            };
-
-            await _machineLogRepository.AddLog(maintenanceDomain);
-            return Ok(maintenanceVLog);
-        }
-
-        [HttpPost]
-        [Route("MaintenanceAction")]
-        public async Task<IActionResult> StopMaintenance([FromBody] MaintenanceViewModel maintenanceVLog )
-        {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            MaintenanceLogModel maintenanceLogDomain = new MaintenanceLogModel
-            {
-                LaundryStatusIdentifier = 5 //setting and seeding the status of the machine
-            };
-
-            await _machineLogRepository.UpdateLog(maintenanceLogDomain);
-            return Ok(maintenanceVLog);
-        }
     }
 
 }

@@ -28,10 +28,8 @@ namespace LaundryDormApi.Model.ViewModel
 
         [MaxLength(8)]
         public string PhoneNumber { get; set; }
-
         public string? ProfileId { get; set; }
-
-        public bool? isAdmin {get; set; }
+        public bool? isAdmin { get; set; } = false;
 
     }
 }

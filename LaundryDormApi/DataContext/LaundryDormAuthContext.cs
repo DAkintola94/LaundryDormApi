@@ -16,13 +16,16 @@ namespace LaundryDormApi.DataContext
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+        {
 
         base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ApplicationUser>().HasIndex(p => p.PhoneNumber).IsUnique(); //prevent the same phone number being used/registered by diffenrent users
+                                                                                            //email is unique by default, and username
+
             var sysAdminRoleId = "67330e4f-e3e7-470f-9230-124bb2f207e9";
-               var adminRoleId = "76e267ae-8be5-4040-b507-e39da47afba1";
-                var userRoleId = "da325b16-0977-43ca-8611-b32033c9ff91";
+            var adminRoleId = "76e267ae-8be5-4040-b507-e39da47afba1";
+            var userRoleId = "da325b16-0977-43ca-8611-b32033c9ff91";
 
         //Seed roles for (User, Admin Superadmin)
         // Seed superAdmin
@@ -57,7 +60,7 @@ namespace LaundryDormApi.DataContext
 
              };
 
-        modelBuilder.Entity<IdentityRole>().HasData(roles); //Seed data for roles
+           modelBuilder.Entity<IdentityRole>().HasData(roles); //Seed data for roles
 
         ////Seed data for users
 
@@ -165,7 +168,7 @@ namespace LaundryDormApi.DataContext
         //    }
         //  );
 
-    }
+        }
 
     }
 }

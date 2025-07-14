@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace LaundryDormApi.Migrations.LaundryDormDb
+namespace LaundryDormApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreation : Migration
+    public partial class DesktopMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -197,41 +197,6 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "MaintenanceLog",
-                columns: table => new
-                {
-                    MaintenanceLogId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MachineName = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IssueDescription = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ReportedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    SolvedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    TechnicianName = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    MachineId = table.Column<int>(type: "int", nullable: true),
-                    LaundryStatusIdentifier = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MaintenanceLog", x => x.MaintenanceLogId);
-                    table.ForeignKey(
-                        name: "FK_MaintenanceLog_LaundryStatus_LaundryStatusIdentifier",
-                        column: x => x.LaundryStatusIdentifier,
-                        principalTable: "LaundryStatus",
-                        principalColumn: "LaundryStatusID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MaintenanceLog_Machine_MachineId",
-                        column: x => x.MachineId,
-                        principalTable: "Machine",
-                        principalColumn: "MachineId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.InsertData(
                 table: "Category",
                 columns: new[] { "CategoryId", "CategoryName" },
@@ -259,10 +224,9 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 {
                     { 1, "Aktivt tidspunkt" },
                     { 2, "Utløpt" },
-                    { 3, "Stoppet!" },
-                    { 4, "Service pågår!" },
-                    { 5, "Service ferdig!" },
-                    { 6, "Reservert" }
+                    { 3, "Service pågår!" },
+                    { 4, "Reservert" },
+                    { 5, "Kansellert" }
                 });
 
             migrationBuilder.InsertData(
@@ -270,9 +234,9 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 columns: new[] { "PeriodId", "End", "Start" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 4, 7, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, new DateTime(2025, 7, 4, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, new DateTime(2025, 7, 14, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 14, 7, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, new DateTime(2025, 7, 14, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 14, 12, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, new DateTime(2025, 7, 14, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 14, 17, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(
@@ -308,16 +272,6 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 name: "IX_Machine_ImageFK_ID",
                 table: "Machine",
                 column: "ImageFK_ID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MaintenanceLog_LaundryStatusIdentifier",
-                table: "MaintenanceLog",
-                column: "LaundryStatusIdentifier");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MaintenanceLog_MachineId",
-                table: "MaintenanceLog",
-                column: "MachineId");
         }
 
         /// <inheritdoc />
@@ -330,22 +284,19 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 name: "Laundry");
 
             migrationBuilder.DropTable(
-                name: "MaintenanceLog");
-
-            migrationBuilder.DropTable(
                 name: "UpdatedLaundryCount");
 
             migrationBuilder.DropTable(
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "TimeStamp");
-
-            migrationBuilder.DropTable(
                 name: "LaundryStatus");
 
             migrationBuilder.DropTable(
                 name: "Machine");
+
+            migrationBuilder.DropTable(
+                name: "TimeStamp");
 
             migrationBuilder.DropTable(
                 name: "Image");

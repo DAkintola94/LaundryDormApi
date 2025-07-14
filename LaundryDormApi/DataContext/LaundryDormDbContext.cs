@@ -14,7 +14,6 @@ namespace LaundryDormApi.DataContext
         public DbSet<AdviceSet> Advice { get; set; }
         public DbSet<LaundryStatusState> LaundryStatus { get; set; }
         public DbSet<ImageModel> Image { get; set; }
-        public DbSet<MaintenanceLogModel> MaintenanceLog { get; set; }
         public DbSet<MachineModel> Machine { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<UpdateCountModel> UpdatedLaundryCount { get; set; }
@@ -24,7 +23,6 @@ namespace LaundryDormApi.DataContext
             //seeding primarykey
             modelBuilder.Entity<LaundryStatusState>().HasKey(x => x.LaundryStatusID);
             modelBuilder.Entity<MachineModel>().HasKey(x => x.MachineId);
-            modelBuilder.Entity<MaintenanceLogModel>().HasKey(x => x.MaintenanceLogId);
             modelBuilder.Entity<AdviceSet>().HasKey(x => x.PosterId);
             modelBuilder.Entity<LaundrySession>().HasKey(x => x.LaundrySessionId);
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
@@ -55,18 +53,6 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(imageId => imageId.ImageFK_ID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<MaintenanceLogModel>()
-                .HasOne(ml => ml.Machine)
-                .WithMany()
-                .HasForeignKey(ml => ml.MachineId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-
-            modelBuilder.Entity<MaintenanceLogModel>()
-                .HasOne(ls => ls.StatusState)
-                .WithMany()
-                .HasForeignKey(ls => ls.LaundryStatusIdentifier)
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<AdviceSet>()
                 .HasOne(ad => ad.CategoryModel)
@@ -77,10 +63,9 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
                new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktivt tidspunkt" },
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Utløpt" },
-               new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Stoppet!" },
-               new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Service pågår!" },
-               new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Service ferdig!" },
-               new LaundryStatusState { LaundryStatusID = 6, StatusDescription = "Reservert"}
+               new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Service pågår!" },
+               new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Reservert"},
+               new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Kansellert"}
            );
 
             modelBuilder.Entity<MachineModel>().HasData( //seeding machine model version in the database, FK is based on the GUID PK for the image table

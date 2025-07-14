@@ -31,5 +31,7 @@ namespace LaundryDormApi.Model.ViewModel
 
         public string? ProfileId { get; set; }
 
+        public bool? isAdmin {get; set; }
+
     }
 }

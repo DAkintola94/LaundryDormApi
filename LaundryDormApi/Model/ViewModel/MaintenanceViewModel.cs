@@ -8,6 +8,6 @@
         public string? Problem_Description { get; set; }
         public DateTime? ReportedDate { get; set; }
         public DateTime? SolvedDate { get; set; }
-        public string? Technician_Name { get; set; }
+        public string AuthorizedBy { get; set; }
     }
 }

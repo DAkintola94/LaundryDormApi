@@ -10,6 +10,7 @@ namespace LaundryDormApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize (Roles ="Admin")]
 
     public class AdminController : ControllerBase
     {
@@ -32,7 +33,6 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("SessionId")]
-        //[Authorize(Roles ="")]
         public async Task<IActionResult> SessionHistoricId(int id)
         {
             var getSessionById = await _sessionRepository.GetSessionById(id);
@@ -61,7 +61,6 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("EntireSessionLog")]
-        //[Authorize(Roles ="")]
         public async Task<IActionResult> DispayAllSessions()
         {
             var getAllReservation = await _sessionRepository.GetAllSession();
@@ -89,7 +88,6 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("UsersOverview")]
-        [Authorize]
         public async Task<IActionResult> DisplayUsers([FromQuery] string? mailFilter, [FromQuery] string? mailQuery, 
             [FromQuery] string? firstNameFilter, [FromQuery] string? firstNameQuery,
             [FromQuery] string? lastNameFilter, [FromQuery] string? lastNameQuery,
@@ -102,7 +100,9 @@ namespace LaundryDormApi.Controllers
                 pageNumber, pageSize, 
                 sortBy, isAscending ?? true);
 
-            if(getUsers!= null)
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if(getUsers!= null && currentUser != null)
             {
                 getUsers.Select(fromDb => new RegisterViewModel
                 {
@@ -118,15 +118,16 @@ namespace LaundryDormApi.Controllers
             return Ok("The list was empty");
         }
 
-        [HttpPost]
+        [HttpDelete]
         [Route("DeleteUser")]
-        [Authorize]
         public async Task<IActionResult> DeleteMember(string usersId)
         {
+
             var deleteUser = await _userRepository.DeleteUser(usersId);
-            if(deleteUser != null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(deleteUser != null && currentUser != null)
             {
-                return Ok("User have been deleted");
+                return NoContent(); //204 no content, since user have been deleted
             }
 
             return BadRequest($"No user with the id {usersId} in the database");
@@ -134,7 +135,6 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("FindUser")]
-        [Authorize]
         public async Task<IActionResult> GetUserId(string id)
         {
             var findUser = await _userRepository.GetUserById(id);
@@ -155,10 +155,9 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("CreateUser")]
-        [Authorize]
-        public async Task<IActionResult> CreateAdmin([FromBody]RegisterViewModel regViewModel)
+        public async Task<IActionResult> CreateUserOrAdmin([FromBody]RegisterViewModel regViewModel)
         {
-            if (regViewModel != null && ModelState.IsValid)
+            if (regViewModel != null)
             {
                 ApplicationUser applicationUser = new ApplicationUser
                 {
@@ -172,31 +171,32 @@ namespace LaundryDormApi.Controllers
 
                 var result = await _userManager.CreateAsync(applicationUser, regViewModel.Password);
 
-                if (result.Succeeded)
+                if (result.Succeeded && regViewModel.isAdmin.HasValue)
                 {
-                    var identityRole = await _userManager.AddToRoleAsync(applicationUser, "Admin");
+                    string roleValue = regViewModel.isAdmin.Value ? "Admin" : "RegularUser"; //ternary condition, check value isAdmin (true or false) according to what user set
+
+                    var identityRole = await _userManager.AddToRoleAsync(applicationUser, roleValue);
 
                     if (identityRole.Succeeded)
                     {
-                        var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { "Admin" });
+                        var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { roleValue });
 
-                        //LoginResponse loginResponse = new LoginResponse
-                        //{
-                        //    JwtToken = jwtToken
-                        //};
+                        LoginResponse loginResponse = new LoginResponse
+                        {
+                            JwtToken = jwtToken
+                        };
 
-                        return Ok("New admin user created"); 
+                        return Ok($"New admin user created, token value: {jwtToken}"); 
                     }
                     else
                     {
                         return BadRequest(identityRole.Errors + "No user by that role");
                     }
-
                 }
-                return BadRequest(new { Errors = result.Errors.Select(e => e.Description).ToList(), Message = "Error attempting to register " });
-            }
-            return Unauthorized("Something went wrong");
 
+                    return BadRequest(new { Errors = result.Errors.Select(e => e.Description).ToList(), Message = "Error attempting to register " });
+            }
+                return Unauthorized("Something went wrong, report to admin");
         }
 
 
@@ -205,8 +205,9 @@ namespace LaundryDormApi.Controllers
         public async Task<IActionResult> DisplayLog()
         {
             var getLogs = await _machineLogRepository.GetAllLog();
+            var currentUser = await _userManager.GetUserAsync(User);
 
-            if(getLogs!= null)
+            if(getLogs!= null && currentUser != null)
             {
                 var maintenanceViewModel = getLogs.Select(logsFromDb => new MaintenanceViewModel //Intend is to map, we are receiving an IEnumerable of MaintenanceLogModel and we are converting it to IEnumerable of MaintenanceViewModel
                 {
@@ -214,7 +215,7 @@ namespace LaundryDormApi.Controllers
                     Maintenance_Log_Id = logsFromDb.MaintenanceLogId,
                     Machine_Name = logsFromDb.MachineName,
                     Problem_Description = logsFromDb.IssueDescription,
-                    Technician_Name = logsFromDb.TechnicianName
+                    AuthorizedBy = logsFromDb.VerifiedByAdmin
                 });
 
                 return Ok(maintenanceViewModel);
@@ -228,7 +229,9 @@ namespace LaundryDormApi.Controllers
         [Route("Maintenance")]
         public async Task<IActionResult> StartMaintenance([FromBody] MaintenanceViewModel maintenanceVLog)
         {
-            if(!ModelState.IsValid)
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if(maintenanceVLog == null && currentUser == null)
             {
                 return BadRequest(ModelState);
             }
@@ -237,7 +240,7 @@ namespace LaundryDormApi.Controllers
             {
                 MachineId = maintenanceVLog.Machine_Id,
                 IssueDescription = maintenanceVLog.Problem_Description,
-                TechnicianName = maintenanceVLog.Technician_Name,
+                VerifiedByAdmin = currentUser.FirstName + currentUser.LastName,
                 LaundryStatusIdentifier = 4 //setting and seeding the status of the machine
             };
 

@@ -38,11 +38,11 @@ namespace LaundryDormApi
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<ILaundrySession, LaundrySessionRepository>();
-            builder.Services.AddScoped<IMachineLogRepository, MachineLogRepository>();
             builder.Services.AddScoped<IAdviceSetRepository, AdviceSetRepository>();
             builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();
             builder.Services.AddScoped<IUpdateCountRepository, UpdateCountRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()

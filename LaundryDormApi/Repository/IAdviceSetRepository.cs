@@ -4,7 +4,12 @@ namespace LaundryDormApi.Repository
 {
     public interface IAdviceSetRepository
     {
-        public Task<IEnumerable<AdviceSet>> GetAllAdvice();
+        public Task<IEnumerable<AdviceSet>> GetAllAdvice(string? nameFilter = null, string? nameQuery = null
+            , string? emailFilter = null, string? emailQuery = null,
+            string? categoryFilter = null, string? categoryQuery = null,
+            string? dateFilter = null, string? dateQuery = null,
+            string? sortBy = null, bool isAscending = true,
+            int pageNumber = 1, int pageSize = 50);
         public Task<AdviceSet?> GetAdviceById(int id);
         public Task<AdviceSet> InsertAdvice(AdviceSet advice);
         public Task<AdviceSet> UpdateAdvice(AdviceSet advice);

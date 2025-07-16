@@ -4,16 +4,19 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations.LaundryDormDb
+namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250714190419_DesktopMigration")]
+    partial class DesktopMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,22 +223,17 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             LaundryStatusID = 3,
-                            StatusDescription = "Stoppet!"
-                        },
-                        new
-                        {
-                            LaundryStatusID = 4,
                             StatusDescription = "Service pågår!"
                         },
                         new
                         {
-                            LaundryStatusID = 5,
-                            StatusDescription = "Service ferdig!"
+                            LaundryStatusID = 4,
+                            StatusDescription = "Reservert"
                         },
                         new
                         {
-                            LaundryStatusID = 6,
-                            StatusDescription = "Reservert"
+                            LaundryStatusID = 5,
+                            StatusDescription = "Kansellert"
                         });
                 });
 
@@ -289,44 +287,6 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         });
                 });
 
-            modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>
-                {
-                    b.Property<int>("MaintenanceLogId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("MaintenanceLogId"));
-
-                    b.Property<string>("IssueDescription")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("LaundryStatusIdentifier")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MachineId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MachineName")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("ReportedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("SolvedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("TechnicianName")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("MaintenanceLogId");
-
-                    b.HasIndex("LaundryStatusIdentifier");
-
-                    b.HasIndex("MachineId");
-
-                    b.ToTable("MaintenanceLog");
-                });
-
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.TimePeriodModel", b =>
                 {
                     b.Property<int>("PeriodId")
@@ -349,20 +309,20 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             PeriodId = 1,
-                            End = new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 4, 7, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 14, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 14, 7, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PeriodId = 2,
-                            End = new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 4, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 14, 17, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 14, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PeriodId = 3,
-                            End = new DateTime(2025, 7, 4, 23, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 4, 17, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 14, 23, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 14, 17, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -427,24 +387,6 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         .IsRequired();
 
                     b.Navigation("Image");
-                });
-
-            modelBuilder.Entity("LaundryDormApi.Model.DomainModel.MaintenanceLogModel", b =>
-                {
-                    b.HasOne("LaundryDormApi.Model.DomainModel.LaundryStatusState", "StatusState")
-                        .WithMany()
-                        .HasForeignKey("LaundryStatusIdentifier")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LaundryDormApi.Model.DomainModel.MachineModel", "Machine")
-                        .WithMany()
-                        .HasForeignKey("MachineId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Machine");
-
-                    b.Navigation("StatusState");
                 });
 #pragma warning restore 612, 618
         }

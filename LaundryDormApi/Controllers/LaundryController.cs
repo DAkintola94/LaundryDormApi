@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.WebSockets;
 using System.Security.Claims;
 
 namespace LaundryDormApi.Controllers
@@ -29,25 +30,46 @@ namespace LaundryDormApi.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific laundry session for the logged-in user.
-        /// The JWT token (Bearer token) sent from the frontend is automatically validated by ASP.NET Core's authentication middleware from program.cs
-        /// If valid, the user information from the token becomes available through HttpContext.User, allowing the method to verify ownership of the session.
-        /// 'User' is a built-in property available in controllers (inherited from ControllerBase) that represents the current authenticated user's claims.
-        /// It is automatically populated by ASP.NET Core middleware during the processing of the current HTTP request.
-        /// With this, we don't need the JWT token as parameter
+        /// Retrieves all laundry sessions for the logged-in user, with optional filtering by date and status.
+        /// The JWT (Bearer) token sent from the frontend is automatically validated by ASP.NET Core's authentication middleware.
+        /// If valid, user information is available via <c>HttpContext.User</c> for verifying session ownership.
         /// </summary>
-        /// <returns>Returns the user's session if authorized; otherwise, an error response.</returns>
-
-
+        /// <param name="dateFilter">
+        /// The name of the date field to filter by (e.g., <c>"ReservationTime"</c> or <c>"ReservedDate"</c>).
+        /// </param>
+        /// <param name="dateQuery">
+        /// The date value to filter by, as a string (e.g., <c>"2025-07-12"</c>). Parsed to <c>DateTime</c> or <c>DateOnly</c> as needed.
+        /// </param>
+        /// <param name="statusFilter">
+        /// The name of the status field to filter by (e.g., <c>"LaundryStatusDescription"</c>).
+        /// </param>
+        /// <param name="statusQuery">
+        /// The status value to filter by (e.g., <c>"Aktivt tidspunkt"</c>).
+        /// </param>
+        /// <param name="sortBy">
+        /// (Optional) The field name to sort the results by.
+        /// </param>
+        /// <param name="isAscending">
+        /// (Optional) Whether to sort the results in ascending order. <c>true</c> for ascending, <c>false</c> for descending.
+        /// </param>
+        /// <returns>
+        /// Returns a list of the user's laundry sessions matching the filters, or an error response if unauthorized.
+        /// </returns>
         [HttpGet]
         [Route("SessionHistoric")]
         [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
-
-        public async Task<IActionResult> PreviewSessionHistoric() 
+        public async Task<IActionResult> PreviewSessionHistoric([FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
+            [FromQuery] string? statusFilter, [FromQuery] string statusQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10) 
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var getAllSession = await _laundrySession.GetAllSession();
-
+            var getAllSession = await 
+                _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, 
+                sortBy, isAscending ?? true, //If isAscending is null, the bool is true
+                                             //For the repository to accept nullable bool
+                pageNumber, pageSize);
+                                                                                                                            
             if(currentUser == null)
             {
                 return Unauthorized("You must be logged in to use this function");
@@ -73,7 +95,7 @@ namespace LaundryDormApi.Controllers
                     EndPeriod = fromDb?.TimePeriod?.End,
                     MachineName = fromDb?.Machine?.MachineName,
                     UserMessage = fromDb?.Message,
-                    SessionId = fromDb?.LaundrySessionId
+                    SessionId = fromDb?.LaundrySessionId //important, so we can use cancelbooking method later
                 });
 
             return Ok(usersValidSession);
@@ -85,6 +107,31 @@ namespace LaundryDormApi.Controllers
         /// </summary>
         /// <returns>The new ID if successful; otherwise, a BadRequest result.</returns>
         /// 
+
+        [HttpPost]
+        [Route("CancelReservation")]
+        [Authorize]
+        public async Task<IActionResult> CancelBooking(int sessionId) //Since we are already showing usershistoric above, just accept the id here and work with that
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(currentUser == null)
+            {
+                return Unauthorized("Unauthorized user");
+            }
+
+            var laundrySessionId = await _laundrySession.GetSessionById(sessionId);
+            if(laundrySessionId != null)
+            {
+                if(laundrySessionId.UserEmail == currentUser.Email) //since email is unique by default, no duplication allowed
+                {
+                    laundrySessionId.LaundryStatusID = 5; //status changed to cancelled if logic matches
+                    await _laundrySession.UpdateSession(laundrySessionId);
+                    return Ok(new {laundryId = laundrySessionId.LaundrySessionId });
+                }
+            }
+
+            return Ok($"Can't find session with the id: {sessionId}");
+        }
 
         [HttpGet]
         [Route("Availability")]
@@ -104,7 +151,9 @@ namespace LaundryDormApi.Controllers
                 try
                 {
                     var filteredOrders = getAllOrders.Where(axeFromView => //Filtering data we don't want to show first. With a NOT condition
-                    !(axeFromView.LaundryStatusID == 2 && axeFromView.ReservedDate.HasValue)) //Not condition can be done like this when using LINQ
+                    !(axeFromView.LaundryStatusID == 2 
+                    && axeFromView.ReservedDate.HasValue //checking that the session is NOT! utløpt, and have a reserved date value
+                    )) 
                     .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
                     {
                         ReservationTime = showFromDb.ReservationTime,
@@ -153,7 +202,22 @@ namespace LaundryDormApi.Controllers
                     //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
         public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel)
         {
-            DateTime today = DateTime.Today;
+            DateTime todayTime = DateTime.UtcNow;
+
+            var timePeriod = new[]
+            {
+               new {timeId = 1, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 12, 0, 0)},
+               new {timeId = 2, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 17, 0, 0)},
+               new {timeId = 3, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 23, 0, 0)}
+           };
+
+
+            var period = timePeriod.FirstOrDefault(x => x.timeId == laundrySessionViewModel.SessionTimePeriodId); //linq to not make user be able to book session past time
+
+            if (period != null && todayTime > period.timeStamp) 
+            {
+                return BadRequest("You can't book this session. The selected time period has already passed");
+            }
 
             var currentUser = await _userManager.GetUserAsync(User);
             var getSession = await _laundrySession.GetAllSession();
@@ -167,12 +231,15 @@ namespace LaundryDormApi.Controllers
             {
                 if (laundrySessionViewModel != null && laundrySessionViewModel.ReservationTime.HasValue) //remember to send the reservation time from frontend as valid date
                 {
-
                     var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works
                      sFromDb.ReservedDate.HasValue
                     && sFromDb.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId
                     && sFromDb.ReservedDate.Value == DateOnly.FromDateTime(laundrySessionViewModel.ReservationTime.Value) //comparing dateonly with time only, to check for conflict on the SAME DAY!!
-                    );   
+                    && (sFromDb.LaundryStatusID == 2
+                    || sFromDb.LaundryStatusID == 3
+                    || sFromDb.LaundryStatusID == 4)
+                    ); //check if date is occupied, and if the active status are not conflicting
+
 
                     LaundrySession laundrySessionDomain = new LaundrySession
                     {
@@ -182,11 +249,12 @@ namespace LaundryDormApi.Controllers
                         Message = laundrySessionViewModel.UserMessage,
                         MachineId = laundrySessionViewModel.MachineId,
                         ReservationTime = DateTime.Now,
+                        ReservedDate = DateOnly.FromDateTime(todayTime),
                         TimePeriodId = laundrySessionViewModel.SessionTimePeriodId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
                         LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
                     };
 
-                    if (!isConflict ) //if there is no conflict, insert value into database
+                    if (!isConflict) //if there is no conflict, insert value into database
                     {
                         var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain); //Need variable if we want to extract an id, or any other data later on                                                                        
 
@@ -230,10 +298,16 @@ namespace LaundryDormApi.Controllers
         /// </returns>
         [HttpPost]
         [Route("FinalizeLaundrySession")]
-        //[Authorize(Roles ="Admin")] //The bearer token sent from the frontend will be populated in User through the middleware
+        [Authorize(Roles ="Admin")] //The bearer token sent from the frontend will be populated in User through the middleware
         //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent.
         public async Task<IActionResult> FinalizeExpiredLaundrySessions()
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(currentUser == null)
+            {
+                return Unauthorized("Invalid user");
+            }
+
             int? updatedCount = (await _updateCountRepository.GetCountNumber()) ?? 0; //get the count from the database (nullable), then update later
 
             DateTime today = DateTime.Today; //local-day, date, day
@@ -302,6 +376,15 @@ namespace LaundryDormApi.Controllers
             var getSession = await _laundrySession.GetAllSession();
             var currentUser = await _userManager.GetUserAsync(User);
 
+            DateTime nextDay = DateTime.UtcNow.AddDays(1);
+            DateOnly dayAhead = DateOnly.FromDateTime(nextDay);
+
+            if(reservationViewModel.ReservationDate.HasValue 
+                && reservationViewModel.ReservationDate.Value < dayAhead) //user can only reserve 24 hours ahead of time
+            {
+                return BadRequest("You must book at least one day in advance");
+            }
+
             if(currentUser == null)
             {
                 return Unauthorized("Invalid user");
@@ -309,7 +392,8 @@ namespace LaundryDormApi.Controllers
 
             if(reservationViewModel!= null 
                 && getSession!= null 
-                && reservationViewModel.ReservationTime.HasValue)
+                && reservationViewModel.ReservationTime.HasValue
+                && reservationViewModel.ReservationDate.HasValue) //obs, reservation date need to have value
             {
                 try
                 {
@@ -328,7 +412,7 @@ namespace LaundryDormApi.Controllers
 
                         MachineId = 1, //default machine type for now
 
-                        LaundryStatusID = 6  //FK for laundrystatus. Sets the status based on what we seeded in DBContext
+                        LaundryStatusID = 4  //FK for laundrystatus. Sets the status to reservation
                     };
 
                     var isConflict = getSession.Any(sFromDb =>
@@ -343,7 +427,7 @@ namespace LaundryDormApi.Controllers
                         return Ok(reservationSessionDto);
                     }
 
-                    return Ok("There was a conflict with the reservation, please choose another reservation date.");
+                    return Ok("There was a conflict with the reservation, please choose another reservation date or time period.");
 
                 }
                 catch (Exception ex)

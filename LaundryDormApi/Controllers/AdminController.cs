@@ -3,27 +3,34 @@ using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LaundryDormApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize (Roles ="Admin")]
 
     public class AdminController : ControllerBase
     {
-        private readonly IMachineLogRepository _machineLogRepository;
         private readonly ILaundrySession _sessionRepository;
-        public AdminController(IMachineLogRepository machineLogRepository, ILaundrySession sessionRepository)
+        private readonly IUserRepository _userRepository;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ITokenRepository _tokenRepository;
+        public AdminController(ILaundrySession sessionRepository, IUserRepository userRepository
+            ,SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ITokenRepository tokenRepository)
         {
-            _machineLogRepository = machineLogRepository;
             _sessionRepository = sessionRepository;
+            _userRepository = userRepository;
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _tokenRepository = tokenRepository;
         }
 
         [HttpPost]
         [Route("SessionId")]
-        //[Authorize(Roles ="")]
-
         public async Task<IActionResult> SessionHistoricId(int id)
         {
             var getSessionById = await _sessionRepository.GetSessionById(id);
@@ -52,7 +59,6 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("EntireSessionLog")]
-        //[Authorize(Roles ="")]
         public async Task<IActionResult> DispayAllSessions()
         {
             var getAllReservation = await _sessionRepository.GetAllSession();
@@ -78,69 +84,119 @@ namespace LaundryDormApi.Controllers
             return BadRequest("Error, something went wrong");
         }
 
-
         [HttpGet]
-        [Route("Log")]
-        public async Task<IActionResult> DisplayLog()
+        [Route("UsersOverview")]
+        public async Task<IActionResult> DisplayUsers([FromQuery] string? mailFilter, [FromQuery] string? mailQuery, 
+            [FromQuery] string? firstNameFilter, [FromQuery] string? firstNameQuery,
+            [FromQuery] string? lastNameFilter, [FromQuery] string? lastNameQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1, int pageSize = 50 
+            )
         {
-            var getLogs = await _machineLogRepository.GetAllLog();
+            var getUsers = await _userRepository.GetAllUsers(mailFilter, mailQuery, 
+                firstNameFilter, firstNameQuery, 
+                lastNameFilter, lastNameQuery, 
+                pageNumber, pageSize, 
+                sortBy, isAscending ?? true);
 
-            if(getLogs!= null)
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if(getUsers!= null && currentUser != null)
             {
-                var maintenanceViewModel = getLogs.Select(logsFromDb => new MaintenanceViewModel //Intend is to map, we are receiving an IEnumerable of MaintenanceLogModel and we are converting it to IEnumerable of MaintenanceViewModel
+                getUsers.Select(fromDb => new RegisterViewModel
                 {
-                    Machine_Id = logsFromDb.MachineId,
-                    Maintenance_Log_Id = logsFromDb.MaintenanceLogId,
-                    Machine_Name = logsFromDb.MachineName,
-                    Problem_Description = logsFromDb.IssueDescription,
-                    Technician_Name = logsFromDb.TechnicianName
+                    Email = fromDb.Email ?? string.Empty,
+                    UserFirstName = fromDb.FirstName ?? string.Empty,
+                    UserLastName = fromDb.LastName ?? string.Empty,
+                    PhoneNumber = fromDb.PhoneNumber ?? string.Empty,
+                    ProfileId = fromDb.Id ?? string.Empty,
                 });
-
-                return Ok(maintenanceViewModel);
+                return Ok(getUsers);
             }
 
-            return BadRequest("An error occured");
+            return Ok("The list was empty");
         }
 
-
-        [HttpPost]
-        [Route("Maintenance")]
-        public async Task<IActionResult> StartMaintenance([FromBody] MaintenanceViewModel maintenanceVLog)
+        [HttpDelete]
+        [Route("DeleteUser")]
+        public async Task<IActionResult> DeleteMember(string usersId)
         {
-            if(!ModelState.IsValid)
+
+            var deleteUser = await _userRepository.DeleteUser(usersId);
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(deleteUser != null && currentUser != null)
             {
-                return BadRequest(ModelState);
+                return NoContent(); //204 no content, since user have been deleted
             }
 
-            MaintenanceLogModel maintenanceDomain = new MaintenanceLogModel
-            {
-                MachineId = maintenanceVLog.Machine_Id,
-                IssueDescription = maintenanceVLog.Problem_Description,
-                TechnicianName = maintenanceVLog.Technician_Name,
-                LaundryStatusIdentifier = 4 //setting and seeding the status of the machine
-            };
-
-            await _machineLogRepository.AddLog(maintenanceDomain);
-            return Ok(maintenanceVLog);
+            return BadRequest($"No user with the id {usersId} in the database");
         }
 
         [HttpPost]
-        [Route("MaintenanceAction")]
-        public async Task<IActionResult> StopMaintenance([FromBody] MaintenanceViewModel maintenanceVLog )
+        [Route("FindUser")]
+        public async Task<IActionResult> GetUserId(string id)
         {
-            if(!ModelState.IsValid)
+            var findUser = await _userRepository.GetUserById(id);
+            if(findUser != null)
             {
-                return BadRequest(ModelState);
+                RegisterViewModel registerViewModel = new RegisterViewModel
+                {
+                    ProfileId = findUser.Id,
+                    UserFirstName = findUser.FirstName,
+                    UserLastName = findUser.LastName,
+                    Email = findUser.Email ?? string.Empty,
+                    PhoneNumber = findUser.PhoneNumber ?? string.Empty
+                };
+                return Ok(registerViewModel);
             }
-
-            MaintenanceLogModel maintenanceLogDomain = new MaintenanceLogModel
-            {
-                LaundryStatusIdentifier = 5 //setting and seeding the status of the machine
-            };
-
-            await _machineLogRepository.UpdateLog(maintenanceLogDomain);
-            return Ok(maintenanceVLog);
+            return Ok($"No user with the id {id} in the database");
         }
+
+        [HttpPost]
+        [Route("CreateUser")]
+        public async Task<IActionResult> CreateUserOrAdmin([FromBody]RegisterViewModel regViewModel)
+        {
+            if (regViewModel != null)
+            {
+                ApplicationUser applicationUser = new ApplicationUser
+                {
+                    FirstName = regViewModel.UserFirstName,
+                    LastName = regViewModel.UserLastName,
+                    Address = regViewModel.UserAddress,
+                    Email = regViewModel.Email, //identity which we inherit from already has email property, no need to create on in the model
+                    UserName = regViewModel.Email, //Since identity requires username, use email as username, and dont let the user write a username
+                    PhoneNumber = regViewModel.PhoneNumber //--
+                };
+
+                var result = await _userManager.CreateAsync(applicationUser, regViewModel.Password);
+
+                if (result.Succeeded && regViewModel.isAdmin.HasValue)
+                {
+                    string roleValue = regViewModel.isAdmin.Value ? "Admin" : "RegularUser"; //ternary condition, check value isAdmin (true or false) according to what user set
+
+                    var identityRole = await _userManager.AddToRoleAsync(applicationUser, roleValue);
+
+                    if (identityRole.Succeeded)
+                    {
+                        var jwtToken = _tokenRepository.CreateJWTToken(applicationUser, new List<string> { roleValue });
+
+                        LoginResponse loginResponse = new LoginResponse
+                        {
+                            JwtToken = jwtToken
+                        };
+
+                        return Ok($"New admin user created, token value: {jwtToken}"); 
+                    }
+                    else
+                    {
+                        return BadRequest(identityRole.Errors + "No user by that role");
+                    }
+                }
+
+                    return BadRequest(new { Errors = result.Errors.Select(e => e.Description).ToList(), Message = "Error attempting to register " });
+            }
+                return Unauthorized("Something went wrong, report to admin");
+        }
+
     }
 
 }

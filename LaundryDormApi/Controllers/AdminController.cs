@@ -59,9 +59,10 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("EntireSessionLog")]
-        public async Task<IActionResult> DispayAllSessions()
+        public async Task<IActionResult> DispayAllSessions([FromQuery] string? dateFilter, [FromQuery] string? dateQuery, [FromQuery] string? statusFilter, [FromQuery] string? statusQuery,
+        [FromQuery] string? sortBy, bool? isAscending = true,  CancellationToken cancellationToken = default, int pageNumber = 1, int pageSize = 50  )
         {
-            var getAllReservation = await _sessionRepository.GetAllSession();
+            var getAllReservation = await _sessionRepository.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, 50);
             if(getAllReservation!= null)
             {
                 var getReservationData = getAllReservation.Select(
@@ -77,7 +78,6 @@ namespace LaundryDormApi.Controllers
                         SessionId = fromDb.LaundrySessionId,
                         MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                         LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription, //using the model navigation property to get the laundry status name
-
                     });
                 return Ok(getReservationData);
             }
@@ -121,9 +121,8 @@ namespace LaundryDormApi.Controllers
         [Route("DeleteUser")]
         public async Task<IActionResult> DeleteMember(string usersId, CancellationToken cancellationToken = default)
         {
-
-            var deleteUser = await _userRepository.DeleteUser(usersId, cancellationToken);
             var currentUser = await _userManager.GetUserAsync(User);
+            var deleteUser = await _userRepository.DeleteUser(usersId, cancellationToken);
             if(deleteUser != null && currentUser != null)
             {
                 return NoContent(); //204 no content, since user have been deleted

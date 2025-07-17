@@ -17,6 +17,7 @@ namespace LaundryDormApi.Repository
             string? categoryFilter = null, string? categoryQuery = null,
             string? dateFilter = null, string? dateQuery = null,
             string? sortBy = null, bool isAscending = true,
+            CancellationToken cancellationToken = default,
             int pageNumber = 1, int pageSize = 50)
         {
             
@@ -107,28 +108,28 @@ namespace LaundryDormApi.Repository
 
             int skipResult = (pageNumber - 1) * pageSize;
 
-            return await getAdviceFromDb.Skip(skipResult).Take(pageSize).ToListAsync(); 
+            return await getAdviceFromDb.Skip(skipResult).Take(pageSize).ToListAsync(cancellationToken); 
             //by returning at the end, we can apply multiple filters and sort in sequences, and get all the values at last
         }
 
-        public async Task<AdviceSet?> GetAdviceById(int id) //getting a single post by its single PK id. No reason for query logic!
+        public async Task<AdviceSet?> GetAdviceById(int id, CancellationToken cancellationToken) //getting a single post by its single PK id. No reason for query logic!
         {
             return await _context.Advice
                 .Include(c => c.CategoryModel)
                 .Where(x => x.PosterId == id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<AdviceSet> DeleteAdviceById(int id)
+        public async Task<AdviceSet> DeleteAdviceById(int id, CancellationToken cancellationToken = default)
         {
             var adviceIdFromDb = await _context.Advice
                 .Include(c => c.CategoryModel)
-                .Where(x => x.PosterId == id).FirstOrDefaultAsync();
+                .Where(x => x.PosterId == id).FirstOrDefaultAsync(cancellationToken);
 
             if(adviceIdFromDb != null)
             {
                 _context.Advice.Remove(adviceIdFromDb);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
                 return adviceIdFromDb;
             }
 
@@ -136,30 +137,28 @@ namespace LaundryDormApi.Repository
             //You can throw an error instead of returning anything (null)
         }
 
-        public async Task<AdviceSet> InsertAdvice(AdviceSet adviceSet)
+        public async Task<AdviceSet> UpdateAdvice(AdviceSet adviceSet, CancellationToken cancellationToken = default)
+        {
+            if(adviceSet != null)
+            {
+                _context.Update(adviceSet);
+                await _context.SaveChangesAsync(cancellationToken);
+                return adviceSet;
+            }
+            return null;
+        }
+
+        public async Task<AdviceSet> InsertAdvice(AdviceSet adviceSet, CancellationToken cancellationToken = default)
         {
             if(adviceSet!= null)
             {
-                await _context.Advice.AddAsync(adviceSet);
-                await _context.SaveChangesAsync();
+                await _context.Advice.AddAsync(adviceSet, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
                 return adviceSet;
             }
 
             throw new KeyNotFoundException($"An error occurred, {adviceSet} could not be added into the database");
         }
-
-        public async Task<AdviceSet> UpdateAdvice(AdviceSet adviceSet)
-        {
-            if(adviceSet != null)
-            { 
-                 _context.Advice.Update(adviceSet);
-                 await _context.SaveChangesAsync();
-                 return adviceSet;
-            }
-
-            throw new KeyNotFoundException($"An error occurred when trying to update {adviceSet}");
-        }
-
 
     }
 }

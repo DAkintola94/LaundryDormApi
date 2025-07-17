@@ -137,8 +137,8 @@ namespace LaundryDormApi.Controllers
         [HttpGet]
         [Route("Availability")]
         [Authorize]
-        public async Task<IActionResult> CheckAvailability([FromQuery] string? dateFilter, string? dateQuery, string? statusFilter, string? statusQuery,
-            string? sortBy ,CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CheckAvailability([FromQuery] string? dateFilter, [FromQuery]string? dateQuery, [FromQuery] string? statusFilter, [FromQuery] string? statusQuery,
+           [FromQuery] string? sortBy ,CancellationToken cancellationToken = default)
         {
             var getAllOrders = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, 50);
             var currentUser = await _userManager.GetUserAsync(User);
@@ -202,9 +202,7 @@ namespace LaundryDormApi.Controllers
         [Route("StartSession")]
         [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
                     //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
-        public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel, [FromQuery] string? dateFilter, string? dateQuery
-            , string? statusFilter, string? statusQuery, string? sortBy, CancellationToken cancellationToken = default
-            )
+        public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel, CancellationToken cancellationToken = default)
         {
             DateTime todayTime = DateTime.UtcNow;
 
@@ -224,8 +222,8 @@ namespace LaundryDormApi.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var getSession = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, int.MaxValue);
-                                                                                                                                                //int.max because we want all data to be returned
+            var getSession = await _laundrySession.GetAllSession(null, null, null, null, null, false, cancellationToken, 1, int.MaxValue);
+                                                                                                                           //int.max because we want all data to be returned
 
             if(currentUser == null)
             {

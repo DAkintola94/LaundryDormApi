@@ -15,9 +15,12 @@ namespace LaundryDormApi.Repository
 
         //parameter is null by default, and also nullable
         //We are returning data, regardless if filter value are requested by users or not. Due to making the parameter nullable
+        //By passing a CancellationToken to your async operations, we allow the backend to detect when the client disconnects (TCP connection lost, browser closed, request aborted).
+        //When cancellation is requested, any awaited tasks that support cancellation can exit early, freeing resources and improving responsiveness.
+        //You need cancellation token on the parameter (even in the controller) since we are listening and waiting for a break in tcp connection ont the http request
         public async Task<IEnumerable<LaundrySession>> GetAllSession(string? dateFilter = null, string? dateQuery = null, 
             string? statusFilter = null, string? statusQuery = null,
-            string? sortBy = null, bool isAscending = true,
+            string? sortBy = null, bool isAscending = true, CancellationToken cancellationToken = default,
             int pageNumber = 1, int pageSize = 50
             )
         {
@@ -91,57 +94,57 @@ namespace LaundryDormApi.Repository
             var skipResult = (pageNumber - 1) * pageSize; //pagination
 
 
-            return await getSession.Skip(skipResult).Take(pageSize).ToListAsync();
+            return await getSession.Skip(skipResult).Take(pageSize).ToListAsync(cancellationToken);
             //by returning at the end, we can apply multiple filters and sort in sequences, and get all the values at last
         }
 
-        public async Task<LaundrySession?> GetSessionById(int id)
+        public async Task<LaundrySession?> GetSessionById(int id, CancellationToken cancellationToken = default)
         {
             
                 return await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
                 .Include(tp => tp.TimePeriod)
-                .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
+                .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync(cancellationToken);
             //No point with try catch since we are accepting a null value in return if nothing is found
         }
 
-        public async Task<LaundrySession?> DeleteSessionById(int id)
+        public async Task<LaundrySession?> DeleteSessionById(int id, CancellationToken cancellationToken = default)
         {
             var getLaundrySessionById = await _context.Laundry
                 .Include(ls => ls.LaundryStatus)
                 .Include(m => m.Machine)
                 .Include(tp => tp.TimePeriod)
-                .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync();
+                .Where(x => x.LaundrySessionId == id).FirstOrDefaultAsync(cancellationToken);
 
             if(getLaundrySessionById !=null )
             {
                 _context.Laundry.Remove(getLaundrySessionById);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
                 return getLaundrySessionById;
             }
 
             return null;
         }
 
-        public async Task<LaundrySession?> UpdateSession(LaundrySession laundrySession)
+        public async Task<LaundrySession?> UpdateSession(LaundrySession laundrySession, CancellationToken cancellationToken = default)
         {
             if(laundrySession != null)
             {
                 _context.Laundry.Update(laundrySession);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
                 return laundrySession;
             }
 
             return null;
         }
 
-        public async Task<LaundrySession?> InsertSession(LaundrySession laundrySession)
+        public async Task<LaundrySession?> InsertSession(LaundrySession laundrySession, CancellationToken cancellationToken = default)
         {
             if(laundrySession != null)
             {
                 _context.Laundry.Add(laundrySession);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
                 return laundrySession;
             }
 

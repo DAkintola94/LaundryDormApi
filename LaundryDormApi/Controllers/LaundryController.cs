@@ -60,7 +60,7 @@ namespace LaundryDormApi.Controllers
         [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
         public async Task<IActionResult> PreviewSessionHistoric([FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
             [FromQuery] string? statusFilter, [FromQuery] string statusQuery,
-            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, CancellationToken cancellationToken = default,
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10) 
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -68,6 +68,7 @@ namespace LaundryDormApi.Controllers
                 _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, 
                 sortBy, isAscending ?? true, //If isAscending is null, the bool is true
                                              //For the repository to accept nullable bool
+                cancellationToken,
                 pageNumber, pageSize);
                                                                                                                             
             if(currentUser == null)
@@ -111,7 +112,7 @@ namespace LaundryDormApi.Controllers
         [HttpPost]
         [Route("CancelReservation")]
         [Authorize]
-        public async Task<IActionResult> CancelBooking(int sessionId) //Since we are already showing usershistoric above, just accept the id here and work with that
+        public async Task<IActionResult> CancelBooking(int sessionId, CancellationToken cancellationToken = default) //Since we are already showing usershistoric above, just accept the id here and work with that
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if(currentUser == null)
@@ -119,13 +120,13 @@ namespace LaundryDormApi.Controllers
                 return Unauthorized("Unauthorized user");
             }
 
-            var laundrySessionId = await _laundrySession.GetSessionById(sessionId);
+            var laundrySessionId = await _laundrySession.GetSessionById(sessionId, cancellationToken);
             if(laundrySessionId != null)
             {
                 if(laundrySessionId.UserEmail == currentUser.Email) //since email is unique by default, no duplication allowed
                 {
                     laundrySessionId.LaundryStatusID = 5; //status changed to cancelled if logic matches
-                    await _laundrySession.UpdateSession(laundrySessionId);
+                    await _laundrySession.UpdateSession(laundrySessionId, cancellationToken);
                     return Ok(new {laundryId = laundrySessionId.LaundrySessionId });
                 }
             }
@@ -136,9 +137,10 @@ namespace LaundryDormApi.Controllers
         [HttpGet]
         [Route("Availability")]
         [Authorize]
-        public async Task<IActionResult> CheckAvailability()
+        public async Task<IActionResult> CheckAvailability([FromQuery] string? dateFilter, string? dateQuery, string? statusFilter, string? statusQuery,
+            string? sortBy ,CancellationToken cancellationToken = default)
         {
-            var getAllOrders = await _laundrySession.GetAllSession();
+            var getAllOrders = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, 50);
             var currentUser = await _userManager.GetUserAsync(User);
 
             if(currentUser == null)
@@ -200,7 +202,9 @@ namespace LaundryDormApi.Controllers
         [Route("StartSession")]
         [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
                     //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
-        public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel)
+        public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel, [FromQuery] string? dateFilter, string? dateQuery
+            , string? statusFilter, string? statusQuery, string? sortBy, CancellationToken cancellationToken = default
+            )
         {
             DateTime todayTime = DateTime.UtcNow;
 
@@ -220,7 +224,8 @@ namespace LaundryDormApi.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var getSession = await _laundrySession.GetAllSession();
+            var getSession = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, int.MaxValue);
+                                                                                                                                                //int.max because we want all data to be returned
 
             if(currentUser == null)
             {
@@ -256,7 +261,7 @@ namespace LaundryDormApi.Controllers
 
                     if (!isConflict) //if there is no conflict, insert value into database
                     {
-                        var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain); //Need variable if we want to extract an id, or any other data later on                                                                        
+                        var addedLaundrySession = await _laundrySession.InsertSession(laundrySessionDomain, cancellationToken); //Need variable if we want to extract an id, or any other data later on                                                                        
 
                         if(addedLaundrySession == null)
                         {
@@ -300,7 +305,7 @@ namespace LaundryDormApi.Controllers
         [Route("FinalizeLaundrySession")]
         [Authorize(Roles ="Admin")] //The bearer token sent from the frontend will be populated in User through the middleware
         //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent.
-        public async Task<IActionResult> FinalizeExpiredLaundrySessions()
+        public async Task<IActionResult> FinalizeExpiredLaundrySessions(CancellationToken cancellationToken = default)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if(currentUser == null)
@@ -313,7 +318,7 @@ namespace LaundryDormApi.Controllers
             DateTime today = DateTime.Today; //local-day, date, day
             DateTime now = DateTime.Now;     //local-time, date, day, minute
 
-            var getLaundrySessions = await _laundrySession.GetAllSession();
+            var getLaundrySessions = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
 
             try
             {
@@ -330,7 +335,7 @@ namespace LaundryDormApi.Controllers
                         if (sessionToUpdate.TimePeriod?.End < now) //We need loop to loop through the list to set the matching condition to 2, one by one
                         {
                             sessionToUpdate.LaundryStatusID = 2;
-                            await _laundrySession.UpdateSession(sessionToUpdate);
+                            await _laundrySession.UpdateSession(sessionToUpdate, cancellationToken);
 
                             updatedCount++;
                             await _updateCountRepository.UpdateCount(updatedCount);
@@ -366,14 +371,13 @@ namespace LaundryDormApi.Controllers
         /// or an <c>Ok</c> with a conflict message if the slot is already taken. 
         /// Returns <c>BadRequest</c> if validation fails or input is invalid.
         /// </returns>
-
         [HttpPost]
         [Route("SetReservation")]
         [Authorize] //The bearer token sent from the frontend will be populated in User through the middleware
                     //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
-        public async Task<IActionResult> ReserveLaundrySlot([FromBody]LaundrySessionViewModel reservationViewModel)
+        public async Task<IActionResult> ReserveLaundrySlot([FromBody]LaundrySessionViewModel reservationViewModel, CancellationToken cancellationToken = default)
         {
-            var getSession = await _laundrySession.GetAllSession();
+            var getSession = await _laundrySession.GetAllSession(null, null, null, null, null, false, cancellationToken, 1, int.MaxValue);
             var currentUser = await _userManager.GetUserAsync(User);
 
             DateTime nextDay = DateTime.UtcNow.AddDays(1);

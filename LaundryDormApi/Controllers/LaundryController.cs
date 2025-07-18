@@ -135,46 +135,82 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpGet]
-        [Route("Availability")]
+        [Route("AvailabilityToday")]
         [Authorize]
-        public async Task<IActionResult> CheckAvailability([FromQuery] string? dateFilter, [FromQuery]string? dateQuery, [FromQuery] string? statusFilter, [FromQuery] string? statusQuery,
-           [FromQuery] string? sortBy ,CancellationToken cancellationToken = default)
+
+        public async Task<IActionResult> CheckAvailabilityToday(CancellationToken cancellationToken = default)
         {
-            var getAllOrders = await _laundrySession.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, 50);
+            var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
             var currentUser = await _userManager.GetUserAsync(User);
 
-            if(currentUser == null)
-            {
-                return Unauthorized("Unauthorized user");
-            }
 
             if(getAllOrders != null)
             {
                 try
                 {
-                    //var filteredOrders = getAllOrders.Where(axeFromView => //Filtering data we don't want to show first. With a NOT condition
-                    //!(axeFromView.LaundryStatusID == 2 
-                    //|| axeFromView.LaundryStatusID == 3
-                    //|| axeFromView.LaundryStatusID == 4
-                    //|| axeFromView.LaundryStatusID == 1
-                    //&& axeFromView.ReservedDate.HasValue //checking that the session is NOT! utløpt, and have a reserved date value
-                    //)) 
+                    var rapidSessionCalender = getAllOrders.Where(fromDb =>
+                    !(fromDb.LaundryStatusID == 5)
 
-                    var populateBusyCalender = getAllOrders.Where(fromDb => fromDb.ReservedDate.HasValue
-                    || fromDb.ReservationTime.HasValue
-                    && fromDb.LaundryStatusID == 1
+                    && fromDb.ReservationTime.HasValue
+
+                    && (fromDb.LaundryStatusID == 1
+                    || fromDb.LaundryStatusID == 2
+                    || fromDb.LaundryStatusID == 3
+                    || fromDb.LaundryStatusID == 4
+                    )).Select(showFromDb => new LaundrySessionViewModel
+                    {
+                        ReservationTime = showFromDb.ReservationTime, //populate datetime for this section
+                        UserMessage = showFromDb.Message,
+                        StartPeriod = showFromDb.TimePeriod?.Start,
+                        EndPeriod = showFromDb.TimePeriod?.End,
+                        LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
+                        MachineName = showFromDb.Machine?.MachineName,
+                    }).ToList();
+
+                    return Ok(rapidSessionCalender);
+
+                }
+                catch (Exception ex)
+                {
+                    StatusCode(500, $"Unintended error: {ex}");
+                }
+
+            }
+
+            return Ok("List is empty"); //return something else?
+
+        }
+
+        [HttpGet]
+        [Route("AvailabilityAhead")]
+        [Authorize]
+        public async Task<IActionResult> CheckAvailabilityAhead(CancellationToken cancellationToken = default) //we are only interesseted in the date
+        {
+            var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
+
+            if(getAllOrders != null)
+            {
+                try
+                {
+                    var populateBusyCalender = getAllOrders.Where(fromDb => //Filtering data we don't want to show first. With a NOT condition
+                    !(fromDb.LaundryStatusID == 5) // Exclude "kansellert" (cancelled)
+
+                    && fromDb.ReservedDate.HasValue //Since user cant check 
+
+                    && (fromDb.LaundryStatusID == 1 //populate the rest
                     || fromDb.LaundryStatusID == 2
                     || fromDb.LaundryStatusID == 3
                     || fromDb.LaundryStatusID == 4)
+                    )
                     .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
                     {
-                        ReservationTime = showFromDb.ReservationTime,
+                        ReservationDate = showFromDb.ReservedDate, //frontend should populate from this for reserve!!
                         UserMessage = showFromDb.Message,
                         StartPeriod = showFromDb.TimePeriod?.Start, //getting the start time & end time via navigation property
                         EndPeriod = showFromDb.TimePeriod?.End,     //foreign-key is set above, eager loading set in repository
                         LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
                         MachineName = showFromDb.Machine?.MachineName, //using the model navigation property to get the machine name
-                    });
+                    }).ToList();
 
                     return Ok(populateBusyCalender);
                 }
@@ -315,11 +351,7 @@ namespace LaundryDormApi.Controllers
         //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent.
         public async Task<IActionResult> FinalizeExpiredLaundrySessions(CancellationToken cancellationToken = default)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if(currentUser == null)
-            {
-                return Unauthorized("Invalid user");
-            }
+            
 
             int? updatedCount = (await _updateCountRepository.GetCountNumber()) ?? 0; //get the count from the database (nullable), then update later
 

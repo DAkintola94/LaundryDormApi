@@ -13,7 +13,6 @@ namespace LaundryDormApi.Repository
         public Task<AdviceSet?> GetAdviceById(int id, CancellationToken cancellationToken = default);
         public Task<AdviceSet> InsertAdvice(AdviceSet advice, CancellationToken cancellationToken = default);
         public Task<AdviceSet> DeleteAdviceById(int id, CancellationToken cancellationToken = default);
-
         public Task<AdviceSet> UpdateAdvice(AdviceSet adviceSet, CancellationToken cancellationToken = default);
 
     }

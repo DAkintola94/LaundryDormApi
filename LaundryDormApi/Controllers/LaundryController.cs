@@ -152,10 +152,20 @@ namespace LaundryDormApi.Controllers
             {
                 try
                 {
-                    var filteredOrders = getAllOrders.Where(axeFromView => //Filtering data we don't want to show first. With a NOT condition
-                    !(axeFromView.LaundryStatusID == 2 
-                    && axeFromView.ReservedDate.HasValue //checking that the session is NOT! utløpt, and have a reserved date value
-                    )) 
+                    //var filteredOrders = getAllOrders.Where(axeFromView => //Filtering data we don't want to show first. With a NOT condition
+                    //!(axeFromView.LaundryStatusID == 2 
+                    //|| axeFromView.LaundryStatusID == 3
+                    //|| axeFromView.LaundryStatusID == 4
+                    //|| axeFromView.LaundryStatusID == 1
+                    //&& axeFromView.ReservedDate.HasValue //checking that the session is NOT! utløpt, and have a reserved date value
+                    //)) 
+
+                    var populateBusyCalender = getAllOrders.Where(fromDb => fromDb.ReservedDate.HasValue
+                    || fromDb.ReservationTime.HasValue
+                    && fromDb.LaundryStatusID == 1
+                    || fromDb.LaundryStatusID == 2
+                    || fromDb.LaundryStatusID == 3
+                    || fromDb.LaundryStatusID == 4)
                     .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
                     {
                         ReservationTime = showFromDb.ReservationTime,
@@ -166,7 +176,7 @@ namespace LaundryDormApi.Controllers
                         MachineName = showFromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                     });
 
-                    return Ok(filteredOrders);
+                    return Ok(populateBusyCalender);
                 }
                 catch(Exception ex)
                 {

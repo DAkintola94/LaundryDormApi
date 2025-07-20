@@ -10,6 +10,10 @@ namespace LaundryDormApi.Model.ViewModel
         public string EmailAddress { get; set; }
         public DateOnly Date { get; set; }
         public string? CategoryName { get; set; }
+
+        public DateTime? InspectedDate { get; set; }
+        public string? InspectorName { get; set; }
+        public string? InspectorEmail { get; set; }
         public int CategoryID { get; set; }
 
     }

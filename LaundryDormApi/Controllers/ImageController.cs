@@ -21,7 +21,7 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("ImageUpload")]
-        public async Task<IActionResult> ImageUpload([FromForm] ImageViewModel imageViewModel)
+        public async Task<IActionResult> ImageUpload([FromForm] ImageViewModel imageViewModel, CancellationToken cancellationToken = default)
         {
             ImageValidationRequest(imageViewModel);
 
@@ -35,7 +35,7 @@ namespace LaundryDormApi.Controllers
                     ImageSizeInBytes = imageViewModel.File.Length, //simply checking the length/size of the file
                     ImageDescription = imageViewModel.FileDescription,
                 };
-                await _imageRepository.Upload(imageDomain);
+                await _imageRepository.Upload(imageDomain, cancellationToken);
                 return Ok(imageDomain);
             }
 

@@ -31,9 +31,9 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("SessionId")]
-        public async Task<IActionResult> SessionHistoricId(int id)
+        public async Task<IActionResult> SessionHistoricId(int id, CancellationToken cancellationToken)
         {
-            var getSessionById = await _sessionRepository.GetSessionById(id);
+            var getSessionById = await _sessionRepository.GetSessionById(id, cancellationToken);
 
             if(getSessionById != null)
             {
@@ -59,9 +59,10 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("EntireSessionLog")]
-        public async Task<IActionResult> DispayAllSessions()
+        public async Task<IActionResult> DispayAllSessions([FromQuery] string? dateFilter, [FromQuery] string? dateQuery, [FromQuery] string? statusFilter, [FromQuery] string? statusQuery,
+        [FromQuery] string? sortBy, bool? isAscending = true,  CancellationToken cancellationToken = default, int pageNumber = 1, int pageSize = 50  )
         {
-            var getAllReservation = await _sessionRepository.GetAllSession();
+            var getAllReservation = await _sessionRepository.GetAllSession(dateFilter, dateQuery, statusFilter, statusQuery, sortBy, true, cancellationToken, 1, 50);
             if(getAllReservation!= null)
             {
                 var getReservationData = getAllReservation.Select(
@@ -77,7 +78,6 @@ namespace LaundryDormApi.Controllers
                         SessionId = fromDb.LaundrySessionId,
                         MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                         LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription, //using the model navigation property to get the laundry status name
-
                     });
                 return Ok(getReservationData);
             }
@@ -88,13 +88,14 @@ namespace LaundryDormApi.Controllers
         [Route("UsersOverview")]
         public async Task<IActionResult> DisplayUsers([FromQuery] string? mailFilter, [FromQuery] string? mailQuery, 
             [FromQuery] string? firstNameFilter, [FromQuery] string? firstNameQuery,
-            [FromQuery] string? lastNameFilter, [FromQuery] string? lastNameQuery,
+            [FromQuery] string? lastNameFilter, [FromQuery] string? lastNameQuery, CancellationToken cancellationToken,
             [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1, int pageSize = 50 
             )
         {
             var getUsers = await _userRepository.GetAllUsers(mailFilter, mailQuery, 
                 firstNameFilter, firstNameQuery, 
                 lastNameFilter, lastNameQuery, 
+                cancellationToken,
                 pageNumber, pageSize, 
                 sortBy, isAscending ?? true);
 
@@ -118,11 +119,10 @@ namespace LaundryDormApi.Controllers
 
         [HttpDelete]
         [Route("DeleteUser")]
-        public async Task<IActionResult> DeleteMember(string usersId)
+        public async Task<IActionResult> DeleteMember(string usersId, CancellationToken cancellationToken = default)
         {
-
-            var deleteUser = await _userRepository.DeleteUser(usersId);
             var currentUser = await _userManager.GetUserAsync(User);
+            var deleteUser = await _userRepository.DeleteUser(usersId, cancellationToken);
             if(deleteUser != null && currentUser != null)
             {
                 return NoContent(); //204 no content, since user have been deleted
@@ -133,9 +133,9 @@ namespace LaundryDormApi.Controllers
 
         [HttpPost]
         [Route("FindUser")]
-        public async Task<IActionResult> GetUserId(string id)
+        public async Task<IActionResult> GetUserId(string id, CancellationToken cancellationToken)
         {
-            var findUser = await _userRepository.GetUserById(id);
+            var findUser = await _userRepository.GetUserById(id, cancellationToken);
             if(findUser != null)
             {
                 RegisterViewModel registerViewModel = new RegisterViewModel

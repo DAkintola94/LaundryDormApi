@@ -16,6 +16,7 @@ namespace LaundryDormApi.Repository
         public async Task<IEnumerable<ApplicationUser>> GetAllUsers(string? mailFilter = null, string? mailQuery = null,
             string? firstNameFilter = null, string? firstNameQuery = null,
             string? lastNameFilter = null, string? lastNameQuery = null,
+            CancellationToken cancellationToken = default,
             int pageNumber = 1, int pageSize = 50,
             string? sortBy = null, bool isAscending = true)
         {
@@ -87,28 +88,28 @@ namespace LaundryDormApi.Repository
 
             int skipResult = (pageNumber - 1) * pageSize;
 
-            return await getUsers.Skip(skipResult).Take(pageSize).ToListAsync();
+            return await getUsers.Skip(skipResult).Take(pageSize).ToListAsync(cancellationToken);
         }
 
 
-        public async Task<ApplicationUser?> GetUserById(string idValue)
+        public async Task<ApplicationUser?> GetUserById(string idValue, CancellationToken cancellationToken  = default)
         {
             return await _authContext.Users.Where(x => !(x.Email == "sysadmin@test.com") //Excluding the user with that email from the list
             && x.Id != null
-            && x.Id == idValue).FirstOrDefaultAsync();
+            && x.Id == idValue).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<ApplicationUser?> DeleteUser(string idValue)
+        public async Task<ApplicationUser?> DeleteUser(string idValue, CancellationToken cancellationToken = default)
         {
 
             var userById = await _authContext.Users.Where(x => !(x.Email == "sysadmin@test.com") //Excluding the user with that email from the list
             && x.Id != null
-            && x.Id == idValue).FirstOrDefaultAsync();
+            && x.Id == idValue).FirstOrDefaultAsync(cancellationToken);
 
             if(userById != null)
             {
                  _authContext.Remove(userById);
-                await _authContext.SaveChangesAsync();
+                await _authContext.SaveChangesAsync(cancellationToken);
                 return userById;
             }
 

@@ -4,6 +4,7 @@ using LaundryDormApi.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LaundryDormApi.Controllers
@@ -13,17 +14,19 @@ namespace LaundryDormApi.Controllers
     public class AdviceController : ControllerBase
     {
         private readonly IAdviceSetRepository _adviceRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdviceController(IAdviceSetRepository adviceRepository)
+        public AdviceController(IAdviceSetRepository adviceRepository, UserManager<ApplicationUser> userManager)
         {
             _adviceRepository = adviceRepository;
+            _userManager = userManager;
         }
 
         [HttpPost]
         [Route("AdviceFetcher")]
-        public async Task<IActionResult> InitiateAdvice([FromBody] AdviceViewModel adviceViewModel)
+        public async Task<IActionResult> InitiateAdvice([FromBody] AdviceViewModel adviceViewModel, CancellationToken cancellationToken = default)
         {
-            if(adviceViewModel != null)
+            if (adviceViewModel != null)
             {
                 AdviceSet adviceDomainModel = new AdviceSet
                 {
@@ -36,7 +39,7 @@ namespace LaundryDormApi.Controllers
                     Date = adviceViewModel.Date
                 };
 
-                await _adviceRepository.InsertAdvice(adviceDomainModel);
+                await _adviceRepository.InsertAdvice(adviceDomainModel, cancellationToken);
                 return Ok(adviceDomainModel);
             }
 
@@ -44,22 +47,24 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpGet]
-        [Route("ExportAdvice")]
-        [Authorize(Roles= "Admin")]
-        public async Task<IActionResult> GetAdvice([FromQuery] string? namefilter, [FromQuery] string? nameQuery, 
+        [Route("FetchAdvice")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdvice([FromQuery] string? namefilter, [FromQuery] string? nameQuery,
             [FromQuery] string? mailFilter, [FromQuery] string? mailQuery,
             [FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
             [FromQuery] string? categoryFilter, [FromQuery] string? categoryQuery,
-            [FromQuery] string? sortBy, [FromQuery] bool? isAscending,
+            [FromQuery] string? sortBy, [FromQuery] bool? isAscending, CancellationToken cancellationToken = default,
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50
             )
         {
-            var getAdviceFromDb = await _adviceRepository.GetAllAdvice(namefilter, nameQuery, mailFilter, mailQuery, 
-                categoryFilter, categoryQuery, 
-                dateFilter, dateQuery, 
-                sortBy, isAscending ?? true, pageNumber, pageSize);
+            var currentAdmin = await _userManager.GetUserAsync(User);
 
-            if(getAdviceFromDb!= null)
+            var getAdviceFromDb = await _adviceRepository.GetAllAdvice(namefilter, nameQuery, mailFilter, mailQuery,
+                categoryFilter, categoryQuery,
+                dateFilter, dateQuery,
+                sortBy, isAscending ?? true, cancellationToken, pageNumber, pageSize);
+
+            if (getAdviceFromDb != null && currentAdmin != null)
             {
                 var adviceViewModel = getAdviceFromDb.Select(adviceDB => new AdviceViewModel
                 {
@@ -68,12 +73,49 @@ namespace LaundryDormApi.Controllers
                     Date = adviceDB.Date, //retreiving the date that was auto created through model logic
                     EmailAddress = adviceDB.Email,
                     PosterId = adviceDB.PosterId,
+
+                    InspectedDate = adviceDB.AdminInspectionDate, //nullable value in model
+                    InspectorName = adviceDB.InspectedByAdmin, //nullable value in model
+                    InspectorEmail = adviceDB.AdminEmail, //nullable value in model
+
                     CategoryName = adviceDB.CategoryModel?.CategoryName //Getting the value from the category, its also mapped as foreign key, this is just retrieving its value based on the id that is on.
                 }).ToList();
 
                 return Ok(adviceViewModel);
             }
             return NotFound();
+        }
+
+        [HttpGet]
+        [Route("GetAdviceId")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdviceById(int usersId, CancellationToken cancellationToken = default)
+        {
+            var currentAdmin = await _userManager.GetUserAsync(User);
+            var getSessionById = await _adviceRepository.GetAdviceById(usersId, cancellationToken);
+
+            if(currentAdmin != null && getSessionById != null)
+            {
+                AdviceViewModel adviceViewModel = new AdviceViewModel
+                {
+                    EmailAddress = getSessionById.Email,
+                    InformationMessage = getSessionById.Message,
+                    AuthorName = getSessionById.PosterName,
+                    Date = getSessionById.Date,
+                    CategoryName = getSessionById.CategoryModel?.CategoryName ?? string.Empty
+                };
+
+                //Update information of which admin inspected the user/id and when. 
+                getSessionById.AdminInspectionDate = DateTime.UtcNow;
+                getSessionById.InspectedByAdmin = currentAdmin.FirstName + currentAdmin.LastName;
+                getSessionById.AdminEmail = currentAdmin.Email;
+
+                await _adviceRepository.UpdateAdvice(getSessionById, cancellationToken);
+
+                return Ok(adviceViewModel);
+            }
+
+            return BadRequest("Something went wrong, contact IT");
         }
 
     }

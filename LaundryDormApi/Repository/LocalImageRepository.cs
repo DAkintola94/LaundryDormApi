@@ -40,7 +40,7 @@ namespace LaundryDormApi.Repository
         /// Afterwards, it constructs the URL path based on the current HTTP request details to store in the database.
         /// Note: The actual image file is saved on the server; the database stores only the URL path.
         /// </remarks>
-        public async Task<ImageModel> Upload(ImageModel image)
+        public async Task<ImageModel> Upload(ImageModel image, CancellationToken cancellationToken = default)
         {
 
             // Here, we create the full local path to save the image by combining:
@@ -52,15 +52,17 @@ namespace LaundryDormApi.Repository
                 "ServerImages", $"{image.ImageName}{image.ImageExtension}");
 
             //uploads the image to the local path (images folder)
+
             using var stream = new FileStream(localFilePath, FileMode.Create);
-            await image.ImageFile.CopyToAsync(stream);
+
+            await image.ImageFile.CopyToAsync(stream, cancellationToken);
 
             var urlFilePath = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}/Images/{image.ImageName}{image.ImageExtension}";
 
             image.ImagePath = urlFilePath; //Its the url path that we are saving in the database. Not the picture itself
 
             _context.Image.Add(image); //The url path for the location of the image in our server
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
             return image;
         }
 

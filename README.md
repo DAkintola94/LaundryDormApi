@@ -1,45 +1,32 @@
 Issues:
 
 The authentication issue was AuthDbContext
-Changing it like this fixed it
+Changing it from int to guid fixed it, but im not sure
 
-base.OnModelCreating(modelBuilder);
+Tips:
 
-    var sysAdminRoleId = "67330e4f-e3e7-470f-9230-124bb2f207e9";
-       var adminRoleId = "76e267ae-8be5-4040-b507-e39da47afba1";
-        var userRoleId = "da325b16-0977-43ca-8611-b32033c9ff91";
+Authentication and Authorization middleware help identify who the user is and what they’re allowed to do.
 
-//Seed roles for (User, Admin Superadmin)
-// Seed superAdmin
-// Add all the role to the superadmin
+Once a user logs in, this middleware adds their information into http.Context.User. This makes it easy for the rest of your application to access details about the logged-in user, like their name, role, or ID, using something called claims.
 
-var roles = new List<IdentityRole> //List of roles, stacked in IdenityRole list
-{
+var currentUser = _userManager.GetUserAsync(User); 
+To get users information
 
-       new IdentityRole //role 1
-       {
-          Id = sysAdminRoleId,
-          ConcurrencyStamp = sysAdminRoleId,
-          Name = "Sysadmin",
-          NormalizedName = "Sysadmin".ToUpper()
-       },
 
-       new IdentityRole //role 2
-       {
-           Id = adminRoleId,
-           ConcurrencyStamp = adminRoleId,
-           Name = "Admin",
-           NormalizedName = "Admin".ToUpper()
-       },
+Tips: 
 
-       new IdentityRole //role 3
-       {
-           Id = userRoleId,
-           ConcurrencyStamp = userRoleId,
-           Name = "Regularuser",
-           NormalizedName = "Regularuser".ToUpper()
-       },
+Instead of dropping database when you make a new column in the model, just write the line 
 
-     };
+Add-Migration AddInspectedByAdminToAdviceSet
+- Context “nameOfTheDbContextIfNeeded”
 
-modelBuilder.Entity<IdentityRole>().HasData(roles);
+Ef core tracks all changes to your model? Not just the specific line you added.
+
+Then
+
+Update-Database
+- Context “nameOfTheDbContextIfNeeded”
+
+Do the same when you remove a column, just write RemoveColumnName
+
+How to run the application

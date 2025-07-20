@@ -4,7 +4,7 @@ namespace LaundryDormApi.Repository
 {
     public interface IImageRepository
     {
-        Task<ImageModel> Upload(ImageModel imageModel);
+        Task<ImageModel> Upload(ImageModel imageModel, CancellationToken cancellationToken = default);
 
     }
 }

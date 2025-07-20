@@ -28,3 +28,5 @@ Update-Database
 - Context “nameOfTheDbContextIfNeeded”
 
 Do the same when you remove a column, just write RemoveColumnName
+
+How to run the application

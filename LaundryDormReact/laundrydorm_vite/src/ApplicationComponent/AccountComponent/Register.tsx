@@ -46,8 +46,11 @@ export const Register = () => {
 
         };
         
+        // Debug: Log the data being sent
+        console.log("Sending registration data:", registerData);
+        
         try {
-             const response = await fetch('https://localhost:7054/api/ProfileManagement/RegistrationAuth', { //await when fetching from the url api, the variable name is response
+             const response = await fetch('http://localhost:5119/api/ProfileManagement/RegistrationAuth', { //await when fetching from the url api, the variable name is response
             method: 'POST',
             headers: {"Content-Type": "application/json" },
             body: JSON.stringify(registerData)
@@ -55,6 +58,21 @@ export const Register = () => {
             
             if(!response.ok){
                 setBtnPending(false);
+                
+                // Get the detailed error message from the backend
+                const errorData = await response.json();
+                console.error("Registration failed:", errorData);
+                
+                // Extract validation errors if they exist
+                if (errorData.errors) {
+                    const errorMessages = Object.values(errorData.errors).flat().join(', ');
+                    setError(`Registrering feilet: ${errorMessages}`);
+                } else if (errorData.title) {
+                    setError(`Registrering feilet: ${errorData.title}`);
+                } else {
+                    setError("Registrering feilet. Prøv igjen.");
+                }
+                
                 return Promise.reject(response);
             }
 
@@ -78,6 +96,7 @@ export const Register = () => {
 
         catch(err) {
             console.error("An error occured", err);
+            setError("En feil oppstod under registrering. Prøv igjen.");
             setBtnPending(false);
         }
 
@@ -109,7 +128,7 @@ export const Register = () => {
         <input type="email" onChange={(evt) => regEmail(evt.target.value)} placeholder="laundrydorm@live.no" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
 
           <label className="text-white flex items-center gap-2">Telefon <MdContactPhone /> </label>
-        <input type="text" onChange={(evt) => regPhoneNr(evt.target.value)} placeholder="+4712345678" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>
+        <input type="text" onChange={(evt) => regPhoneNr(evt.target.value)} placeholder="+4712345678" className="text-white mb-4 p-2 border rounded w-full max-w-md" maxLength={8} required></input>
 
           <label className="text-white flex items-center gap-2">Passord <TbLockPassword />   </label>
         <input type="password" onChange={(evt) => regPassword(evt.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required></input>

@@ -36,7 +36,8 @@ namespace LaundryDormApi.Controllers
                     Message = adviceViewModel.InformationMessage,
                     Email = adviceViewModel.EmailAddress,
                     CategoryID = adviceViewModel.CategoryID,
-                    Date = adviceViewModel.Date
+                    Date = adviceViewModel.Date,
+                    StatusId = 1 //foreignkey for advice status, set to "not inspected" straight away
                 };
 
                 await _adviceRepository.InsertAdvice(adviceDomainModel, cancellationToken);
@@ -48,7 +49,7 @@ namespace LaundryDormApi.Controllers
 
         [HttpGet]
         [Route("FetchAdvice")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> GetAdvice([FromQuery] string? namefilter, [FromQuery] string? nameQuery,
             [FromQuery] string? mailFilter, [FromQuery] string? mailQuery,
             [FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
@@ -78,7 +79,10 @@ namespace LaundryDormApi.Controllers
                     InspectorName = adviceDB.InspectedByAdmin, //nullable value in model
                     InspectorEmail = adviceDB.AdminEmail, //nullable value in model
 
-                    CategoryName = adviceDB.CategoryModel?.CategoryName //Getting the value from the category, its also mapped as foreign key, this is just retrieving its value based on the id that is on.
+                    CategoryName = adviceDB.CategoryModel?.CategoryName, //Getting the value from the category, its also mapped as foreign key, this is just retrieving its value based on the id that is on.
+
+                    ReportStatus = adviceDB.StatusModel?.StatusDescription
+
                 }).ToList();
 
                 return Ok(adviceViewModel);
@@ -109,6 +113,7 @@ namespace LaundryDormApi.Controllers
                 getSessionById.AdminInspectionDate = DateTime.UtcNow;
                 getSessionById.InspectedByAdmin = currentAdmin.FirstName + currentAdmin.LastName;
                 getSessionById.AdminEmail = currentAdmin.Email;
+                getSessionById.StatusId = 2; //setting the status to "inspected" by admin, foreign key for advice status
 
                 await _adviceRepository.UpdateAdvice(getSessionById, cancellationToken);
 

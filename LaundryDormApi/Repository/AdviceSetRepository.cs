@@ -24,6 +24,7 @@ namespace LaundryDormApi.Repository
             
            var getAdviceFromDb = _context.Advice
             .Include(c => c.CategoryModel) //remember, include is same as innerjoin in SQL 
+            .Include(status => status.StatusModel)
             .AsQueryable();
 
             //filtering
@@ -116,6 +117,7 @@ namespace LaundryDormApi.Repository
         {
             return await _context.Advice
                 .Include(c => c.CategoryModel)
+                .Include(s => s.StatusModel)
                 .Where(x => x.PosterId == id)
                 .FirstOrDefaultAsync(cancellationToken);
         }
@@ -124,6 +126,7 @@ namespace LaundryDormApi.Repository
         {
             var adviceIdFromDb = await _context.Advice
                 .Include(c => c.CategoryModel)
+                .Include(s => s.StatusModel)
                 .Where(x => x.PosterId == id).FirstOrDefaultAsync(cancellationToken);
 
             if(adviceIdFromDb != null)

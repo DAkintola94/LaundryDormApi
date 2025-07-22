@@ -28,6 +28,7 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<ImageModel>().HasKey(x => x.ImageId);
             modelBuilder.Entity<UpdateCountModel>().HasKey(x => x.UpdateCountId);
             modelBuilder.Entity<TimePeriodModel>().HasKey(x => x.PeriodId);
+            modelBuilder.Entity<AdviceStatus>().HasKey(x => x.AdviceStatusId);
 
             modelBuilder.Entity<LaundrySession>()
                 .HasOne(ls => ls.LaundryStatus)
@@ -60,6 +61,12 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(ad => ad.CategoryID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<AdviceSet>()
+                .HasOne(status => status.StatusModel)
+                .WithMany()
+                .HasForeignKey(statusFK => statusFK.StatusId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
                new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktivt tidspunkt" },
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Utløpt" },
@@ -67,6 +74,11 @@ namespace LaundryDormApi.DataContext
                new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Reservert"},
                new LaundryStatusState { LaundryStatusID = 5, StatusDescription = "Kansellert"}
            );
+
+            modelBuilder.Entity<AdviceStatus>().HasData(
+                new AdviceStatus { AdviceStatusId = 1, StatusDescription = "Ikke inspisert" },
+                new AdviceStatus { AdviceStatusId = 2, StatusDescription = "Inspisert" }
+                );
 
             modelBuilder.Entity<MachineModel>().HasData( //seeding machine model version in the database, FK is based on the GUID PK for the image table
             new MachineModel {

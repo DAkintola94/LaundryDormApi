@@ -137,7 +137,6 @@ namespace LaundryDormApi.Controllers
         [HttpGet]
         [Route("AvailabilityToday")]
         [Authorize]
-
         public async Task<IActionResult> CheckAvailabilityToday(CancellationToken cancellationToken = default)
         {
             var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);

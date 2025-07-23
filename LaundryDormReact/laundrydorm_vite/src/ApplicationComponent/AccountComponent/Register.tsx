@@ -25,7 +25,7 @@ export const Register = () => {
     const [isPending, setBtnPending] = useState(false);
     const [errorMessage, setError] = useState('');
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if(passWord !== confirmPassWord){
             setError("Passordene matcher ikke");

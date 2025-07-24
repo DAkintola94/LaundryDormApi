@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     /// <inheritdoc />
-    public partial class AdviceStatusInitiate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -268,9 +268,9 @@ namespace LaundryDormApi.Migrations
                 columns: new[] { "PeriodId", "End", "Start" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 7, 22, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 22, 7, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, new DateTime(2025, 7, 22, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 22, 12, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, new DateTime(2025, 7, 22, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 22, 17, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 24, 7, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 2, new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified) },
+                    { 3, new DateTime(2025, 7, 24, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified) }
                 });
 
             migrationBuilder.InsertData(

@@ -5,13 +5,6 @@ services:
       context: .
       dockerfile: LaundryDormApi/Dockerfile #Dockerfile path for the backend. Where its located in asp.net. This is adjusted after context (line above)
       # Rememeber, its the docker yaml (build) that sits at the very root and extract all the info from each dockerfiles to build upon them.
-
-    #volumes:
-    #  - ./LaundryDormApi:/app
-    #  - ~/.aspnet/https:/root/.aspnet/https:ro
-    #working_dir: /app
-    #command: dotnet watch run
-
     ports:
       - "8080:8080"
     environment:
@@ -28,13 +21,8 @@ services:
       context: ./LaundryDormReact/laundrydorm_vite
       dockerfile: Dockerfile #Looking for/at the dockerfile at the context (frontend context) path level. Need one dockerfile for the frontend
       target: builder
-    volumes:
-      - ./LaundryDormReact/laundrydorm_vite:/app
-      - /app/node_modules #Need this to prevent overwriting node_modules
-    working_dir: /app
-    command: npm run dev #To run the website upon build
     ports:
-     - "3000:5173"
+     - "3000:80"
     depends_on:
       - laundrydormapi
 

@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250722074845_AdviceStatusInitiate")]
-    partial class AdviceStatusInitiate
+    [Migration("20250724075811_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -349,20 +349,20 @@ namespace LaundryDormApi.Migrations
                         new
                         {
                             PeriodId = 1,
-                            End = new DateTime(2025, 7, 22, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 22, 7, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 24, 7, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PeriodId = 2,
-                            End = new DateTime(2025, 7, 22, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 22, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             PeriodId = 3,
-                            End = new DateTime(2025, 7, 22, 23, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 22, 17, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new DateTime(2025, 7, 24, 23, 0, 0, 0, DateTimeKind.Unspecified),
+                            Start = new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 

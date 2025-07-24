@@ -50,7 +50,7 @@ export const Register = () => {
         console.log("Sending registration data:", registerData);
         
         try {
-             const response = await fetch('http://localhost:5119/api/ProfileManagement/RegistrationAuth', { //await when fetching from the url api, the variable name is response
+             const response = await fetch('https://localhost:7054/api/ProfileManagement/RegistrationAuth', { //await when fetching from the url api, the variable name is response
             method: 'POST',
             headers: {"Content-Type": "application/json" },
             body: JSON.stringify(registerData)

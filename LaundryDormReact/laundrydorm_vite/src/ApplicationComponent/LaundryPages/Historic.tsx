@@ -7,19 +7,21 @@ import { LuMessageCircle } from 'react-icons/lu'
 import { MdError } from 'react-icons/md'
 
 
-export const Historic = () => {
+export const Historic = (): React.JSX.Element => {
 
-  type UsersSessionHistoric = { //Setting the datatype of the data we will be getting from backend, and set to table in react
-    SessionUser: string;
-    SessionId: number;
-    Email: string | null; //expecting string, or no value (null)
-    ReservationDate: string | null; // string, because backend sends ISO string (date)
-    ReservationTime: string | null; // string, because backend sends ISO string (date)
-    LaundryStatusDescription: string | null;
-    StartPeriod: string | null; // string, because backend sends ISO string (date)
-    EndPeriod: string | null; // string, because backend sends ISO string (date)
-    MachineName: string | null;
-    UserMessage: string | null;
+  type UsersSessionHistoric = { //must match the viewmodel name of the backend. camelCase!
+    //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
+    
+    sessionUser: string;
+    sessionId: number;
+    email: string | null; //expecting string, or no value (null)
+    reservationDate: string | null; // string, because backend sends ISO string (date)
+    reservationTime: string | null; // string, because backend sends ISO string (date)
+    laundryStatusDescription: string | null;
+    startPeriod: string | null; // string, because backend sends ISO string (date)
+    endPeriod: string | null; // string, because backend sends ISO string (date)
+    machineName: string | null;
+    userMessage: string | null;
   };
 
   const [modalValue, setModalState] = useState<UsersSessionHistoric | null>(null);
@@ -94,29 +96,29 @@ export const Historic = () => {
           userValidData?.map((rowValue, idx) => ( 
           <tr key={idx} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
             <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-            {rowValue.SessionUser}
+            {rowValue.sessionUser}
             </th>
 
             <td className="px-6 py-4">
-             {rowValue.SessionId}
+             {rowValue.sessionId}
             </td>
 
             <td className="px-6 py-4">
-             {rowValue.ReservationTime}
+             {rowValue.reservationTime}
             </td>
 
             <td className="px-6 py-4">
-             {rowValue.MachineName}
+             {rowValue.machineName}
             </td>
 
             <td className="px-6 py-4">
-             {rowValue.StartPeriod} 
+             {rowValue.startPeriod} 
              - 
-             {rowValue.EndPeriod}
+             {rowValue.endPeriod}
             </td>
 
             <td className="px-6 py-4">
-             {rowValue.LaundryStatusDescription}
+             {rowValue.laundryStatusDescription}
             </td>
 
             <td className="px-6 py-4 text-right">
@@ -136,8 +138,8 @@ export const Historic = () => {
     {modalValue && (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div className="bg-white p-6 rounded shadow-lg min-w-[300px]">
-          <h2 className="text-lg font-bold mb-2"> Melding fra {modalValue.SessionUser || "Uk-jent bruker"} </h2>
-          <p className="mb-4"> {modalValue.UserMessage|| "Ingen melding"}</p>
+          <h2 className="text-lg font-bold mb-2"> Melding fra {modalValue.sessionUser || "Uk-jent bruker"} </h2>
+          <p className="mb-4"> {modalValue.userMessage|| "Ingen melding"}</p>
             <button title="modal"
             onClick={() => setModalState(null)}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

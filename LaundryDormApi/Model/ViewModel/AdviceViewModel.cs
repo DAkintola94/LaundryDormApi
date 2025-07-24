@@ -11,6 +11,8 @@ namespace LaundryDormApi.Model.ViewModel
         public DateOnly Date { get; set; }
         public string? CategoryName { get; set; }
 
+        public string? ReportStatus { get; set; }
+
         public DateTime? InspectedDate { get; set; }
         public string? InspectorName { get; set; }
         public string? InspectorEmail { get; set; }

@@ -1,32 +1,27 @@
-Issues:
+Information before cloning the application:
 
-The authentication issue was AuthDbContext
-Changing it from int to guid fixed it, but im not sure
+The installer don’t need Visual Studio or Visual Studio Code installed to run the application if its set it up with Docker correctly.
 
-Tips:
+Everything the app needs is baked into Docker containers:
+.NET SDK/runtime is inside the ASP.NET container
+Node.js is in the build stage of the frontend Dockerfile
+Nginx serves the frontend (comes with nginx image), no dev server needed
+MariaDB image runs the DB and initialize it
 
-Authentication and Authorization middleware help identify who the user is and what they’re allowed to do.
+# How to run the application:
 
-Once a user logs in, this middleware adds their information into http.Context.User. This makes it easy for the rest of your application to access details about the logged-in user, like their name, role, or ID, using something called claims.
+**Step 1.**
 
-var currentUser = _userManager.GetUserAsync(User); 
-To get users information
+git clone https://github.com/DAkintola94/LaundryDormApi.git
 
+Navigate to the cloned folder root with the CLI. **cd LaundryDormApi** (To the docker-compose.yml file which sits at the root of the application)
 
-Tips: 
+**Step 2.**
+To run the project, just write: **docker-compose up --build** in the terminal
 
-Instead of dropping database when you make a new column in the model, just write the line 
+**Step 3.**
 
-Add-Migration AddInspectedByAdminToAdviceSet
-- Context “nameOfTheDbContextIfNeeded”
+Visit:
 
-Ef core tracks all changes to your model? Not just the specific line you added.
-
-Then
-
-Update-Database
-- Context “nameOfTheDbContextIfNeeded”
-
-Do the same when you remove a column, just write RemoveColumnName
-
-How to run the application
+- Frontend: http://localhost:3000 (not finalized)
+- Backend API: http://localhost:8080/swagger (Swagger) (not finalized)

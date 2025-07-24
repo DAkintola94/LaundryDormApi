@@ -27,4 +27,7 @@ RUN dotnet publish "./LaundryDormApi.csproj" -c $BUILD_CONFIGURATION -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+#Create the ServerImages directory that the application expect
+RUN mkdir -p /app/ServerImages
 ENTRYPOINT ["dotnet", "LaundryDormApi.dll"]

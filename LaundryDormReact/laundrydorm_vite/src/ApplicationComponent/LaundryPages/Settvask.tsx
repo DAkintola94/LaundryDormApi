@@ -55,7 +55,7 @@ export const Settvask = () => {
   }, []) //with the array as second argument means this effect will only run once
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPending(true);
 

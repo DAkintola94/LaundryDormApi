@@ -16,7 +16,7 @@ export const Login = () => {
     const [pending, setBtnPending] = useState(false);
     const [errorMsg, setErrorMessage] = useState('');
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const loginData = { //The left side need to match how the model is setup in backend/C#
                                 //right side is what we get from our user/usestate

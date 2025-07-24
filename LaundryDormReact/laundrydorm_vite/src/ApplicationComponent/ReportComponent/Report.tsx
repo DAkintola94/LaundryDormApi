@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault';
-import { FooterDefault } from '../../ApplicationComponent/FooterDefault/FooterDefault';
+import { FooterDefault } from '../FooterDefault/FooterDefault';
 
 export const Report = () => {
 

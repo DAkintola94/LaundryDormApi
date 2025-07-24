@@ -82,6 +82,7 @@ namespace LaundryDormApi
                     {
                         policyBuilder.WithOrigins("https://localhost:7054",
 				"http://localhost:5174",
+                "https://localhost5174",
                 "http://localhost:5173",
                 "https://localhost:5173",
                             "http://localhost:4200") //this makes it possible to listen to the live server in vscode

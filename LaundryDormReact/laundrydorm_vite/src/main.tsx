@@ -2,17 +2,19 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {BrowserRouter, Routes, Route} from "react-router-dom"
 import './index.css'
-import App from './App.tsx'
-import {About} from "./ApplicationComponent/Pages/About.tsx"
-import { Settvask } from './ApplicationComponent/LaundryPages/Settvask.tsx'
-import {Historic} from './ApplicationComponent/LaundryPages/Historic.tsx'
-import {Reservation} from './ApplicationComponent/LaundryPages/Reservation.tsx'
-import {Status} from './ApplicationComponent/LaundryPages/Status.tsx'
-import { Report } from './ApplicationComponent/Pages/Report.tsx'
-import {Register} from './ApplicationComponent/AccountComponent/Register.tsx'
-import {Login} from './ApplicationComponent/AccountComponent/Login.tsx'
-import {Profile} from './ApplicationComponent/AccountComponent/Profile.tsx'
-import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage.tsx'
+import App from './App'
+import {About} from "./ApplicationComponent/Pages/About"
+import { Settvask } from './ApplicationComponent/LaundryPages/Settvask'
+import {Historic} from './ApplicationComponent/LaundryPages/Historic'
+import {Reservation} from './ApplicationComponent/LaundryPages/Reservation'
+import {Status} from './ApplicationComponent/LaundryPages/Status'
+import { Report } from './ApplicationComponent/ReportComponent/Report'
+import {ViewReport } from './ApplicationComponent/ReportComponent/ViewReport'
+import {Register} from './ApplicationComponent/AccountComponent/Register'
+import {Login} from './ApplicationComponent/AccountComponent/Login'
+import {Profile} from './ApplicationComponent/AccountComponent/Profile'
+import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage'
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -30,7 +32,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/availability" element={<Status />} />
       <Route path="/account" element={<Profile />} />
       <Route path="/success" element={<SuccessPage />} />
-      
+      <Route path="/viewreport" element={<ViewReport />}/>
     </Routes>
     </BrowserRouter>
   </StrictMode>,

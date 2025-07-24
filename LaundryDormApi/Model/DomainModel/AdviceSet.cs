@@ -12,8 +12,12 @@ namespace LaundryDormApi.Model.DomainModel
         public DateTime? AdminInspectionDate { get; set; }
         public string? InspectedByAdmin { get; set; }
         public string? AdminEmail { get; set; }
+
         public int CategoryID { get; set; }
         public Category? CategoryModel { get; set; }
-        public string? CategoryType { get; set; }
+
+        public int StatusId { get; set; }
+        public AdviceStatus? StatusModel { get; set; }
+
     }
 }

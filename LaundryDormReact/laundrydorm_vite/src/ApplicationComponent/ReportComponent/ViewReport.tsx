@@ -20,7 +20,7 @@ export const ViewReport = () => {
     categoryName: string; // Optional, might be populated via join with category table
   };
 
-  const [reportData, setReportData] = useState<ReportData[]>([]);
+  const [reportData, setReportData] = useState<ReportData[]>([]); //setting usestate to map object, as array. since .map only work with array
   const [modalValue, setModalState] = useState<ReportData | null>(null);
   const [isExpanded, setExpandedCards] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -54,7 +54,7 @@ const toggleCardExpansion = (posterId: number) => {
     setLoading(false);
   })
     }
-    if(token){
+    if(token){ //remember to move it out of the fetchData scope function
       fetchData();
     } else {
       console.log("Unauthorized user");

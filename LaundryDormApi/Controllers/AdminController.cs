@@ -110,6 +110,7 @@ namespace LaundryDormApi.Controllers
                     UserLastName = fromDb.LastName ?? string.Empty,
                     PhoneNumber = fromDb.PhoneNumber ?? string.Empty,
                     ProfileId = fromDb.Id ?? string.Empty,
+                    UserAddress = fromDb.Address ?? string.Empty
                 });
                 return Ok(getUsers);
             }

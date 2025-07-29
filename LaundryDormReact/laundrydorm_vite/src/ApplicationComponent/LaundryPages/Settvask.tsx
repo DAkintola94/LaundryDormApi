@@ -55,15 +55,18 @@ export const Settvask = () => {
   }, []) //with the array as second argument means this effect will only run once
 
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setPending(true);
 
     const laundrySessionData = { //variable name on the left, that gets value from the right, needs to match our variable model name in c sharp
       userMessage: formMessage,
+      
       machineId: Number(machineId), //converting to Number
+
       sessionTimePeriodId: Number(laundryTime), //its for the time period the user want to set their laundry, backend
-      reservationTime: new Date().toISOString(), //reservation time/date
+
+      reservationTime: new Date().toISOString(), //reservation time/date. .NET handles the convertion automatically 
 
     }; 
 

@@ -7,15 +7,13 @@ import { LuMessageCircle } from 'react-icons/lu'
 import { MdError } from 'react-icons/md'
 
 
-export const Historic = (): React.JSX.Element => {
+export const Historic = () => {
 
-  type UsersSessionHistoric = { //must match the viewmodel name of the backend. camelCase!
-    //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
-    
+  type UsersSessionHistoric = { //Setting the datatype of the data we will be getting from backend, and set to table in react. Remember, camelCase
     sessionUser: string;
     sessionId: number;
     email: string | null; //expecting string, or no value (null)
-    reservationDate: string | null; // string, because backend sends ISO string (date)
+    reservationDate: string | null; // string, because backend sends ISO string (date) 
     reservationTime: string | null; // string, because backend sends ISO string (date)
     laundryStatusDescription: string | null;
     startPeriod: string | null; // string, because backend sends ISO string (date)

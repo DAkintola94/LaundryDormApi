@@ -40,8 +40,8 @@ namespace LaundryDormApi.Controllers
                 LaundrySessionViewModel laundrySessionViewModel = new LaundrySessionViewModel
                 {
                     Email = getSessionById.UserEmail,
-                    EndPeriod = getSessionById.TimePeriod?.End,
-                    StartPeriod = getSessionById.TimePeriod?.Start,
+                    EndPeriod = getSessionById.LaundrySessionEndTime,
+                    StartPeriod = getSessionById.LaundrySessionStartTime,
                     SessionId = getSessionById.LaundrySessionId,
                     SessionTimePeriodId = getSessionById.TimePeriodId,
                     PhoneNr = getSessionById.PhoneNumber,
@@ -73,8 +73,8 @@ namespace LaundryDormApi.Controllers
                         Email = fromDb.UserEmail,
                         UserMessage = fromDb.Message,
                         PhoneNr = fromDb.PhoneNumber,
-                        StartPeriod = fromDb.TimePeriod?.Start,
-                        EndPeriod = fromDb.TimePeriod?.End,
+                        StartPeriod = fromDb.LaundrySessionStartTime,
+                        EndPeriod = fromDb.LaundrySessionEndTime,
                         SessionId = fromDb.LaundrySessionId,
                         MachineName = fromDb.Machine?.MachineName, //using the model navigation property to get the machine name
                         LaundryStatusDescription = fromDb.LaundryStatus?.StatusDescription, //using the model navigation property to get the laundry status name

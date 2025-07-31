@@ -3,7 +3,7 @@
     public class TimePeriodModel //DO NOT DELETE!
     {
         public int PeriodId { get; set; }
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public TimeSpan Start { get; set; }
+        public TimeSpan End { get; set; }
     }
 }

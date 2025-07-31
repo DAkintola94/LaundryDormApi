@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {Fragment, useState} from 'react'
+import { useNavigate } from 'react-router-dom'
 //import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 //import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {Menu, Transition} from '@headlessui/react'
@@ -14,6 +15,8 @@ import {
   parse, parseISO,
   startOfToday,
 } from 'date-fns'
+import axios from 'axios'
+
 
 const meetings = [
   {
@@ -64,6 +67,53 @@ function classNames(...classes: (string | boolean | undefined)[]) {
 
 
 export const Status = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("access_token");
+
+  type statusData = { //must match the viewmodel name of the backend. cascalCase!
+      //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
+
+      reservationTime: string | null;
+      reservationDate: string | null;
+      userMessage: string | null;
+      startPeriod: string;
+      endPeriod: string;
+      laundryStatusDescription: string | null;
+      machineName: string | null;
+      imagePath: string | null; //Based on what the seeded foreignkey backend is serving. Url path
+  }
+
+  const [calenderData, setCalenderData] = useState<statusData[]>([]);
+
+  useEffect(() => {
+    const fetchTodayData = async () => {
+      await axios.get('https://localhost:7054/api/Laundry/PopulateAvailability',
+        {
+          headers: {"Authorization" : `Bearer ${token}`}
+        })
+        .then(response => {
+          setCalenderData(response.data);
+          console.log(response.data);
+        })
+        .catch(err => {
+          console.log("An error occured", err);
+        })
+    }
+    if(token){
+      fetchTodayData();
+    }
+    else {
+      const errorMessage = "Unauthorized user, please log in or contact admin"
+
+      navigate('/error404', {
+        replace: true,
+        state: {
+          errMessage: errorMessage
+        }
+      })
+    }
+  }, [token, navigate])
+
   const today = startOfToday()
   const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'));
@@ -181,8 +231,8 @@ const colStartClasses = [
                   
                 {/* The part that shows a small blue dot indicator for the days that have booking/scheduled */}
                 <div className="w-1 h-1 mx-auto mt-1">
-                  {meetings.some((meeting) => //change later to accomodate the backend laundrytime
-                  isSameDay(parseISO(meeting.startDatetime), day)
+                  {calenderData.some((sessionCalender) => //change later to accomodate the backend laundrytime
+                  isSameDay(parseISO(sessionCalender.startPeriod), day)
                   ) && (
                     <div className="w-1 h-1 rounded-full bg-sky-500"></div>
                   )} 

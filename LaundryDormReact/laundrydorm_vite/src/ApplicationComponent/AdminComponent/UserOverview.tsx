@@ -15,6 +15,7 @@ type UserOverview = {
     userLastName: string | null; 
     phoneNumber: string | null;
     profileId: string | null;
+    userAddress: string | null;
 };
 
 const[modalValue, setModalState] = useState<UserOverview | null>(null);
@@ -128,6 +129,29 @@ useEffect(() => {
         </table>
       </div>
       {/* Modal */}
+      {modalValue && (
+        <div className="fixed insert-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h2 className="text-lg font-bold md-4"> Velg handling </h2>
+            <div className="space-y-2 md-4">
+              <p><strong>Navn:</strong>{modalValue.userFirstName || "Ikke oppgitt"} {modalValue.userLastName || "ikke oppgitt"} </p>
+              <p><strong>Addresse:</strong>{modalValue.userAddress || "Ikke oppgitt"}</p>
+            </div>
+            <button
+            >
+              Slett bruker
+            </button>
+
+            <button
+            onClick={() => setModalState(null)}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Lukk
+            </button>
+          </div>
+
+        </div>
+      )}
 
       <FooterDefault />
     </div>

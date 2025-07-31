@@ -14,6 +14,7 @@ import {Register} from './ApplicationComponent/AccountComponent/Register'
 import {Login} from './ApplicationComponent/AccountComponent/Login'
 import {Profile} from './ApplicationComponent/AccountComponent/Profile'
 import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage'
+import { Error404 } from './ApplicationComponent/Pages/Error404'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -33,6 +34,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/account" element={<Profile />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/viewreport" element={<ViewReport />}/>
+      <Route path="/error404" element={<Error404 />} />
     </Routes>
     </BrowserRouter>
   </StrictMode>,

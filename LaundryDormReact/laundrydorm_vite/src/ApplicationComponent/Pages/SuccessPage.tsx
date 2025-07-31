@@ -15,7 +15,8 @@ const [successId] = useState<number | null>(location.state.ID);
         <span> Ingen vask er registrert, vennligst fyll ut dagen du vil sette vask </span>
         </div>
 
-        ) : 
+        ) : //else
+          
       <div className="successPageBg">
         <div className="flex items-center justify-center font-bold gap-2 py-8"> 
         <FaCheckCircle className="text-1xl"/>

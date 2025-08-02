@@ -30,7 +30,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/login" element={<Login />} />
       <Route path="/historic" element={<Historic />} />
       <Route path="/reservation" element={<Reservation />}  />
-      <Route path="/availability" element={<Status />} />
+      <Route path="/statusnreservation" element={<Status />} />
       <Route path="/account" element={<Profile />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/viewreport" element={<ViewReport />}/>

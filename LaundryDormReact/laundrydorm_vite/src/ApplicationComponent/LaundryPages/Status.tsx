@@ -17,62 +17,13 @@ import {
 } from 'date-fns'
 import axios from 'axios'
 
-
-const meetings = [
-  {
-    id: 1,
-    name: 'Leslie Alexander',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2025-05-11T13:00',
-    endDatetime: '2025-05-11T14:30',
-  },
-  {
-    id: 2,
-    name: 'Michael Foster',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2025-05-20T09:00',
-    endDatetime: '2025-05-20T11:30',
-  },
-  {
-    id: 3,
-    name: 'Dries Vincent',
-    imageUrl:
-      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2025-05-20T17:00',
-    endDatetime: '2025-05-20T18:30',
-  },
-  {
-    id: 4,
-    name: 'Leslie Alexander',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2025-06-09T13:00',
-    endDatetime: '2025-06-09T14:30',
-  },
-  {
-    id: 5,
-    name: 'Michael Foster',
-    imageUrl:
-      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    startDatetime: '2025-05-13T14:00',
-    endDatetime: '2025-05-13T14:30',
-  },
-]
-
 function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-
-export const Status = () => {
-  const navigate = useNavigate();
-  const token = localStorage.getItem("access_token");
-
-  type statusData = { //must match the viewmodel name of the backend. cascalCase!
+type statusData = { //must match the viewmodel name of the backend. cascalCase!
       //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
-
+      sessionId: number | null; 
       reservationTime: string | null;
       reservationDate: string | null;
       userMessage: string | null;
@@ -80,10 +31,15 @@ export const Status = () => {
       endPeriod: string;
       laundryStatusDescription: string | null;
       machineName: string | null;
-      imagePath: string | null; //Based on what the seeded foreignkey backend is serving. Url path
-  }
+      imagePath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path
+      nameOfUser: string | null;
+}
 
-  const [calenderData, setCalenderData] = useState<statusData[]>([]);
+export const Status = () => {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("access_token");
+
+  const [calenderData, setCalenderData] = useState<statusData[]>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
 
   useEffect(() => {
     const fetchTodayData = async () => {
@@ -134,8 +90,8 @@ export const Status = () => {
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
   }
 
-  const selectedDayMeetings = meetings.filter((meeting) =>  //change entire thing to laundry date received from the backend
-    isSameDay(parseISO(meeting.startDatetime), selectedDay)
+  const selectedLaundryDate = calenderData.filter((populateCalender) =>  
+    isSameDay(parseISO(populateCalender.startPeriod), selectedDay)
 )
 
 const colStartClasses = [
@@ -249,9 +205,9 @@ const colStartClasses = [
               </time>
             </h2>
             <ol className="mt-4 space-y-1 text-sm leading-6 text-gray-500">
-              {selectedDayMeetings.length > 0 ? (    //change later to accomodate the backend laundrytime
-                selectedDayMeetings.map((meeting) => (
-                  <Meeting meeting={meeting} key={meeting.id} />
+              {selectedLaundryDate.length > 0 ? (    //change later to accomodate the backend laundrytime
+                selectedLaundryDate.map((scheduleCalender) => (
+                  <Schedule schedule={scheduleCalender} key={scheduleCalender.sessionId} />
                 ))
               ) : (
                 <p> Ingen vask booket idag.</p>
@@ -265,37 +221,29 @@ const colStartClasses = [
   )
 }
 
-type MeetingType = {
-  id: number;
-  name: string;
-  imageUrl: string;
-  startDatetime: string;
-  endDatetime: string;
-}
-
-function Meeting({ meeting }: { meeting: MeetingType}) { 
+function Schedule({ schedule }: { schedule: statusData}) { 
 //This function can read the meeting variable that is in another scope because,
 // we have declared the componenet and its key/parameter there 
 //<Meeting meeting={meeting} key={meeting.id} />
 
-  const startDateTime = parseISO(meeting.startDatetime)
-  const endDateTime = parseISO(meeting.endDatetime)
+  const startDateTime = parseISO(schedule.startPeriod)
+  const endDateTime = parseISO(schedule.endPeriod)
 
   return(
     <li className="flex items-center px-4 py-2 space-x-4 group rounded-xl focus-within:bg-gray-100 hover:bg-gray-100">
       <img
-      src={meeting.imageUrl}
+      src={schedule.imagePath}
       alt=""
       className="flex-none w-10 h-10 rounded-full"
       />
       <div className="flex-auto">
-        <p className="text-gray-900">{meeting.name}</p>
+        <p className="text-gray-900">{schedule.nameOfUser}</p>
         <p className="mt-0.5">
-          <time dateTime={meeting.startDatetime}>
+          <time dateTime={schedule.startPeriod}>
             {format(startDateTime, 'h:mm a')}
           </time>{' '}
           -{' '}
-          <time dateTime={meeting.endDatetime}>
+          <time dateTime={schedule.endPeriod}>
             {format(endDateTime, 'h:mm a')}
           </time>
         </p>
@@ -354,6 +302,4 @@ function Meeting({ meeting }: { meeting: MeetingType}) {
       </Menu>
     </li>
   )
-
-
 }

@@ -5,9 +5,12 @@ import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import { LuMessageCircle } from 'react-icons/lu'
 import { MdError } from 'react-icons/md'
+import { useNavigate } from 'react-router-dom'
 
 
 export const Historic = () => {
+
+  const navigate = useNavigate();
 
   type UsersSessionHistoric = { //Setting the datatype of the data we will be getting from backend, and set to table in react. Remember, camelCase
     sessionUser: string;
@@ -39,8 +42,19 @@ export const Historic = () => {
         console.log(err.message);
       })
     }
-    fetchData(); //calling the async function
-  }, [])
+    if(token){
+      fetchData();
+    }
+    else {
+      const errMessage = console.log("Unauthorize user");
+      navigate('/error404', {
+        replace: true,
+        state: {
+          errMessage: errMessage
+        }
+      })
+    }
+  }, [token, navigate])
 
 
   return (

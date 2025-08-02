@@ -9,6 +9,8 @@ namespace LaundryDormApi.Model.ViewModel
         public int SessionTimePeriodId { get; set; } //its for the time period the user want to set their laundry
                                             //its view model and not inserted in DbContext, so it won't autogenerate or cry about primary key!
         public string? SessionUser { get; set; }
+
+        public string? NameOfUser { get; set; }
         public string? PhoneNr { get; set; }
 
         [EmailAddress]

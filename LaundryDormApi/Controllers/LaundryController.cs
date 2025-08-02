@@ -143,7 +143,7 @@ namespace LaundryDormApi.Controllers
         [HttpGet]
         [Route("PopulateAvailability")]
         [Authorize]
-        public async Task<IActionResult> CheckAvailabilityToday(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CheckAvailability(CancellationToken cancellationToken = default)
         {
             var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
             var currentUser = await _userManager.GetUserAsync(User);
@@ -164,6 +164,8 @@ namespace LaundryDormApi.Controllers
                     || fromDb.LaundryStatusID == 4
                     )).Select(showFromDb => new LaundrySessionViewModel
                     {
+                        NameOfUser = showFromDb.Name,
+                        SessionId = showFromDb.LaundrySessionId,
                         ReservationTime = showFromDb.ReservationTime, 
                         ReservationDate = showFromDb.ReservedDate, //populate frontend with this section
                         UserMessage = showFromDb.Message,
@@ -187,49 +189,6 @@ namespace LaundryDormApi.Controllers
             return Ok("List is empty"); //return something else?
 
         }
-
-        //[HttpGet]
-        //[Route("AvailabilityAhead")]
-        //[Authorize]
-        //public async Task<IActionResult> CheckAvailabilityAhead(CancellationToken cancellationToken = default) //we are only interesseted in the date
-        //{
-        //    var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
-
-        //    if(getAllOrders != null)
-        //    {
-        //        try
-        //        {
-        //            var populateBusyCalender = getAllOrders.Where(fromDb => //Filtering data we don't want to show first. With a NOT condition
-        //            !(fromDb.LaundryStatusID == 5) // Exclude "kansellert" (cancelled)
-
-        //            && fromDb.ReservedDate.HasValue //Since user cant check 
-
-        //            && (fromDb.LaundryStatusID == 1 //populate the rest
-        //            || fromDb.LaundryStatusID == 2
-        //            || fromDb.LaundryStatusID == 3
-        //            || fromDb.LaundryStatusID == 4)
-        //            )
-        //            .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
-        //            {
-        //                ReservationDate = showFromDb.ReservedDate, //frontend should populate from this for reserve!!
-        //                UserMessage = showFromDb.Message,
-        //                StartPeriod = showFromDb.TimePeriod?.Start, //getting the start time & end time via navigation property
-        //                EndPeriod = showFromDb.TimePeriod?.End,     //foreign-key is set above, eager loading set in repository
-        //                LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
-        //                MachineName = showFromDb.Machine?.MachineName, //using the model navigation property to get the machine name
-        //                ImageUrlPath = showFromDb.Machine?.Image?.ImagePath //url image path according to the choosen machine
-        //            }).ToList();
-
-        //            return Ok(populateBusyCalender);
-        //        }
-        //        catch(Exception ex)
-        //        {
-        //            StatusCode(500, "An unexpected error occurred" + ex);
-        //        }
-        //    }
-        //        return Ok($"There is no available date {new List<LaundrySessionViewModel>()}"); 
-        //    //returning message and an empty list
-        //}
 
 
         /// <summary>
@@ -258,7 +217,17 @@ namespace LaundryDormApi.Controllers
                     //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
         public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel, CancellationToken cancellationToken = default)
         {
+            //DO NOT DELETE THESE TWO
+            DateOnly dateToday = DateOnly.FromDateTime(DateTime.Today);
             DateTime todayTime = DateTime.UtcNow;
+
+            //To accomodate the if statement below
+            laundrySessionViewModel.ReservationDate = dateToday;
+            if (!laundrySessionViewModel.ReservationDate.HasValue)
+            {
+                return BadRequest("Please choose a valid date");
+            }
+
 
             var timePeriod = new[]
             {
@@ -266,7 +235,6 @@ namespace LaundryDormApi.Controllers
                new {timeId = 2, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 17, 0, 0)},
                new {timeId = 3, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 23, 0, 0)}
            };
-
 
             var period = timePeriod.FirstOrDefault(x => x.timeId == laundrySessionViewModel.SessionTimePeriodId); //linq to not make user be able to book session past time
 
@@ -280,14 +248,9 @@ namespace LaundryDormApi.Controllers
             //int.max because we want all data to be returned
 
             //user selected date/session id
-
-            if (!laundrySessionViewModel.ReservationDate.HasValue)
-            {
-                return BadRequest("Choose a valid date");
-            }
-
             //Setting up time based on what user set, !!IMPORTANT
             DateOnly selectedDate = laundrySessionViewModel.ReservationDate.Value;
+           
 
             //important to match timestamp id based on what user choose, and how the date will align later
             int selectedPeriodId = laundrySessionViewModel.SessionTimePeriodId;
@@ -318,7 +281,7 @@ namespace LaundryDormApi.Controllers
 
             try
             {
-                if (laundrySessionViewModel != null && laundrySessionViewModel.ReservationTime.HasValue) //remember to send the reservation time from frontend as valid date
+                if (laundrySessionViewModel != null)
                 {
                     var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works
                      sFromDb.ReservedDate.HasValue

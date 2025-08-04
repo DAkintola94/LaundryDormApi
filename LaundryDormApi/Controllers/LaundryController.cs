@@ -1,4 +1,5 @@
-﻿using LaundryDormApi.Model.DomainModel;
+﻿using LaundryDormApi.DataContext;
+using LaundryDormApi.Model.DomainModel;
 using LaundryDormApi.Model.ViewModel;
 using LaundryDormApi.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net.WebSockets;
 using System.Security.Claims;
 
@@ -20,13 +22,17 @@ namespace LaundryDormApi.Controllers
         private readonly ILaundrySession _laundrySession;
         private readonly IUpdateCountRepository _updateCountRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly LaundryDormDbContext _dbContext;
 
         public LaundryController(ILaundrySession laundrySession,
-            UserManager<ApplicationUser> userManager, IUpdateCountRepository updateCountRepository)
+            UserManager<ApplicationUser> userManager, IUpdateCountRepository updateCountRepository,
+            LaundryDormDbContext dbContext
+            )
         {
             _laundrySession = laundrySession;
             _updateCountRepository = updateCountRepository;
             _userManager = userManager;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -92,8 +98,8 @@ namespace LaundryDormApi.Controllers
                     ReservationDate = fromDb?.ReservedDate,
                     ReservationTime = fromDb?.ReservationTime,
                     LaundryStatusDescription = fromDb?.LaundryStatus?.StatusDescription,
-                    StartPeriod = fromDb?.TimePeriod?.Start,
-                    EndPeriod = fromDb?.TimePeriod?.End,
+                    StartPeriod = fromDb?.LaundrySessionStartTime,
+                    EndPeriod = fromDb?.LaundrySessionEndTime,
                     MachineName = fromDb?.Machine?.MachineName,
                     UserMessage = fromDb?.Message,
                     SessionId = fromDb?.LaundrySessionId //important, so we can use cancelbooking method later
@@ -135,22 +141,22 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpGet]
-        [Route("AvailabilityToday")]
+        [Route("PopulateAvailability")]
         [Authorize]
-        public async Task<IActionResult> CheckAvailabilityToday(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CheckAvailability(CancellationToken cancellationToken = default)
         {
             var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
             var currentUser = await _userManager.GetUserAsync(User);
-
 
             if(getAllOrders != null)
             {
                 try
                 {
                     var rapidSessionCalender = getAllOrders.Where(fromDb =>
-                    !(fromDb.LaundryStatusID == 5)
+                    !(fromDb.LaundryStatusID == 5) //Exclude value from db that is "canceled"
 
-                    && fromDb.ReservationTime.HasValue
+                    && (fromDb.ReservationTime.HasValue
+                    || fromDb.ReservedDate.HasValue) 
 
                     && (fromDb.LaundryStatusID == 1
                     || fromDb.LaundryStatusID == 2
@@ -158,12 +164,16 @@ namespace LaundryDormApi.Controllers
                     || fromDb.LaundryStatusID == 4
                     )).Select(showFromDb => new LaundrySessionViewModel
                     {
-                        ReservationTime = showFromDb.ReservationTime, //populate datetime for this section
+                        NameOfUser = showFromDb.Name,
+                        SessionId = showFromDb.LaundrySessionId,
+                        ReservationTime = showFromDb.ReservationTime, 
+                        ReservationDate = showFromDb.ReservedDate, //populate frontend with this section
                         UserMessage = showFromDb.Message,
-                        StartPeriod = showFromDb.TimePeriod?.Start,
-                        EndPeriod = showFromDb.TimePeriod?.End,
+                        StartPeriod = showFromDb.LaundrySessionStartTime,
+                        EndPeriod = showFromDb.LaundrySessionEndTime,
                         LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
                         MachineName = showFromDb.Machine?.MachineName,
+                        ImageUrlPath = showFromDb.Machine?.Image?.ImagePath //url image path according to the choosen machine
                     }).ToList();
 
                     return Ok(rapidSessionCalender);
@@ -178,48 +188,6 @@ namespace LaundryDormApi.Controllers
 
             return Ok("List is empty"); //return something else?
 
-        }
-
-        [HttpGet]
-        [Route("AvailabilityAhead")]
-        [Authorize]
-        public async Task<IActionResult> CheckAvailabilityAhead(CancellationToken cancellationToken = default) //we are only interesseted in the date
-        {
-            var getAllOrders = await _laundrySession.GetAllSession(null, null, null, null, null, true, cancellationToken, 1, int.MaxValue);
-
-            if(getAllOrders != null)
-            {
-                try
-                {
-                    var populateBusyCalender = getAllOrders.Where(fromDb => //Filtering data we don't want to show first. With a NOT condition
-                    !(fromDb.LaundryStatusID == 5) // Exclude "kansellert" (cancelled)
-
-                    && fromDb.ReservedDate.HasValue //Since user cant check 
-
-                    && (fromDb.LaundryStatusID == 1 //populate the rest
-                    || fromDb.LaundryStatusID == 2
-                    || fromDb.LaundryStatusID == 3
-                    || fromDb.LaundryStatusID == 4)
-                    )
-                    .Select(showFromDb => new LaundrySessionViewModel      //selecting specific model from DB we want to show
-                    {
-                        ReservationDate = showFromDb.ReservedDate, //frontend should populate from this for reserve!!
-                        UserMessage = showFromDb.Message,
-                        StartPeriod = showFromDb.TimePeriod?.Start, //getting the start time & end time via navigation property
-                        EndPeriod = showFromDb.TimePeriod?.End,     //foreign-key is set above, eager loading set in repository
-                        LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
-                        MachineName = showFromDb.Machine?.MachineName, //using the model navigation property to get the machine name
-                    }).ToList();
-
-                    return Ok(populateBusyCalender);
-                }
-                catch(Exception ex)
-                {
-                    StatusCode(500, "An unexpected error occurred" + ex);
-                }
-            }
-                return Ok($"There is no available date {new List<LaundrySessionViewModel>()}"); 
-            //returning message and an empty list
         }
 
 
@@ -249,7 +217,17 @@ namespace LaundryDormApi.Controllers
                     //This part is VERY important as it tells the middleware in program.cs to decode the token that frontend sent
         public async Task<IActionResult> InitiateSession([FromBody]LaundrySessionViewModel laundrySessionViewModel, CancellationToken cancellationToken = default)
         {
+            //DO NOT DELETE THESE TWO
+            DateOnly dateToday = DateOnly.FromDateTime(DateTime.Today);
             DateTime todayTime = DateTime.UtcNow;
+
+            //To accomodate the if statement below
+            laundrySessionViewModel.ReservationDate = dateToday;
+            if (!laundrySessionViewModel.ReservationDate.HasValue)
+            {
+                return BadRequest("Please choose a valid date");
+            }
+
 
             var timePeriod = new[]
             {
@@ -257,7 +235,6 @@ namespace LaundryDormApi.Controllers
                new {timeId = 2, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 17, 0, 0)},
                new {timeId = 3, timeStamp = new DateTime(todayTime.Year, todayTime.Month, todayTime.Day, 23, 0, 0)}
            };
-
 
             var period = timePeriod.FirstOrDefault(x => x.timeId == laundrySessionViewModel.SessionTimePeriodId); //linq to not make user be able to book session past time
 
@@ -268,7 +245,34 @@ namespace LaundryDormApi.Controllers
 
             var currentUser = await _userManager.GetUserAsync(User);
             var getSession = await _laundrySession.GetAllSession(null, null, null, null, null, false, cancellationToken, 1, int.MaxValue);
-                                                                                                                           //int.max because we want all data to be returned
+            //int.max because we want all data to be returned
+
+            //user selected date/session id
+            //Setting up time based on what user set, !!IMPORTANT
+            DateOnly selectedDate = laundrySessionViewModel.ReservationDate.Value;
+           
+
+            //important to match timestamp id based on what user choose, and how the date will align later
+            int selectedPeriodId = laundrySessionViewModel.SessionTimePeriodId;
+
+            //fetch the time period from DB 
+            var defineTimePeriod = await _dbContext.TimeStamp.FindAsync(selectedPeriodId);
+
+            if(defineTimePeriod == null)
+            {
+                return BadRequest("Something went wrong when trying to find valid timestamp in database");
+            }
+
+            TimeSpan startSpan = defineTimePeriod.Start;
+            TimeSpan endSpan = defineTimePeriod.End;
+
+            //Convert TimeSpan to TimeOnly
+            TimeOnly startTime = TimeOnly.FromTimeSpan(startSpan);
+            TimeOnly endTime = TimeOnly.FromTimeSpan(endSpan);
+
+            //Combine date and time for start/end based date user set
+            DateTime sessionStartTime = selectedDate.ToDateTime(startTime);
+            DateTime sessionEndTime = selectedDate.ToDateTime(endTime);
 
             if(currentUser == null)
             {
@@ -277,12 +281,12 @@ namespace LaundryDormApi.Controllers
 
             try
             {
-                if (laundrySessionViewModel != null && laundrySessionViewModel.ReservationTime.HasValue) //remember to send the reservation time from frontend as valid date
+                if (laundrySessionViewModel != null)
                 {
                     var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works
                      sFromDb.ReservedDate.HasValue
-                    && sFromDb.TimePeriodId == laundrySessionViewModel.SessionTimePeriodId
-                    && sFromDb.ReservedDate.Value == DateOnly.FromDateTime(laundrySessionViewModel.ReservationTime.Value) //comparing dateonly with time only, to check for conflict on the SAME DAY!!
+                    && sFromDb.ReservedDate.Value == selectedDate //To check for conflict on the SAME DAY!!
+                    && sFromDb.TimePeriodId == selectedPeriodId //to check for conflict between the timestamp to set laundry
                     && (sFromDb.LaundryStatusID == 2
                     || sFromDb.LaundryStatusID == 3
                     || sFromDb.LaundryStatusID == 4)
@@ -292,12 +296,14 @@ namespace LaundryDormApi.Controllers
                     LaundrySession laundrySessionDomain = new LaundrySession
                     {
                         UserEmail = currentUser.Email,
-                        Name = currentUser.FirstName + currentUser.LastName, //getting information from the current logged in user, through the token sent, and decoded in the middleware
+                        Name = currentUser.FirstName + " " + currentUser.LastName, //getting information from the current logged in user, through the token sent, and decoded in the middleware
                         PhoneNumber = currentUser.PhoneNumber,
                         Message = laundrySessionViewModel.UserMessage,
-                        MachineId = laundrySessionViewModel.MachineId,
+                        MachineId = laundrySessionViewModel.MachineId, //Foreign key for MachineModel table
                         ReservationTime = DateTime.Now,
-                        ReservedDate = DateOnly.FromDateTime(todayTime),
+                        LaundrySessionStartTime = sessionStartTime,
+                        LaundrySessionEndTime = sessionEndTime,
+                        ReservedDate = DateOnly.FromDateTime(todayTime), //use this to populate the entire calender on frontend?
                         TimePeriodId = laundrySessionViewModel.SessionTimePeriodId, // the session period/time is set based on what user has selected in the front end. The periods are seeded in the db context
                         LaundryStatusID = 1 // 1 is the default value for "In Progress" status, this is set in the db context seeding
                     };
@@ -365,13 +371,13 @@ namespace LaundryDormApi.Controllers
                 {
                     var sessionPeriods = getLaundrySessions.Where(x //.Where to get the conditions as list, so we can work with id (FK in this case) and other values
                     => x.TimePeriod != null
-                    && x.TimePeriod.End < now // checking if the start time & end time is today, or before today (past time from the database)
+                    && x.LaundrySessionEndTime < now // checking if the start time & end time is today, or before today (past time from the database)
                     && x.LaundryStatusID == 1 //checking if laundry status from db is active
                     ).ToList();
 
                     foreach (var sessionToUpdate in sessionPeriods)
                     {
-                        if (sessionToUpdate.TimePeriod?.End < now) //We need loop to loop through the list to set the matching condition to 2, one by one
+                        if (sessionToUpdate.LaundrySessionEndTime < now) //We need loop to loop through the list to set the matching condition to 2, one by one
                         {
                             sessionToUpdate.LaundryStatusID = 2;
                             await _laundrySession.UpdateSession(sessionToUpdate, cancellationToken);
@@ -419,6 +425,8 @@ namespace LaundryDormApi.Controllers
             var getSession = await _laundrySession.GetAllSession(null, null, null, null, null, false, cancellationToken, 1, int.MaxValue);
             var currentUser = await _userManager.GetUserAsync(User);
 
+            DateTime registrationTime = DateTime.UtcNow;
+
             DateTime nextDay = DateTime.UtcNow.AddDays(1);
             DateOnly dayAhead = DateOnly.FromDateTime(nextDay);
 
@@ -433,9 +441,39 @@ namespace LaundryDormApi.Controllers
                 return Unauthorized("Invalid user");
             }
 
+            if (!reservationViewModel.ReservationDate.HasValue)
+            {
+                return BadRequest("Please choose a valid date");
+            }
+
+            //Setting up time based on what user set, !!IMPORTANT
+            DateOnly selectedDate = reservationViewModel.ReservationDate.Value;
+
+            //Getting timestamp based on what id was choosen
+            int selectedPeriodId = reservationViewModel.SessionTimePeriodId;
+
+            //fetch the time period from the seeded DB
+            var defineTimePeriod = await _dbContext.TimeStamp.FindAsync(selectedPeriodId);
+
+            if(defineTimePeriod == null)
+            {
+                return BadRequest("Choose a valid time stamp");
+            }
+
+            //Setting the timespan accordingly
+            TimeSpan startSpan = defineTimePeriod.Start;
+            TimeSpan endSpan = defineTimePeriod.End;
+
+            //Convert TimeSpan to TimeOnly
+            TimeOnly startTime = TimeOnly.FromTimeSpan(startSpan);
+            TimeOnly endTime = TimeOnly.FromTimeSpan(endSpan);
+
+            //Combine date and time for start/end based on what date user set
+            DateTime sessionStartTime = selectedDate.ToDateTime(startTime);
+            DateTime sessionEndTime = selectedDate.ToDateTime(endTime);
+
             if(reservationViewModel!= null 
                 && getSession!= null 
-                && reservationViewModel.ReservationTime.HasValue
                 && reservationViewModel.ReservationDate.HasValue) //obs, reservation date need to have value
             {
                 try
@@ -446,9 +484,12 @@ namespace LaundryDormApi.Controllers
                         PhoneNumber = currentUser.PhoneNumber,
                         Name = currentUser.FirstName + currentUser.LastName,
 
-                        ReservationTime = reservationViewModel.ReservationTime, //The time and date the user created the reservation
+                        ReservationTime = registrationTime, //The time and date the user created the reservation
                         ReservedDate = reservationViewModel.ReservationDate,    //The date our user desire to book the laundry session ahead of time
                         Message = reservationViewModel.UserMessage,
+
+                        LaundrySessionStartTime = sessionStartTime, //Time will be according to timestamp id, date will be according to what user set
+                        LaundrySessionEndTime = sessionEndTime,
 
                         TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
                                                                                  //ops, need to work on reservation, date needs to be exact to when the user want to reservate

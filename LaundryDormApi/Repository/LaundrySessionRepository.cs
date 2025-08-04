@@ -27,6 +27,8 @@ namespace LaundryDormApi.Repository
             var getSession = _context.Laundry
                 .Include(ls => ls.LaundryStatus) //remember, include is same as innerjoin in SQL 
                 .Include(m => m.Machine)
+                    .ThenInclude(img => img.Image) //this is needed if we want the MachineModel to give LaundrySession imageurlpath, due to imagemodel being FK.
+                                              // EF will still perform a left join for the image navigation property even if we get null image values
                 .Include(tp => tp.TimePeriod)
                 .AsQueryable(); //getSession is never null, AsQueryable() always returns a valid object
 

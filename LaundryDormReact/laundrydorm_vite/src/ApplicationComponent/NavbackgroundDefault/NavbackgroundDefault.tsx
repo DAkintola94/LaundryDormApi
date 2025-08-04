@@ -8,12 +8,13 @@ import {jwtDecode} from 'jwt-decode';
 import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
 import { FaEnvelope } from 'react-icons/fa';
 import { GiWashingMachine } from "react-icons/gi";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+
 
 export const NavbarDefault = () => {
 
-
-  const navigate = useNavigate();
+const location = useLocation(); //useLocation gives you information about where the user currently is in your app.
+const navigate = useNavigate();
  
 const [nav, setNavBar] = useState(false); //hooks must be called at the top level in react.
 // //you cant call them inside loops, conditions, nested function, etc
@@ -99,7 +100,6 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
     if(userInfo?.expireDateTime){
       const currentTime = Date.now() / 1000; //Current time in seconds
-
     }
 
 
@@ -119,7 +119,7 @@ const laundryDownMenu = [
   {name: "Bok vask", link:"/vask"},
   {name: "Reservasjon", link:"/reservation"},
   {name: "Historikk", link:"/historic"},
-  {name: "Ledighet", link:"/availability"}
+  {name: "Ledighet", link:"/statusnreservation"}
 ];
 
 const accountDropDownMenu = [
@@ -203,7 +203,11 @@ const accountDropDownMenu = [
               onClick={() => {
                 localStorage.removeItem("access_token"); //removes all info about user, global
                 
-                navigate('/', { replace: true });
+                navigate('/', { replace: true }); //navigate back to homepage
+                if(location.pathname === '/'){
+                  window.location.reload(); //refresh the page if we are in homepage
+                                            //useful to refresh users information on screen
+                }
               }}
             >
               {accList.name}

@@ -4,16 +4,19 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations.LaundryDormDb
+namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250804064831_UpdateImageModelSeedData")]
+    partial class UpdateImageModelSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,7 +174,7 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                             ImageDescription = "Siemen machine picture",
                             ImageExtension = ".jpg",
                             ImageName = "washing machine",
-                            ImagePath = "https://localhost:7054/Images/Siemen.jpg",
+                            ImagePath = "https://localhost:7054/ServerImage/Siemen.jpg",
                             ImageSizeInBytes = 337200L
                         },
                         new
@@ -180,7 +183,7 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                             ImageDescription = "Balay washing machine",
                             ImageExtension = ".jpg",
                             ImageName = "BalayMachine",
-                            ImagePath = "https://localhost:7054/Images/Balay.jpg",
+                            ImagePath = "https://localhost:7054/ServerImage/Balay.jpg",
                             ImageSizeInBytes = 380876L
                         });
                 });
@@ -192,6 +195,15 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("LaundrySessionId"));
+
+                    b.Property<string>("LaundryEndTime")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("LaundrySessionEndTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("LaundrySessionStartTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int?>("LaundryStatusID")
                         .HasColumnType("int");
@@ -250,7 +262,7 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             LaundryStatusID = 1,
-                            StatusDescription = "Aktivt tidspunkt"
+                            StatusDescription = "Aktiv"
                         },
                         new
                         {
@@ -332,11 +344,11 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PeriodId"));
 
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime(6)");
+                    b.Property<TimeSpan>("End")
+                        .HasColumnType("time(6)");
 
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime(6)");
+                    b.Property<TimeSpan>("Start")
+                        .HasColumnType("time(6)");
 
                     b.HasKey("PeriodId");
 
@@ -346,20 +358,20 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             PeriodId = 1,
-                            End = new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 24, 7, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new TimeSpan(0, 12, 0, 0, 0),
+                            Start = new TimeSpan(0, 7, 0, 0, 0)
                         },
                         new
                         {
                             PeriodId = 2,
-                            End = new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new TimeSpan(0, 17, 0, 0, 0),
+                            Start = new TimeSpan(0, 12, 0, 0, 0)
                         },
                         new
                         {
                             PeriodId = 3,
-                            End = new DateTime(2025, 7, 24, 23, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new TimeSpan(0, 23, 0, 0, 0),
+                            Start = new TimeSpan(0, 17, 0, 0, 0)
                         });
                 });
 

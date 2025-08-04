@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations.LaundryDormDb
+namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250724075811_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250804064138_UpdateLaundryStatusSeedData")]
+    partial class UpdateLaundryStatusSeedData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -196,6 +196,15 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("LaundrySessionId"));
 
+                    b.Property<string>("LaundryEndTime")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("LaundrySessionEndTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("LaundrySessionStartTime")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int?>("LaundryStatusID")
                         .HasColumnType("int");
 
@@ -253,7 +262,7 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             LaundryStatusID = 1,
-                            StatusDescription = "Aktivt tidspunkt"
+                            StatusDescription = "Aktiv"
                         },
                         new
                         {
@@ -335,11 +344,11 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PeriodId"));
 
-                    b.Property<DateTime>("End")
-                        .HasColumnType("datetime(6)");
+                    b.Property<TimeSpan>("End")
+                        .HasColumnType("time(6)");
 
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime(6)");
+                    b.Property<TimeSpan>("Start")
+                        .HasColumnType("time(6)");
 
                     b.HasKey("PeriodId");
 
@@ -349,20 +358,20 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         new
                         {
                             PeriodId = 1,
-                            End = new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 24, 7, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new TimeSpan(0, 12, 0, 0, 0),
+                            Start = new TimeSpan(0, 7, 0, 0, 0)
                         },
                         new
                         {
                             PeriodId = 2,
-                            End = new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new TimeSpan(0, 17, 0, 0, 0),
+                            Start = new TimeSpan(0, 12, 0, 0, 0)
                         },
                         new
                         {
                             PeriodId = 3,
-                            End = new DateTime(2025, 7, 24, 23, 0, 0, 0, DateTimeKind.Unspecified),
-                            Start = new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified)
+                            End = new TimeSpan(0, 23, 0, 0, 0),
+                            Start = new TimeSpan(0, 17, 0, 0, 0)
                         });
                 });
 

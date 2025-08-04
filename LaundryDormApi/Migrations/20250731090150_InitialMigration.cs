@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace LaundryDormApi.Migrations.LaundryDormDb
+namespace LaundryDormApi.Migrations
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration
@@ -89,8 +89,8 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 {
                     PeriodId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Start = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    End = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Start = table.Column<TimeSpan>(type: "time(6)", nullable: false),
+                    End = table.Column<TimeSpan>(type: "time(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -196,6 +196,10 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     LaundryStatusID = table.Column<int>(type: "int", nullable: true),
                     TimePeriodId = table.Column<int>(type: "int", nullable: false),
+                    LaundrySessionStartTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LaundrySessionEndTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LaundryEndTime = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     MachineId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -268,9 +272,9 @@ namespace LaundryDormApi.Migrations.LaundryDormDb
                 columns: new[] { "PeriodId", "End", "Start" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 24, 7, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 2, new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 24, 12, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { 3, new DateTime(2025, 7, 24, 23, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2025, 7, 24, 17, 0, 0, 0, DateTimeKind.Unspecified) }
+                    { 1, new TimeSpan(0, 12, 0, 0, 0), new TimeSpan(0, 7, 0, 0, 0) },
+                    { 2, new TimeSpan(0, 17, 0, 0, 0), new TimeSpan(0, 12, 0, 0, 0) },
+                    { 3, new TimeSpan(0, 23, 0, 0, 0), new TimeSpan(0, 17, 0, 0, 0) }
                 });
 
             migrationBuilder.InsertData(

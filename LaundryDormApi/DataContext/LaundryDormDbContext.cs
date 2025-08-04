@@ -68,7 +68,7 @@ namespace LaundryDormApi.DataContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
-               new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktivt tidspunkt" },
+               new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktiv" },
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Utløpt" },
                new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Service pågår!" },
                new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Reservert"},
@@ -105,7 +105,7 @@ namespace LaundryDormApi.DataContext
                     ImageDescription = "Siemen machine picture",
                     ImageName = "washing machine",
                     ImageExtension = ".jpg",
-                    ImagePath = "https://localhost:7054/Images/Siemen.jpg",
+                    ImagePath = "https://localhost:7054/ServerImages/Siemen.jpg", //Where the image is in the backend (folder/path), frontend can local to that url
                     ImageSizeInBytes = 337200
                 },
 
@@ -115,7 +115,7 @@ namespace LaundryDormApi.DataContext
                     ImageDescription ="Balay washing machine",
                     ImageName = "BalayMachine",
                     ImageExtension =".jpg",
-                    ImagePath = "https://localhost:7054/Images/Balay.jpg",
+                    ImagePath = "https://localhost:7054/ServerImages/Balay.jpg",
                     ImageSizeInBytes = 380876
                 }
                 );
@@ -132,21 +132,21 @@ namespace LaundryDormApi.DataContext
             modelBuilder.Entity<TimePeriodModel>().HasData( //setting a custom date that we want according to the time period
                 new TimePeriodModel 
                 { PeriodId = 1, 
-                    Start = new DateTime(now.Year, now.Month, now.Day, 7, 0, 0), 
-                    End = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0) 
+                    Start = new TimeSpan( 7, 0, 0), 
+                    End = new TimeSpan(12, 0, 0) 
                 },
 
                 new TimePeriodModel
                 { PeriodId = 2,
-                Start = new DateTime(now.Year, now.Month, now.Day, 12, 0, 0),
-                End = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0)
+                Start = new TimeSpan(12, 0, 0),
+                End = new TimeSpan(17, 0, 0)
                 },
 
                 new TimePeriodModel
                 {
                     PeriodId = 3,
-                    Start = new DateTime(now.Year, now.Month, now.Day, 17, 0, 0),
-                    End = new DateTime(now.Year, now.Month, now.Day, 23, 0, 0)
+                    Start = new TimeSpan(17, 0, 0),
+                    End = new TimeSpan(23, 0, 0)
                 }
                 
                 );

@@ -5,9 +5,11 @@ import { NavbarDefault} from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault} from '../FooterDefault/FooterDefault'
 import { IoIosInformationCircle } from 'react-icons/io'
 import { MdError } from 'react-icons/md'
+import { useNavigate } from 'react-router-dom'
 
 
 export const ViewReport = () => {
+  const navigate = useNavigate();
   type ReportData = { //must match the viewmodel name of the backend. cascalCase!
     //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
 
@@ -54,12 +56,19 @@ const toggleCardExpansion = (posterId: number) => {
     setLoading(false);
   })
     }
-    if(token){ //remember to move it out of the fetchData scope function
+    if(token){ // Out of the fetchData method scope
       fetchData();
     } else {
-      console.log("Unauthorized user");
+      const errorMessage = "Unauthorized user";
+
+      navigate('/error404', { //navigating to error page with message
+        replace: true, //prevent user from going back
+        state: {
+          errMessage: errorMessage
+        }
+      })
     }
-  }, [token])
+  }, [token, navigate])
 
 
   return (
@@ -103,12 +112,8 @@ const toggleCardExpansion = (posterId: number) => {
                       className="text-blue-600 hover:text-blue-800 text-sm mt-2"
                       >
                         {isExpanded ? "Vis mindre" : "Vis mer"}
-
                       </button>
                     )}
-
-
-
                 </div>
 
                 <div className="mb-2 p-2">

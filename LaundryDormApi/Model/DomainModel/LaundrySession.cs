@@ -16,6 +16,10 @@
         public TimePeriodModel? TimePeriod { get; set; }
         public int TimePeriodId { get; set; }
 
+        public DateTime? LaundrySessionStartTime { get; set; }
+        public DateTime? LaundrySessionEndTime { get; set; }
+        public string? LaundryEndTime { get; set; }
+
         public int? MachineId { get; set; }
         public MachineModel? Machine { get; set; }
 

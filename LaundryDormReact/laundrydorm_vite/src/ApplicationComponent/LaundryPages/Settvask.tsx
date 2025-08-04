@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { JWTInformation } from "../Pages/JWTInformation" //importing JWT functions, its not sending jsx/html or react, its returning/sending token object value
 import { useNavigate } from "react-router-dom";
 import { MdError } from "react-icons/md";
+import axios from "axios";
 
 export const Settvask = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export const Settvask = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [expiredDate, setExpiredDate] = useState<number | null>(null);
   const [errorMsg, setError] = useState('');
-  const [sessionId, setSessionId] = useState<number | null>(null); //either be a number or null before we get a value
+  // const [sessionId, setSessionId] = useState<number | null>(null); not needed currently, since we are returning backendSessionId directly from data
 
   const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
@@ -38,7 +39,6 @@ export const Settvask = () => {
     audience: string;
   };
 
-
   const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export const Settvask = () => {
   }, []) //with the array as second argument means this effect will only run once
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPending(true);
 
@@ -77,47 +77,47 @@ export const Settvask = () => {
       return;
     }
 
-    try {
-      const response = await fetch('https://localhost:7054/api/Laundry/StartSession', {
-        method: 'POST',
+    try{
+          const postElement = await axios.post('https://localhost:7054/api/Laundry/StartSession',
+       laundrySessionData, //This is the body, Axios automatically JSON-stringifies the request body, no need to json.stringify
+      {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` //Sending Jwt token to the backend. 
-          //Always send the token to the backend like this when you want to verify users information!
+          "Authorization" : `Bearer ${token}`
         },
-        body: JSON.stringify(laundrySessionData) //We have to stringify the data on frontend because 
-        //the fetch API and most HTTP clients send data as string in the request body, not as javascript object.
-        //HTTP request (like POST) send the body as a string, not as javascript object.
-        
-        //[FromBody] tells ASP.NET core to parse the incoming JSON string and convert it into a c sharp model object
-      });
+      })
+        const responseData = postElement.data.backendSessionId; //backend is sending back that variable name
+        console.log(responseData);
 
-      if (!response.ok) {
-        console.error("Failed to submit form:", response.statusText);
-        setPending(false);
-        return;
-      }
-
-      const data = await response.json(); //what the backend returns upon ok
-      console.info("Form submitted successfully, session ID is ", data.id);
-      setSessionId(data.backendSessionId); //setter for sessionId we got in response from the backend.
-      //data is the response we are getting, the next variable is the variable name of the json the backend sends !must match!
-
-      console.log(sessionId);
-
-      setPending(false);
-
-      navigate('/success', {
+        navigate('/success', {
         replace: true, //prevent user from going back
         state: {
-          ID: data.backendSessionId, //Value we want to pass to the redirected page
+          ID: responseData, //Value we want to pass to the redirected page
         }
     });
+    setPending(false);
+    } 
+    catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        // If server responded with a status code outside the 2xx range
 
-    } catch (err) {
-      console.error("An error occurred while submitting the form:", err);
-      setPending(false);
+        console.error('Backend error', err.response.status);
+        setError(`Error ${err.response.data?.message || "something went wrong"}`);
+        setPending(false);
+
+      } else if (axios.isAxiosError(err) && err.request) {
+        // No response received (e.g., server down)
+        console.error('No response from the server:', err.request);
+        setError("No response from server, please try again later");
+        setPending(false);
+
+      } else {
+        console.error('An unexpected error occured ', err);
+        setError('An unexpected error occured ' + err);
+        setPending(false);
+      }
     }
+
   };
 
   return (
@@ -159,7 +159,7 @@ export const Settvask = () => {
                 <textarea className="appearance-none block w-full bg-white text-gray-700 border border-red-500 
            rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" onChange={(evt) => setFormMessage(evt.target.value)} maxLength={150}></textarea>
            { errorMsg && 
-              <span className="text-red-400 mb-4"> {errorMsg} </span>
+              <span className="text-black mb-4"> {errorMsg} </span>
            }
 
                 <label htmlFor="laundryTime" className="block uppercase text-xs text-gray-700 font-bold text-center">Velg tidspunkt</label> {/* NB! justify-center only works on flex containers, not for label since label is an inline element. use text-center for inline */}

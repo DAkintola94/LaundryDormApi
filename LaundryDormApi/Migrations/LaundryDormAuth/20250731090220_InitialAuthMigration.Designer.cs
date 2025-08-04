@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormAuth
 {
     [DbContext(typeof(LaundryDormAuthContext))]
-    [Migration("20250724075753_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250731090220_InitialAuthMigration")]
+    partial class InitialAuthMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

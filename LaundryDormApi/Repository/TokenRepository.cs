@@ -18,9 +18,11 @@ namespace LaundryDormApi.Repository
 
        public string CreateJWTToken(ApplicationUser applicationUser, List<string> roles)
         {
-            var claims = new List<Claim> //claims are the information that we want to store about the user, in the token that is being sent to the client
+            //applicationUser variable (subclass of IdentityUser) is responsible for extracting all user information retrieved from the database. 
+
+            var claims = new List<Claim> //claim objects are used to package bits of users information into a format that the JWT can understand.
             {
-                new Claim (ClaimTypes.Email, applicationUser.Email ?? string.Empty),
+                new Claim (ClaimTypes.Email, applicationUser.Email ?? string.Empty), 
                 new Claim (ClaimTypes.MobilePhone, applicationUser.PhoneNumber ?? string.Empty),
                 new Claim (ClaimTypes.Name, $"{applicationUser.FirstName} {applicationUser.LastName}" ?? string.Empty),
                 new Claim (ClaimTypes.NameIdentifier, applicationUser.Id ?? string.Empty)

@@ -68,7 +68,7 @@ namespace LaundryDormApi.DataContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
-               new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktivt tidspunkt" },
+               new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktiv" },
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Utløpt" },
                new LaundryStatusState { LaundryStatusID = 3, StatusDescription = "Service pågår!" },
                new LaundryStatusState { LaundryStatusID = 4, StatusDescription = "Reservert"},
@@ -105,7 +105,7 @@ namespace LaundryDormApi.DataContext
                     ImageDescription = "Siemen machine picture",
                     ImageName = "washing machine",
                     ImageExtension = ".jpg",
-                    ImagePath = "https://localhost:7054/Images/Siemen.jpg", //Where the image is in the backend, frontend can local to that url
+                    ImagePath = "https://localhost:7054/ServerImages/Siemen.jpg", //Where the image is in the backend (folder/path), frontend can local to that url
                     ImageSizeInBytes = 337200
                 },
 
@@ -115,7 +115,7 @@ namespace LaundryDormApi.DataContext
                     ImageDescription ="Balay washing machine",
                     ImageName = "BalayMachine",
                     ImageExtension =".jpg",
-                    ImagePath = "https://localhost:7054/Images/Balay.jpg",
+                    ImagePath = "https://localhost:7054/ServerImages/Balay.jpg",
                     ImageSizeInBytes = 380876
                 }
                 );

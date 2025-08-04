@@ -15,7 +15,7 @@ export const Settvask = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [expiredDate, setExpiredDate] = useState<number | null>(null);
   const [errorMsg, setError] = useState('');
-  const [sessionId, setSessionId] = useState<number | null>(null); //either be a number or null before we get a value
+  // const [sessionId, setSessionId] = useState<number | null>(null); not needed currently, since we are returning backendSessionId directly from data
 
   const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0

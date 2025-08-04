@@ -296,10 +296,10 @@ namespace LaundryDormApi.Controllers
                     LaundrySession laundrySessionDomain = new LaundrySession
                     {
                         UserEmail = currentUser.Email,
-                        Name = currentUser.FirstName + currentUser.LastName, //getting information from the current logged in user, through the token sent, and decoded in the middleware
+                        Name = currentUser.FirstName + " " + currentUser.LastName, //getting information from the current logged in user, through the token sent, and decoded in the middleware
                         PhoneNumber = currentUser.PhoneNumber,
                         Message = laundrySessionViewModel.UserMessage,
-                        MachineId = laundrySessionViewModel.MachineId,
+                        MachineId = laundrySessionViewModel.MachineId, //Foreign key for MachineModel table
                         ReservationTime = DateTime.Now,
                         LaundrySessionStartTime = sessionStartTime,
                         LaundrySessionEndTime = sessionEndTime,

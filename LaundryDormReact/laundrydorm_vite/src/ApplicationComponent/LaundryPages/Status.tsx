@@ -31,11 +31,13 @@ type statusData = { //must match the viewmodel name of the backend. cascalCase!
       endPeriod: string;
       laundryStatusDescription: string | null;
       machineName: string | null;
-      imagePath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path
+      imageUrlPath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path
       nameOfUser: string | null;
 }
 
+
 export const Status = () => {
+
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
 
@@ -232,7 +234,7 @@ function Schedule({ schedule }: { schedule: statusData}) {
   return(
     <li className="flex items-center px-4 py-2 space-x-4 group rounded-xl focus-within:bg-gray-100 hover:bg-gray-100">
       <img
-      src={schedule.imagePath}
+      src={schedule.imageUrlPath}
       alt=""
       className="flex-none w-10 h-10 rounded-full"
       />
@@ -247,6 +249,7 @@ function Schedule({ schedule }: { schedule: statusData}) {
             {format(endDateTime, 'h:mm a')}
           </time>
         </p>
+        <p className="text-gray-900">Status: {schedule.laundryStatusDescription}</p>
       </div>
       <Menu
         as="div"

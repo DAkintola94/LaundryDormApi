@@ -65,7 +65,7 @@ namespace LaundryDormApi.Controllers
         [Route("SessionHistoric")]
         [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
         public async Task<IActionResult> PreviewSessionHistoric([FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
-            [FromQuery] string? statusFilter, [FromQuery] string statusQuery,
+            [FromQuery] string? statusFilter, [FromQuery] string? statusQuery,
             [FromQuery] string? sortBy, [FromQuery] bool? isAscending, CancellationToken cancellationToken = default,
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10) 
         {

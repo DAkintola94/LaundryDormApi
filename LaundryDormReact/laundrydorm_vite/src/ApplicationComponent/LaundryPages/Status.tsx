@@ -31,10 +31,9 @@ type statusData = { //must match the viewmodel name of the backend. cascalCase!
       endPeriod: string;
       laundryStatusDescription: string | null;
       machineName: string | null;
-      imageUrlPath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path
+      imageUrlPath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path of the image that server serve
       nameOfUser: string | null;
 }
-
 
 export const Status = () => {
 
@@ -51,7 +50,7 @@ export const Status = () => {
         })
         .then(response => {
           setCalenderData(response.data);
-          console.log(response.data);
+          console.log(response.data); //See the data server is returning, as well as the property name
         })
         .catch(err => {
           console.log("An error occured", err);

@@ -102,7 +102,7 @@ export const Settvask = () => {
         // If server responded with a status code outside the 2xx range
 
         console.error('Backend error', err.response.status);
-        setError(`Error ${err.response.data?.message || "something went wrong"}`);
+        setError(`Error ${err.response.data || "something went wrong"}`);
         setPending(false);
 
       } else if (axios.isAxiosError(err) && err.request) {

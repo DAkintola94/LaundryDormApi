@@ -28,3 +28,8 @@ CMD ["nginx", "-g", "daemon off;"]
 
 #When we write npm run dev in vscode, we are using Vite development server, not Nginx. 
 #nginx:alphine has a preinstalled Nginx web server
+
+#Your source code lives in src/
+#npm run build compiles and bundles everything into dist/
+#Nginx serves the static files from dist/
+#The original .tsx files are not served directly — they’re transformed into optimized JS/CSS

@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250804064138_UpdateLaundryStatusSeedData")]
-    partial class UpdateLaundryStatusSeedData
+    [Migration("20250807094618_Initial-Migration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -174,7 +174,7 @@ namespace LaundryDormApi.Migrations
                             ImageDescription = "Siemen machine picture",
                             ImageExtension = ".jpg",
                             ImageName = "washing machine",
-                            ImagePath = "https://localhost:7054/Images/Siemen.jpg",
+                            ImagePath = "https://localhost:7054/ServerImages/Siemen.jpg",
                             ImageSizeInBytes = 337200L
                         },
                         new
@@ -183,7 +183,7 @@ namespace LaundryDormApi.Migrations
                             ImageDescription = "Balay washing machine",
                             ImageExtension = ".jpg",
                             ImageName = "BalayMachine",
-                            ImagePath = "https://localhost:7054/Images/Balay.jpg",
+                            ImagePath = "https://localhost:7054/ServerImages/Balay.jpg",
                             ImageSizeInBytes = 380876L
                         });
                 });

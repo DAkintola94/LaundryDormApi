@@ -37,6 +37,7 @@ type statusData = { //must match the viewmodel name of the backend. cascalCase!
 
 export const Status = () => {
 
+  
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
 
@@ -71,15 +72,25 @@ export const Status = () => {
     }
   }, [token, navigate])
 
+
   const today = startOfToday()
   const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'));
   const firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date()); // Parse the current month string (e.g., "Jul-2025") back into a Date object
 
+  const [formDate, setFormDate] = useState<string>("");
+
+  //useEffect based on existing date selected, so form is not empty
+   useEffect(() => {
+    setFormDate(format(selectedDay,'yyyy-MM-dd')); //setting formDate into whatever user select
+  }, [selectedDay]);
+
   const days = eachDayOfInterval({ //inbuildt method
     start: firstDayCurrentMonth,
     end: endOfMonth(firstDayCurrentMonth),
   })
+
+  console.log(selectedDay);
 
   function previousMonth(){
     const firstDayNextMonth = add(firstDayCurrentMonth, { months: -1}) //sets the month according to the arrow we point, by -1 in this case
@@ -104,6 +115,68 @@ const colStartClasses = [
   'col-start-6',
   'col-start-7',
 ]
+
+const [pending, setPending] = useState(false);
+const [formError, setFormError] = useState("");
+//const [message, setMessage] = useState('');
+const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
+const [laundrySessionTime, setSessionTime] = useState('1');
+
+const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const reserveLaundry = {
+    machineId: Number(machineId),
+    sessionTimePeriodId: Number(laundrySessionTime),
+    reservationTime: formDate, //Since backend is expecting DateOnly, this works
+  };
+
+  if(!token){
+    const sendError = "Unauthorize user"
+    navigate('/error404', {
+      replace:true,
+      state: {
+        errMessage: sendError
+      }
+    })
+    return;
+  }
+
+  setPending(true);
+
+  try{
+    await axios.post('https://localhost:7054/api/Laundry/SetReservation',
+           reserveLaundry, //This is the body, Axios automatically JSON-stringifies the request body, no need to json.stringify
+           {
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+          })
+          setPending(false);
+  }
+  catch (err:unknown){
+    if(axios.isAxiosError(err) && err.response){
+
+      console.error("Backend error", err.response.status);
+      //Since backend is sending back plain string upon error, and not JSON with message property
+      setFormError(`Error ${err.response.data || "Something went wrong"}`);
+      setPending(false);
+
+    } else if (axios.isAxiosError(err) && err.request){
+      //No response received (e.g., server down)
+      console.error('No response from the server:', err.request);
+      setFormError("No response from server, please try again later");
+      setPending(false);
+      
+    } else {
+      console.error("An unexpected error occured", err);
+      setFormError("An unexpected error occured" + err);
+      setPending(false);
+    }
+  }
+
+
+}
 
   return (
     <>
@@ -217,6 +290,58 @@ const colStartClasses = [
           </section>
         </div>
       </div>
+    </div>
+
+    <div className="flex py-6 justify-start items-start;">
+      <div className="ml-[300px] mt-[0px]"> 
+        <form onSubmit={handleSubmit}>
+
+        <label className="block mb-2 text-sm font-medium text-green-700 dark:text-green-500"> Dato
+        <input 
+        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm 
+        border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease 
+        focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+        placeholder="Dato..."
+        value={formDate} readOnly />
+        </label>
+
+        <label htmlFor="machineId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Velg vaskemaskin</label>
+                <select id="machineId" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                 onChange={(evt) => setMachineId(evt.target.value)}>
+                  <option selected> Velg maskin </option>
+                  <option value="1"> Siemen vaskemaskin </option>
+                  <option value="2"> Samsung vaskemaskin </option>
+                </select>
+
+        <label htmlFor="machineId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Velg tidspunkt</label>
+                <select id="machineId" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                 onChange={(evt) => setSessionTime(evt.target.value)}>
+                  <option value="1">kl. 07:00 - 12:00</option>
+                  <option value="2">kl. 12:00 - 17:00</option>
+                  <option value="3">kl. 17:00 - 22:00</option>
+                </select>
+
+         {!pending && <button type="submit" 
+                className="mt-4 mx-auto mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold items-center justify-center flex">
+                Reserve vask</button>} {/*mt is for margin-top, gives space between labels/form*/}
+
+                {pending &&
+                  <button disabled className=" mt-4 mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center"> {/*Move the button center instead*/}
+                    {pending ? (
+                      <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      </svg>
+                    ) : (
+                      <span className="w-5 h-5 mr-3" /> // invisible spacer. In other word, we are leaving only "w-5 h-5 mr-3" again, and not rendering the circle/path 
+                    )}
+                    Behandler data
+                  </button>
+                }
+        </form>
+      </div> 
     </div>
     </>
   )

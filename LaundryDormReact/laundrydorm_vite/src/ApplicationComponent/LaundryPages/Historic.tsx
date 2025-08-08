@@ -54,7 +54,7 @@ export const Historic = () => {
       fetchData();
     }
     else {
-      const errMessage = console.log("Unauthorize user");
+      const errMessage = "Unauthorize user";
       navigate('/error404', {
         replace: true,
         state: {

@@ -4,19 +4,16 @@ using LaundryDormApi.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250804064831_UpdateImageModelSeedData")]
-    partial class UpdateImageModelSeedData
+    partial class LaundryDormDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,7 +171,7 @@ namespace LaundryDormApi.Migrations
                             ImageDescription = "Siemen machine picture",
                             ImageExtension = ".jpg",
                             ImageName = "washing machine",
-                            ImagePath = "https://localhost:7054/ServerImage/Siemen.jpg",
+                            ImagePath = "https://localhost:7054/ServerImages/Siemen.jpg",
                             ImageSizeInBytes = 337200L
                         },
                         new
@@ -183,7 +180,7 @@ namespace LaundryDormApi.Migrations
                             ImageDescription = "Balay washing machine",
                             ImageExtension = ".jpg",
                             ImageName = "BalayMachine",
-                            ImagePath = "https://localhost:7054/ServerImage/Balay.jpg",
+                            ImagePath = "https://localhost:7054/ServerImages/Balay.jpg",
                             ImageSizeInBytes = 380876L
                         });
                 });

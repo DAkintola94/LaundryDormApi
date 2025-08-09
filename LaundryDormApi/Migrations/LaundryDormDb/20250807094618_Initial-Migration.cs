@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace LaundryDormApi.Migrations
+namespace LaundryDormApi.Migrations.LaundryDormDb
 {
     /// <inheritdoc />
     public partial class InitialMigration : Migration
@@ -251,8 +251,8 @@ namespace LaundryDormApi.Migrations
                 columns: new[] { "ImageId", "ImageDescription", "ImageExtension", "ImageName", "ImagePath", "ImageSizeInBytes" },
                 values: new object[,]
                 {
-                    { new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"), "Siemen machine picture", ".jpg", "washing machine", "https://localhost:7054/Images/Siemen.jpg", 337200L },
-                    { new Guid("b7e2a1c4-3f6a-4e2e-9b7a-2c8e1d4f5a6b"), "Balay washing machine", ".jpg", "BalayMachine", "https://localhost:7054/Images/Balay.jpg", 380876L }
+                    { new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"), "Siemen machine picture", ".jpg", "washing machine", "https://localhost:7054/ServerImages/Siemen.jpg", 337200L },
+                    { new Guid("b7e2a1c4-3f6a-4e2e-9b7a-2c8e1d4f5a6b"), "Balay washing machine", ".jpg", "BalayMachine", "https://localhost:7054/ServerImages/Balay.jpg", 380876L }
                 });
 
             migrationBuilder.InsertData(
@@ -260,7 +260,7 @@ namespace LaundryDormApi.Migrations
                 columns: new[] { "LaundryStatusID", "StatusDescription" },
                 values: new object[,]
                 {
-                    { 1, "Aktivt tidspunkt" },
+                    { 1, "Aktiv" },
                     { 2, "Utløpt" },
                     { 3, "Service pågår!" },
                     { 4, "Reservert" },

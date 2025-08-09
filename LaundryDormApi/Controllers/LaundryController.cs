@@ -65,7 +65,7 @@ namespace LaundryDormApi.Controllers
         [Route("SessionHistoric")]
         [Authorize] //Important, it cause the middleware to decode the Jwt token sent from frontend. Making us able to use HttpContext.User
         public async Task<IActionResult> PreviewSessionHistoric([FromQuery] string? dateFilter, [FromQuery] string? dateQuery,
-            [FromQuery] string? statusFilter, [FromQuery] string statusQuery,
+            [FromQuery] string? statusFilter, [FromQuery] string? statusQuery,
             [FromQuery] string? sortBy, [FromQuery] bool? isAscending, CancellationToken cancellationToken = default,
             [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10) 
         {
@@ -449,7 +449,7 @@ namespace LaundryDormApi.Controllers
             //Setting up time based on what user set, !!IMPORTANT
             DateOnly selectedDate = reservationViewModel.ReservationDate.Value;
 
-            //Getting timestamp based on what id was choosen
+            //Getting timestamp based on what id user desired
             int selectedPeriodId = reservationViewModel.SessionTimePeriodId;
 
             //fetch the time period from the seeded DB
@@ -494,7 +494,7 @@ namespace LaundryDormApi.Controllers
                         TimePeriodId = reservationViewModel.SessionTimePeriodId, // the session period is set based on what user has selected in the front end. The periods are seeded in the db context
                                                                                  //ops, need to work on reservation, date needs to be exact to when the user want to reservate
 
-                        MachineId = 1, //default machine type for now
+                        MachineId = reservationViewModel.MachineId, 
 
                         LaundryStatusID = 4  //FK for laundrystatus. Sets the status to reservation
                     };

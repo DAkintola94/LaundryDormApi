@@ -7,6 +7,7 @@ services:
       # Rememeber, its the docker yaml (build) that sits at the very root and extract all the info from each dockerfiles to build upon them.
     ports:
       - "8080:8080"
+    restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
@@ -20,7 +21,7 @@ services:
     build: 
       context: ./LaundryDormReact/laundrydorm_vite
       dockerfile: Dockerfile #Looking for/at the dockerfile at the context (frontend context) path level. Need one dockerfile for the frontend
-      target: builder
+    restart: unless-stopped
     ports:
      - "3000:80"
     depends_on:

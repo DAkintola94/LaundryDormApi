@@ -23,5 +23,5 @@ To run the project, just write: **docker-compose up --build** in the terminal
 
 Visit:
 
-- Frontend: http://localhost:3000 (not finalized)
-- Backend API: http://localhost:8080/swagger (Swagger) (not finalized)
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080/api/ (Laundry or Advice, or whatever endpoint you want to hit)

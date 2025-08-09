@@ -107,7 +107,7 @@ export const Settvask = () => {
       } else if (axios.isAxiosError(err) && err.request) {
         // No response received (e.g., server down)
         console.error('No response from the server:', err.request);
-        setError("No response from server, please try again later");
+        setError("No response from server, try again later");
         setPending(false);
 
       } else {

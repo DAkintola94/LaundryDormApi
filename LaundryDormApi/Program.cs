@@ -44,6 +44,7 @@ namespace LaundryDormApi
             builder.Services.AddScoped<IUpdateCountRepository, UpdateCountRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             
+            
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
                 .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("LaundryDormApi")

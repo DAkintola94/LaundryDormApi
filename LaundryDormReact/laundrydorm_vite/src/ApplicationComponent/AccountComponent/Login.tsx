@@ -4,6 +4,7 @@ import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
+import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 
@@ -26,44 +27,40 @@ export const Login = () => {
         setBtnPending(true);
 
         try {
-            const response = await fetch('https://localhost:7054/api/ProfileManagement/LoginAuth', { //await when fetching from the url api, the variable name is response
-            method: 'POST',
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(loginData)
+            const response = await axios.post('https://localhost:7054/api/ProfileManagement/LoginAuth', 
+            loginData, //This is the body, axios automatically JSON-stringifies the request body, no need to json.stringify
+        {
+            headers: {
+                "Content-Type": "application/json"
+            },
         }) 
-            if(!response.ok) //read Register or report for promises understanding
-            {
-                const serverError = await response.text();
+            const tokenResponse = response.data //When not getting json in return, only use data, not (dot) + variable name after
+            console.log("The token from backend is ", tokenResponse);
+            setBtnPending(false);
+
+            localStorage.setItem("access_token", tokenResponse);
+            navigate('/',
+                {replace: true}
+            );
+        }
+
+        catch (err: unknown){
+            if(axios.isAxiosError(err) && err.response){
+                //if server respond with a status code outside of 2xx range
+                console.error('Backend respond status: ', err.response.status);
+                setErrorMessage(`Error message from backend: ${err.response.data || "Something went wrong"}`);
                 setBtnPending(false);
-                setErrorMessage(serverError);
-                throw new Error("Login failed"); //Throw makes us go straight to the catch block
+            } else if(axios.isAxiosError(err) && err.request){
+                //No response received (e.g., server down)
+                console.error("No response from server:", err.request);
+                setErrorMessage("No response from the server, try again later");
+                setBtnPending(false);
+            } else {
+                console.error("An unexpected error occured", err);
+                setErrorMessage("An unexpected error occured" + err);
+                setBtnPending(false);
             }
-
-            const tokenString = await response.text(); //data we are getting back from the backend
-                                                 //returning what the server send us back, in this case we are expecting string
-                                                //With login and register, although we are posting, we are also waiting for a token in return!
-            
-                                         
-            console.log("Valid login", tokenString);   
-            
-            localStorage.setItem("access_token", tokenString);  //tokenString is the response.text we get from the backend
-                                                // If we are getting json back, the variable after data. must match the same variable name in the backend, since that is how json work
-                                                //localStorage is a browser API that is global to your site. Any page or component in your React app can access the token first value
-
-            console.log("The token is", tokenString);
-            
-            setBtnPending(false);
-
-            navigate('/', {replace: true}); //navigate to root after we successfully log in
-
         }
-
-        catch (err){
-            console.log("An error occured", err);
-            setErrorMessage("Det oppstod en feil, kontakt admin");
-            setBtnPending(false);
-        }
-        
     }
 
   return (

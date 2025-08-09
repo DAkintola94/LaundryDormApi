@@ -19,7 +19,7 @@ Navigate to the cloned folder root with the CLI. **cd LaundryDormApi** (To the d
 **Step 2.**
 To run the project, write:
 
-- **docker-compose up --build** in the terminal
+- **docker-compose up --build** (in the terminal/CLI)
 
 **Step 3.**
 

@@ -20,7 +20,6 @@ export const Settvask = () => {
   const [machineId, setMachineId] = useState('1'); //value for the machine id, default value need to be 1 so it doesn't become 0
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
 
-  
   const token = localStorage.getItem("access_token");
   
   console.log(expiredDate);

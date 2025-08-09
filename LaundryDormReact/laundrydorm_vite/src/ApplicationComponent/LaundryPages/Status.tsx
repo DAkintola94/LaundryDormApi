@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import {Fragment, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
-//import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
-//import { FooterDefault } from '../FooterDefault/FooterDefault'
+import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
+import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {Menu, Transition} from '@headlessui/react'
 import {EllipsisVerticalIcon} from '@heroicons/react/24/outline'
 import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/solid'
@@ -40,6 +40,7 @@ export const Status = () => {
   
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
+  console.log("Token for status is", token);
 
   const [calenderData, setCalenderData] = useState<statusData[]>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
 
@@ -127,7 +128,7 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
   const reserveLaundry = {
     machineId: Number(machineId),
     sessionTimePeriodId: Number(laundrySessionTime),
-    reservationTime: formDate, //Since backend is expecting DateOnly, this works
+    reservationDate : formDate, //Since backend is expecting DateOnly, this works
   };
 
   if(!token){
@@ -144,7 +145,7 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
   setPending(true);
 
   try{
-    await axios.post('https://localhost:7054/api/Laundry/SetReservation',
+    const sendData = await axios.post('https://localhost:7054/api/Laundry/SetReservation',
            reserveLaundry, //This is the body, Axios automatically JSON-stringifies the request body, no need to json.stringify
            {
             headers: {
@@ -153,13 +154,16 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
             },
           })
           setPending(false);
+          if(sendData.status === 200){ //reload the page if our data is successfully sent. So we can see dot on calender.
+            window.location.reload();
+          }
   }
   catch (err:unknown){
     if(axios.isAxiosError(err) && err.response){
 
       console.error("Backend error", err.response.status);
       //Since backend is sending back plain string upon error, and not JSON with message property
-      setFormError(`Error ${err.response.data || "Something went wrong"}`);
+      setFormError(`Error! ${err.response.data || "Something went wrong"}`); //.data to get the text error
       setPending(false);
 
     } else if (axios.isAxiosError(err) && err.request){
@@ -174,12 +178,11 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
       setPending(false);
     }
   }
-
-
 }
 
   return (
     <>
+    <div> <NavbarDefault />
     <div className="pt-16">
       <div className="max-w-md px-4 mx-auto sm:px-7 md:max-w-4xl md:px-6">
         <div className="md:grid md:grid-cols-2 md:divide-x md:divide-gray-200">
@@ -287,6 +290,10 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
                 <p> Ingen vask booket idag.</p>
               )}
             </ol>
+            
+            {
+              formError && <span className="text-red-600"> {formError} </span>
+            }
           </section>
         </div>
       </div>
@@ -295,40 +302,35 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
     <div className="flex py-6 justify-start items-start;">
       <div className="ml-[300px] mt-[0px]"> 
         <form onSubmit={handleSubmit}>
+          
+        <input className="bg-gray-50 border border-gray-300 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2
+         dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white mb-2"placeholder="Dato..." value={formDate} readOnly 
+         aria-label='Dato' id="datoId"
+         />
 
-        <label className="block mb-2 text-sm font-medium text-green-700 dark:text-green-500"> Dato
-        <input 
-        className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm 
-        border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease 
-        focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-        placeholder="Dato..."
-        value={formDate} readOnly />
-        </label>
+          <select id="machineId" aria-label='velg-maskin'
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2
+            dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2"
+              onChange={(evt) => setMachineId(evt.target.value)}>
+                <option value="1"> Siemen vaskemaskin </option>
+                <option value="2"> Samsung vaskemaskin </option>
+            </select>
 
-        <label htmlFor="machineId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Velg vaskemaskin</label>
-                <select id="machineId" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                 onChange={(evt) => setMachineId(evt.target.value)}>
-                  <option selected> Velg maskin </option>
-                  <option value="1"> Siemen vaskemaskin </option>
-                  <option value="2"> Samsung vaskemaskin </option>
-                </select>
-
-        <label htmlFor="machineId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Velg tidspunkt</label>
-                <select id="machineId" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            <select id="tidspunktId" aria-label='velg-tidspunkt'
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2
+              dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                  onChange={(evt) => setSessionTime(evt.target.value)}>
                   <option value="1">kl. 07:00 - 12:00</option>
                   <option value="2">kl. 12:00 - 17:00</option>
                   <option value="3">kl. 17:00 - 22:00</option>
-                </select>
+            </select>
 
          {!pending && <button type="submit" 
-                className="mt-4 mx-auto mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold items-center justify-center flex">
+                className="mt-1 mx-auto mb-2 p-1 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold items-center justify-center flex">
                 Reserve vask</button>} {/*mt is for margin-top, gives space between labels/form*/}
 
                 {pending &&
-                  <button disabled className=" mt-4 mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center"> {/*Move the button center instead*/}
+                  <button disabled className=" mt-1 mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center"> {/*Move the button center instead*/}
                     {pending ? (
                       <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -343,6 +345,8 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         </form>
       </div> 
     </div>
+    <FooterDefault />
+  </div>
     </>
   )
 }

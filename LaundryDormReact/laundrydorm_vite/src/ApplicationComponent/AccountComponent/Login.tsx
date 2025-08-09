@@ -33,8 +33,9 @@ export const Login = () => {
         }) 
             if(!response.ok) //read Register or report for promises understanding
             {
+                const serverError = await response.text();
                 setBtnPending(false);
-                setErrorMessage("Det oppstod en feil, vennligst kontakt admin");
+                setErrorMessage(serverError);
                 throw new Error("Login failed"); //Throw makes us go straight to the catch block
             }
 
@@ -59,7 +60,7 @@ export const Login = () => {
 
         catch (err){
             console.log("An error occured", err);
-            setErrorMessage("Det oppstod en feil");
+            setErrorMessage("Det oppstod en feil, kontakt admin");
             setBtnPending(false);
         }
         

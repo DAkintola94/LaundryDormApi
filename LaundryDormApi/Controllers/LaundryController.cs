@@ -511,7 +511,7 @@ namespace LaundryDormApi.Controllers
                         return Ok(reservationSessionDto);
                     }
 
-                    return Ok("There was a conflict with the reservation, please choose another reservation date or time period.");
+                    return BadRequest("There was a conflict with the reservation, please choose another reservation date or time period.");
 
                 }
                 catch (Exception ex)

@@ -17,7 +17,9 @@ git clone https://github.com/DAkintola94/LaundryDormApi.git
 Navigate to the cloned folder root with the CLI. **cd LaundryDormApi** (To the docker-compose.yml file which sits at the root of the application)
 
 **Step 2.**
-To run the project, just write: **docker-compose up --build** in the terminal
+To run the project, write:
+
+- **docker-compose up --build** in the terminal
 
 **Step 3.**
 

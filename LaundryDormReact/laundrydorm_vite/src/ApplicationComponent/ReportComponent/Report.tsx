@@ -4,6 +4,12 @@ import { FooterDefault } from '../FooterDefault/FooterDefault';
 
 export const Report = () => {
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+  // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+  // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+  console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [category, setCategory] = useState('1'); //need a default value so it doesn't auto set the option value to 0
@@ -26,7 +32,7 @@ export const Report = () => {
     setPendingButton(true);
 
     try {
-      const response = await fetch('https://localhost:7054/api/Advice/AdviceFetcher', {
+      const response = await fetch(`${API_BASE_URL}/api/Advice/AdviceFetcher`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reportData)

@@ -8,6 +8,13 @@ import axios from "axios";
 
 export const Settvask = () => {
   const navigate = useNavigate();
+
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+    // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+    // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+
   const [pending, setPending] = useState(false);
   const [formMessage, setFormMessage] = useState('')
   const [formEmail, setFormEmail] = useState('');
@@ -77,7 +84,7 @@ export const Settvask = () => {
     }
 
     try{
-          const postElement = await axios.post('https://localhost:7054/api/Laundry/StartSession',
+          const postElement = await axios.post(`${API_BASE_URL}/api/Laundry/StartSession`,
        laundrySessionData, //This is the body, Axios automatically JSON-stringifies the request body, no need to json.stringify
       {
         headers: {

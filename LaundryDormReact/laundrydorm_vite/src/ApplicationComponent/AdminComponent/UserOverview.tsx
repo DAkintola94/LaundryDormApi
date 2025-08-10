@@ -9,6 +9,12 @@ import { IoIosInformationCircle } from 'react-icons/io'
 
 export const UserOverview = () => {
 
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+    // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+    // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+
 type UserOverview = {
     email: string | null;
     userFirstName: string | null;
@@ -25,7 +31,7 @@ const token = localStorage.getItem("access_token");
 
 useEffect(() => {
   const fetchData = async () => {
-    await axios.get('https://localhost:7054/api/Admin/UsersOverview',
+    await axios.get(`${API_BASE_URL}/api/Admin/UsersOverview`,
       {
         headers: {"Authorization" : `Bearer ${token}`}
       })
@@ -43,7 +49,7 @@ useEffect(() => {
       } else {
         console.log("Unauthorized user");
       }
-}, [token])
+}, [token, API_BASE_URL])
 
 
   return (

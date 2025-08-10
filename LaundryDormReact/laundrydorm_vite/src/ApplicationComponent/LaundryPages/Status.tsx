@@ -37,7 +37,12 @@ type statusData = { //must match the viewmodel name of the backend. cascalCase!
 
 export const Status = () => {
 
-  
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+  // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+  // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+  console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
   console.log("Token for status is", token);
@@ -46,7 +51,7 @@ export const Status = () => {
 
   useEffect(() => {
     const fetchTodayData = async () => {
-      await axios.get('https://localhost:7054/api/Laundry/PopulateAvailability',
+      await axios.get(`${API_BASE_URL}/api/Laundry/PopulateAvailability`,
         {
           headers: {"Authorization" : `Bearer ${token}`}
         })
@@ -71,7 +76,7 @@ export const Status = () => {
         }
       })
     }
-  }, [token, navigate])
+  }, [token, navigate, API_BASE_URL])
 
 
   const today = startOfToday()
@@ -145,7 +150,7 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
   setPending(true);
 
   try{
-    const sendData = await axios.post('https://localhost:7054/api/Laundry/SetReservation',
+    const sendData = await axios.post(`${API_BASE_URL}/api/Laundry/SetReservation`,
            reserveLaundry, //This is the body, Axios automatically JSON-stringifies the request body, no need to json.stringify
            {
             headers: {

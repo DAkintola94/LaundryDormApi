@@ -11,6 +11,12 @@ import { format, parseISO } from 'date-fns'
 
 export const Historic = () => {
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+  // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+  // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+  console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+
   const navigate = useNavigate();
 
   type UsersSessionHistoric = { //Setting the datatype of the data we will be getting from backend, and set to table in react. Remember, camelCase
@@ -37,7 +43,7 @@ export const Historic = () => {
 
   useEffect(() => {
     const fetchData = async () =>{
-    await axios.get(`https://localhost:7054/api/Laundry/SessionHistoric?pageNumber=${currentPage}&pageSize=${postsPerPage}`,
+    await axios.get(`${API_BASE_URL}/api/Laundry/SessionHistoric?pageNumber=${currentPage}&pageSize=${postsPerPage}`,
       {
         headers: {"Authorization" : `Bearer ${token}`}
       })
@@ -62,7 +68,7 @@ export const Historic = () => {
         }
       })
     }
-  }, [token, navigate, currentPage, postsPerPage])
+  }, [token, navigate, currentPage, postsPerPage, API_BASE_URL])
 
 
   {/*Sorting function*/}

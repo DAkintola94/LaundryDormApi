@@ -10,6 +10,12 @@ import { useNavigate } from 'react-router-dom'
 
 export const Login = () => {
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+    // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+    // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+    
     const navigate = useNavigate();
 
     const [email, usersEmail] = useState('');
@@ -27,7 +33,7 @@ export const Login = () => {
         setBtnPending(true);
 
         try {
-            const response = await axios.post('https://localhost:7054/api/ProfileManagement/LoginAuth', 
+            const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/LoginAuth`, 
             loginData, //This is the body, axios automatically JSON-stringifies the request body, no need to json.stringify
         {
             headers: {

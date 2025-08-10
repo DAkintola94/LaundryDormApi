@@ -14,7 +14,9 @@ RUN npm ci
 #Copy source code
 COPY . .
 
-RUN npm run build
+RUN npm run build -- --mode docker
+#This line will make it so Vite load environment variables from .env.docker automatically during build
+#It looks for docker namespace, after .evn
 
 FROM nginx:alpine 
 COPY --from=builder /app/dist /usr/share/nginx/html

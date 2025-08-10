@@ -6,6 +6,7 @@ import {useState} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 
 
@@ -13,6 +14,12 @@ import { useNavigate } from 'react-router-dom'
 export const Register = () => {
 
     const navigate = useNavigate(); //to navigate to a certain site
+
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+    // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
 
 
     const [firstName, regFirstName] = useState("");
@@ -50,50 +57,41 @@ export const Register = () => {
         console.log("Sending registration data:", registerData);
         
         try {
-             const response = await fetch('https://localhost:7054/api/ProfileManagement/RegistrationAuth', { //await when fetching from the url api, the variable name is response
-            method: 'POST',
-            headers: {"Content-Type": "application/json" },
-            body: JSON.stringify(registerData)
-        });
-            
-            if(!response.ok){
-                setBtnPending(false);
-                
-                // Get the detailed error message from the backend
-                const errorData = await response.json();
-                console.error("Registration failed:", errorData);
-                
-                // Extract validation errors if they exist
-                if (errorData.errors) {
-                    const errorMessages = Object.values(errorData.errors).flat().join(', ');
-                    setError(`Registrering feilet: ${errorMessages}`);
-                } else if (errorData.title) {
-                    setError(`Registrering feilet: ${errorData.title}`);
-                } else {
-                    setError("Registrering feilet. Prøv igjen.");
-                }
-                
-                return Promise.reject(response);
-            }
-
-            const tokenOBJ = await response.json(); //Getting a json in response
-
-
-        
-            console.log("Datas", tokenOBJ); 
-
-            localStorage.setItem("access_token", tokenOBJ.jwtToken); //last part must match the json variable name the backend is sending back
-            console.log("The data & access token", tokenOBJ.jwtToken);
-
-            setBtnPending(false); 
-
-            navigate('/', {replace: true }); //navigate to root after we successfully registered
-        }
-
-        catch(err) {
-            console.error("An error occured", err);
-            setError("En feil oppstod under registrering. Prøv igjen.");
+             const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/RegistrationAuth`, 
+                registerData,
+        { 
+            headers: {
+                "Content-Type": "application/json" 
+            },
+        })
+            const tokenResponse = response.data.jwtToken //Since we are getting json in response
+            console.log("Token from the backend is ", tokenResponse);
             setBtnPending(false);
+
+            localStorage.setItem("access_token", tokenResponse);
+            navigate('/',
+                {
+                    replace: true
+                }
+
+            );
+        }
+        catch(err: unknown) {
+            if(axios.isAxiosError(err) && err.response){
+              //if server respond with a status code outside of 2xx range
+                console.error('Backend respond status: ', err.response.status);
+                setError(`Error message from backend: ${err.response.data || "Something went wrong"}`);
+                setBtnPending(false);
+            } else if(axios.isAxiosError(err) && err.request){
+                //No response received (e.g., server down)
+                console.error("No response from server:", err.request);
+                setError("No response from the server, try again later");
+                setBtnPending(false);
+            } else {
+                 console.error("An unexpected error occured", err);
+                setError("An unexpected error occured" + err);
+                setBtnPending(false);
+            }
         }
 
     } 

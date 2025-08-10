@@ -68,12 +68,22 @@ namespace LaundryDormApi
 
             builder.Services.AddDbContext<LaundryDormDbContext>(options =>
           options.UseMySql(builder.Configuration.GetConnectionString("DbContextConnection"),
-          new MySqlServerVersion(new Version(11, 5, 2))
+          new MySqlServerVersion(new Version(11, 8, 2)),
+          mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+              maxRetryCount: 5,
+              maxRetryDelay: TimeSpan.FromSeconds(10),
+              errorNumbersToAdd: null
+              )
           ));
 
             builder.Services.AddDbContext<LaundryDormAuthContext>(options => 
             options.UseMySql(builder.Configuration.GetConnectionString("AuthContextConnection"),
-            new MySqlServerVersion(new Version(11, 5, 2))
+            new MySqlServerVersion(new Version(11, 8, 2)),
+            mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+              maxRetryCount: 5,
+              maxRetryDelay: TimeSpan.FromSeconds(10),
+              errorNumbersToAdd: null
+              )
             ));
 
             builder.Services.AddCors(options =>
@@ -86,6 +96,8 @@ namespace LaundryDormApi
                 "https://localhost5174",
                 "http://localhost:5173",
                 "https://localhost:5173",
+                "https://localhost:3000",
+                "http://localhost:3000",
                             "http://localhost:4200") //this makes it possible to listen to the live server in vscode
                                                                            //This setting makes it that the backend only listen to the frontend with this specific port/ip
                                                                            //During production, we set the address to the doamin name ("www.chess.com") feks
@@ -165,14 +177,34 @@ namespace LaundryDormApi
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline. 
-
-            if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
             {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var authContext = services.GetRequiredService<LaundryDormAuthContext>();
+                    var dbContext = services.GetRequiredService<LaundryDormDbContext>();
+                    authContext.Database.Migrate();
+                    dbContext.Database.Migrate();
+
+                    Console.WriteLine("Database migration completed successfully.");
+
+                } catch(Exception err)
+
+                {
+                    Console.WriteLine($"An error occurred while migrating the database: {err.Message}");
+                    Environment.Exit(1); //Exit the application if migration fails
+                }
             }
+
+                // Configure the HTTP request pipeline. 
+
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
 
             //Configuring Middleware
             // Middleware is like a chain of small programs that run before your controller gets the request, and often after the controller sends back a response.

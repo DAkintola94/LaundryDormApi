@@ -16,36 +16,38 @@ services:
     depends_on:
       - mariadb
 
-
   laundrydormfrontend:
-    build: 
+    build:
       context: ./LaundryDormReact/laundrydorm_vite
       dockerfile: Dockerfile #Looking for/at the dockerfile at the context (frontend context) path level. Need one dockerfile for the frontend
     restart: unless-stopped
     ports:
-     - "3000:80"
+      - "3000:80"
     depends_on:
       - laundrydormapi
 
   mariadb:
-    image: mariadb:latest 
-    #For mariadb, we are not relying on dockerfile, but for the image. 
+    image: mariadb:latest
+    #For mariadb, we are not relying on dockerfile, but for the image.
     # This is because mariadb docker image already handles setups (starting DB server, creating user/datavase for environment variable, exposing port etc)
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: Testingtesting1234
-      MYSQL_DATABASE: LaundryDormBase
     ports:
       - "3307:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # this volume mount that copies your local init.sql file into the container at /docker-entrypoint-initdb.d/init.sql with read-only permission (ro)
+      # MariaDB's startup script will detect that init.sql and execute it during initialization.
+
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pTestingtesting1234"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
 
 volumes:
   mariadb_data:
-   
-
-
-     
-
-

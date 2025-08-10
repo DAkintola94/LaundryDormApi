@@ -16,7 +16,7 @@ import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage'
 import { Error404 } from './ApplicationComponent/Pages/Error404'
 
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')!).render( //This is where React injects the whole SPA into the #root div
   <StrictMode>
     <BrowserRouter> {/* in main, this wraps up our whole app, and enable react router everywhere in the components*/}
     <Routes>  {/* This and Route define which component should render for each URL path*/}

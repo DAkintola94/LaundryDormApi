@@ -7,7 +7,9 @@
     <title>Laundrydorm</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="root"></div> <!-- This is the mount point for your entire React app -->
+    <script type="module" src="/src/main.tsx"></script> <!-- This kicks off your React app. Vite will bundle main.tsx and its imports, then run it. -->
   </body>
 </html>
+
+<!-- index.html is the only HTML page served by Nginx (or Vite in dev mode), and everything else you see in the browser is generated/rendered from React components -->

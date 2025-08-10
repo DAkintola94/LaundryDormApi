@@ -179,7 +179,8 @@ namespace LaundryDormApi
 
             using (var scope = app.Services.CreateScope())
             {
-                var services = scope.ServiceProvider;
+                var services = scope.ServiceProvider; //This service/scope is important so docker compose can run migrations upon
+                                                      //application startup, and not when the container is created.
                 try
                 {
                     var authContext = services.GetRequiredService<LaundryDormAuthContext>();

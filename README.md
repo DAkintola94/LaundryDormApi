@@ -1,6 +1,7 @@
 Information before cloning the application:
 
 The installer don’t need Visual Studio or Visual Studio Code installed to run the application if its set it up with Docker correctly.
+In other word, **Make sure Docker Desktop is installed on your computer**
 
 Everything the app needs is baked into Docker containers:
 .NET SDK/runtime is inside the ASP.NET container

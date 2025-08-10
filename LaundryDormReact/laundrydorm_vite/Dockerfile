@@ -19,7 +19,12 @@ RUN npm run build -- --mode docker
 #It looks for docker namespace, after .evn
 
 FROM nginx:alpine 
+
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+
 EXPOSE 80 
 CMD ["nginx", "-g", "daemon off;"] 
 # Line 22 means that means when the container starts, it runs Nginx in the foreground

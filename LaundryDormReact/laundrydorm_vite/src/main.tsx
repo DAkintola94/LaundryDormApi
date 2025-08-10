@@ -6,7 +6,6 @@ import App from './App'
 import {About} from "./ApplicationComponent/Pages/About"
 import { Settvask } from './ApplicationComponent/LaundryPages/Settvask'
 import {Historic} from './ApplicationComponent/LaundryPages/Historic'
-import {Reservation} from './ApplicationComponent/LaundryPages/Reservation'
 import {Status} from './ApplicationComponent/LaundryPages/Status'
 import { Report } from './ApplicationComponent/ReportComponent/Report'
 import {ViewReport } from './ApplicationComponent/ReportComponent/ViewReport'
@@ -29,7 +28,6 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/register" element={<Register/>} />
       <Route path="/login" element={<Login />} />
       <Route path="/historic" element={<Historic />} />
-      <Route path="/reservation" element={<Reservation />}  />
       <Route path="/statusnreservation" element={<Status />} />
       <Route path="/account" element={<Profile />} />
       <Route path="/success" element={<SuccessPage />} />

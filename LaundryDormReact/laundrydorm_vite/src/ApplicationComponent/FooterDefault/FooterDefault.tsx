@@ -11,7 +11,7 @@ export const FooterDefault = () => {
     </p>
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 <li>
-                    <a href="/report" 
+                    <a title="report" href="/report" 
                     target="blank"
                     rel="noopener noreferrer"
                     className="">
@@ -19,7 +19,7 @@ export const FooterDefault = () => {
                  </a>
                 </li>
                 <li>
-                    <a href="https://www.linkedin.com/in/dennis-oni-akintola/" 
+                    <a title="linkedin" href="https://www.linkedin.com/in/dennis-oni-akintola/" 
                     target="blank"
                     rel="noopener noreferrer"
                     className="">
@@ -28,7 +28,7 @@ export const FooterDefault = () => {
 
                 </li>
                 <li>
-                    <a href="https://github.com/DAkintola94" 
+                    <a title="github" href="https://github.com/DAkintola94" 
                     target="blank"
                     rel="noopener noreferrer"
                     className=""> <FaGithub/> </a>

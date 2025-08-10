@@ -9,6 +9,14 @@ import { useNavigate } from 'react-router-dom'
 
 
 export const ViewReport = () => {
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+  // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+  // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
+  console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+
+
   const navigate = useNavigate();
   type ReportData = { //must match the viewmodel name of the backend. cascalCase!
     //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
@@ -42,7 +50,7 @@ const toggleCardExpansion = (posterId: number) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await axios.get('https://localhost:7054/api/Advice/FetchAdvice',
+      await axios.get(`${API_BASE_URL}/api/Advice/FetchAdvice`,
   {
     headers: {"Authorization" : `Bearer ${token}`}
   })
@@ -68,7 +76,7 @@ const toggleCardExpansion = (posterId: number) => {
         }
       })
     }
-  }, [token, navigate])
+  }, [token, navigate, API_BASE_URL])
 
 
   return (

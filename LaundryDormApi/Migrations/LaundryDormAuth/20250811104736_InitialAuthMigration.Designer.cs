@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations.LaundryDormAuth
 {
     [DbContext(typeof(LaundryDormAuthContext))]
-    [Migration("20250810124613_InitialAuthMigration")]
+    [Migration("20250811104736_InitialAuthMigration")]
     partial class InitialAuthMigration
     {
         /// <inheritdoc />

@@ -17,20 +17,56 @@ namespace LaundryDormApi.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenRepository _tokenRepository;
+        private readonly IImageRepository _imageRepository;
 
         public ProfileManagementController(UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager, ITokenRepository tokenRepository)
+            SignInManager<ApplicationUser> signInManager, ITokenRepository tokenRepository,
+            IImageRepository imageRepo
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenRepository = tokenRepository;
+            _imageRepository = imageRepo;
+        }
+
+        private void ImageValidationRequest(ImageViewModel imageRequest)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".svg" };
+            if (!allowedExtensions.Contains(Path.GetExtension(imageRequest.File.FileName)))
+            {
+                ModelState.AddModelError("File", "Invalid file type, only .jpg, .jpeg, .png are allowed");
+            }
+            if (imageRequest.File.Length > 10485760)
+            {
+                ModelState.AddModelError("File", "File size is too large. Maximum file size is 10MB");
+            }
         }
 
         [HttpPost]
         [Route("RegistrationAuth")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel regViewModel)
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel regViewModel, [FromForm] ImageViewModel imageViewModel, CancellationToken
+            cancellationToken = default)
         {
-            
+            ImageValidationRequest(imageViewModel);
+
+            if (imageViewModel == null)
+            {
+                return BadRequest("Please upload a profile picture");
+            }
+
+            ImageModel profileImage = new ImageModel
+            {
+                ImageFile = imageViewModel.File,
+                ImageName = imageViewModel.FileName,
+                ImageExtension = Path.GetExtension(imageViewModel.File.FileName),
+                ImageSizeInBytes = imageViewModel.File.Length
+            };
+
+            var uploadProfilePicture = await _imageRepository.Upload(profileImage, cancellationToken); //Create a variable since we only want the image url path later
+
+            var getImageURLPath = uploadProfilePicture.ImagePath; //Getting the image url path from the variable above
+
             if(regViewModel != null && ModelState.IsValid)
             {
                 ApplicationUser applicationUser = new ApplicationUser
@@ -40,7 +76,8 @@ namespace LaundryDormApi.Controllers
                     Address = regViewModel.UserAddress,
                     Email = regViewModel.Email, //identity which we inherit from already has email property, no need to create on in the model
                     UserName = regViewModel.Email, //Since identity requires username, use email as username, and dont let the user write a username
-                    PhoneNumber = regViewModel.PhoneNumber //--
+                    PhoneNumber = regViewModel.PhoneNumber, //--
+                    ProfilePictureUrlPath = getImageURLPath ?? "No image url path found"
                 };
             
              var result = await _userManager.CreateAsync(applicationUser, regViewModel.Password);
@@ -138,7 +175,8 @@ namespace LaundryDormApi.Controllers
                     UserFirstName = currentUsers.FirstName ?? "Users first name is undefined",
                     UserLastName = currentUsers.LastName ?? "Users last name is undefined",
                     ProfileId = currentUsers.Id ?? "Users Id was not found",
-                    UserAddress = currentUsers.Address ?? "Users address was not found"
+                    UserAddress = currentUsers.Address ?? "Users address was not found",
+                    UserImageURL = currentUsers.ProfilePictureUrlPath ?? "No image url found"
                 };
 
                 return Ok(registerViewModel); //send the users information that the frontend can pick up

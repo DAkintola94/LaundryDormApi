@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250810124547_InitialDBMigration")]
+    [Migration("20250811104721_InitialDBMigration")]
     partial class InitialDBMigration
     {
         /// <inheritdoc />

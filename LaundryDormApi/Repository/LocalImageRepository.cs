@@ -3,6 +3,7 @@ using LaundryDormApi.Model.DomainModel;
 using System.IO;
 using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LaundryDormApi.Repository
 {
@@ -65,6 +66,7 @@ namespace LaundryDormApi.Repository
             await _context.SaveChangesAsync(cancellationToken);
             return image;
         }
+
 
     }
 }

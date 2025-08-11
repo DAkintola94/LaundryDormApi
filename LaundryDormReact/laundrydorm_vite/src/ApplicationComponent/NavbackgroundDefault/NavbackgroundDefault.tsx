@@ -2,7 +2,6 @@
 //Navbar, MobileNav, Button, IconButton,
 //import laundrySVG from "../../assets/BlueLaundry.svg"
 import {useState, useRef, useEffect} from 'react'
-import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import {Link} from "react-router-dom"
 import {jwtDecode} from 'jwt-decode';
 import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
@@ -58,12 +57,14 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
     expireDateTime: number;
     issuer: string;
     audience: string;
+    imageUrl: string;
   };
 
   type MyJwtPayload = {
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": string; //due to how our claim is sending the information from the backend
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone": string; //due to how our claim is sending the information from the backend
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": string //due to how our claim is sending the information from the backend
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri": string;
     exp: number; //expire date/time
     iss: string; //issuer
     aud: string;
@@ -81,6 +82,7 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
             email: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], //due to how our claim is sending the information from the backend
             name: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"], //due to how our claim is sending the information from the backend
             phoneNr: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"], //due to how our claim is sending the information from the backend
+            imageUrl: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri"], //Image url path where the backend serves the image
             expireDateTime: decode.exp,
             issuer: decode.iss,
             audience: decode.aud
@@ -96,6 +98,7 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
     }, [] );
 
+    console.log(userInfo?.imageUrl);
     
 
     if(userInfo?.expireDateTime){
@@ -131,20 +134,18 @@ const accountDropDownMenu = [
   return (
     <>
     <div className="sticky top-0 z-50">
-    <div className="bg-black flex justify-between items-center mx-auto px-2 text-white">
+    <div className="bg-black flex items-center mx-auto px-2 text-white">
       {/* Logo */}
       
       <Link to="/">
-      <h1 className="w-full text-2xl font-bold text-[#c658da] flex items-center"> 
+      <h1 className="text-2xl font-bold text-[#c658da] flex items-center"> 
         {/*SVG image for logo if needed <img src={laundrySVG} className="w-8 h-6 ml-2" alt="laundry_svg"/> */}  LaundyDorm </h1>
       </Link>
 
       {/*Desktop Navigation */}
 
-      <ul className="hidden md:flex">
+      <ul className="hidden md:flex flex-1 justify-center ">
         {Navlinks.map(elements => ( //map is an array method to loop over an array, and return a new array of elements
-
-        
           <li
           key={elements.id}
           className="relative p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
@@ -228,11 +229,16 @@ const accountDropDownMenu = [
           </li>
         ))}
       </ul>
+      {
+      userInfo && (
+        <img
+      src={userInfo?.imageUrl}
+      alt=""
+      className="flex-none w-10 h-10 rounded-full hidden md:block"
+        />
+      )
+      }
 
-      {/* Mobile Navigation Icon */}
-      <div onClick={toogleNav} className="block md:hidden">
-      {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
-      </div>
     </div>
     </div>
     </>

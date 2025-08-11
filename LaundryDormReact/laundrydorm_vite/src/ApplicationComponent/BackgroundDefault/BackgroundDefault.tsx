@@ -41,7 +41,7 @@ export const BackgroundDefault = () => {
 
   return (
     <div className={bgCss.backgroundImage}> 
-    <div className="dark:bg-black/50 bg-white/80 background-blur-sm dark:text-white duration-300
+    <div className="dark:bg-black/50 background-blur-sm dark:text-white duration-300
     min-h-screen flex">
       <div className="container grid grid-cols-1 place-items-center">
         {/* text content section*/}

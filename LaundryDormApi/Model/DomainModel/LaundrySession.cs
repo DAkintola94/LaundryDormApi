@@ -6,6 +6,8 @@
         public string? Name { get; set; }
         public string? UserEmail { get; set; }
         public string? PhoneNumber { get; set; }
+
+        public string? ImageURL { get; set; }
         public DateTime? ReservationTime { get; set; } //for the date and time the user registered their data
 
         public DateOnly? ReservedDate { get; set; } //The date our user desire to have their sloth reserved ahead of time

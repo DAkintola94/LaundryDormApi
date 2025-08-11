@@ -30,35 +30,44 @@ namespace LaundryDormApi.Controllers
             _imageRepository = imageRepo;
         }
 
-        private void ImageValidationRequest(ImageViewModel imageRequest)
+        private bool ImageValidationRequest(ImageViewModel imageRequest)
         {
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".svg" };
             if (!allowedExtensions.Contains(Path.GetExtension(imageRequest.File.FileName)))
             {
                 ModelState.AddModelError("File", "Invalid file type, only .jpg, .jpeg, .png are allowed");
+                return false;
             }
             if (imageRequest.File.Length > 10485760)
             {
                 ModelState.AddModelError("File", "File size is too large. Maximum file size is 10MB");
+                return false;
             }
+
+            return true;
         }
 
         [HttpPost]
         [Route("RegistrationAuth")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel regViewModel, [FromForm] ImageViewModel imageViewModel, CancellationToken
+        public async Task<IActionResult> Register([FromForm] RegisterViewModel regViewModel, [FromForm] ImageViewModel imageViewModel, CancellationToken
             cancellationToken = default)
         {
-            ImageValidationRequest(imageViewModel);
+            var checkImageValidation = ImageValidationRequest(imageViewModel);
 
             if (imageViewModel == null)
             {
                 return BadRequest("Please upload a profile picture");
             }
 
+            if (checkImageValidation == false)
+            {
+                return BadRequest("Please upload a valid image format .jpg, .jpeg, .png");
+            }
+
             ImageModel profileImage = new ImageModel
             {
                 ImageFile = imageViewModel.File,
-                ImageName = imageViewModel.FileName,
+                ImageName = Path.GetFileNameWithoutExtension(imageViewModel.File.FileName),
                 ImageExtension = Path.GetExtension(imageViewModel.File.FileName),
                 ImageSizeInBytes = imageViewModel.File.Length
             };

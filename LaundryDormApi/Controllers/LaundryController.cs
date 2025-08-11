@@ -173,7 +173,8 @@ namespace LaundryDormApi.Controllers
                         EndPeriod = showFromDb.LaundrySessionEndTime,
                         LaundryStatusDescription = showFromDb.LaundryStatus?.StatusDescription,
                         MachineName = showFromDb.Machine?.MachineName,
-                        ImageUrlPath = showFromDb.Machine?.Image?.ImagePath //url image path according to the choosen machine
+                        ImageUrlPath = showFromDb.ImageURL //url image path to the image that is on the server
+                        //ImageUrlPath = showFromDb.Machine?.Image?.ImagePath //url image path according to the choosen machine
                     }).ToList();
 
                     return Ok(rapidSessionCalender);
@@ -483,6 +484,7 @@ namespace LaundryDormApi.Controllers
                         UserEmail = currentUser.Email,
                         PhoneNumber = currentUser.PhoneNumber,
                         Name = currentUser.FirstName + currentUser.LastName,
+                        ImageURL = currentUser.ProfilePictureUrlPath,
 
                         ReservationTime = registrationTime, //The time and date the user created the reservation
                         ReservedDate = reservationViewModel.ReservationDate,    //The date our user desire to book the laundry session ahead of time

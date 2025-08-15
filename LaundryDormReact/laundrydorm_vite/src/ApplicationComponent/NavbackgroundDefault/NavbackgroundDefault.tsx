@@ -10,6 +10,7 @@ import { GiWashingMachine } from "react-icons/gi";
 import { useNavigate, useLocation } from 'react-router-dom'
 
 
+
 export const NavbarDefault = () => {
 
 const location = useLocation(); //useLocation gives you information about where the user currently is in your app.
@@ -20,33 +21,46 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
  const [dropDownOpen, setDropdownOpen] = useState(false); //dropdown menu for "Vask"
  const [accDownOpen, setAccDropMenu] = useState(false); //dropdown menu for "Account"
+ const [profileImageDropDown, setProfileImageDropDown] = useState(false);
 
 
  const laundryTimeout = useRef<number | null>(null) //useref is similar to usestate, but useref does not cause re-renders when its value changes
- const accountTimeout = useRef<number | null>(null)
+ const accountTimeout = useRef<number | null>(null) //Setting number if there is a int value, and null if nothing have been set
+ const profileImageTimeout = useRef<number | null>(null);
 
 
  const handleLaundryMouseEnter = () => {
-  if(laundryTimeout.current){
-    clearTimeout(laundryTimeout.current);
-    laundryTimeout.current = null;
+  if(laundryTimeout.current){ 
+    clearTimeout(laundryTimeout.current); //Clear (reset) the timeout number when user enter with their mouse
+    laundryTimeout.current = null; //Set the value to null
   }
-  setDropdownOpen(true);
+  setDropdownOpen(true); //Setting dropdown to true
  }
 
- const handleLaundryMouseLeave = () => {
+ const handleLaundryMouseLeave = () => { //Adding delay befor closing the dropdown, to prevent it from disappearing instantly
   laundryTimeout.current = window.setTimeout(() => setDropdownOpen(false), 100)
  }
 
- const handleAccountMouseEnter = () => {
-  if(accountTimeout.current){
-    clearTimeout(accountTimeout.current);
-    accountTimeout.current = null;
+ const handleProfileImageMouseEnter = () => {
+  if(profileImageTimeout.current){
+    clearTimeout(profileImageTimeout.current);
+    profileImageTimeout.current = null;
   }
-  setAccDropMenu(true); 
  }
 
- const handleAccountMouseLeave = () => {
+ const handleProfileImageMouseLeave = () => {
+  profileImageTimeout.current = window.setTimeout(() => setProfileImageDropDown(false), 100)
+ }
+
+ const handleAccountMouseEnter = () => {
+  if(accountTimeout.current){ 
+    clearTimeout(accountTimeout.current); //Clear (reset) the timeout number when user enter with their mouse
+    accountTimeout.current = null; //Set the value to null
+  }
+  setAccDropMenu(true); //Setting dropdown to true
+ }
+
+ const handleAccountMouseLeave = () => { //Adding delay befor closing the dropdown, to prevent it from disappearing instantly
   accountTimeout.current = window.setTimeout(() => setAccDropMenu(false), 100)
  }
 
@@ -104,7 +118,6 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
     if(userInfo?.expireDateTime){
       const currentTime = Date.now() / 1000; //Current time in seconds
     }
-
 
     console.log("JWT token info",userInfo);
 
@@ -231,11 +244,34 @@ const accountDropDownMenu = [
       </ul>
       {
       userInfo && (
+      <div className="flex-none w-10 h-10 rounded-full hidden md:block">
         <img
       src={userInfo?.imageUrl}
       alt=""
-      className="flex-none w-10 h-10 rounded-full hidden md:block"
-        />
+      className="flex-none w-10 h-10 rounded-full hidden md:block relative"
+      onMouseEnter={() => {
+        setAccDropMenu(true);
+      }}
+      onMouseLeave={() => {
+        setAccDropMenu(false);
+      }}
+      />
+        <div id="dropDown" className="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
+          <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefault">
+          <li>
+            <Link to="/account" 
+            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-purple-700">
+              Min profil</Link>
+          </li>
+
+          <li>
+            <Link to="/logout" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-purple-700">
+            Logg ut
+            </Link>
+          </li>
+          </ul>
+        </div>
+      </div>
       )
       }
 
@@ -244,3 +280,4 @@ const accountDropDownMenu = [
     </>
   );
 };
+

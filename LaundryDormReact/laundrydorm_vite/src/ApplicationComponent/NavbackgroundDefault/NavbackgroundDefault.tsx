@@ -8,6 +8,8 @@ import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
 import { FaEnvelope } from 'react-icons/fa';
 import { GiWashingMachine } from "react-icons/gi";
 import { useNavigate, useLocation } from 'react-router-dom'
+import {Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 
 
@@ -158,7 +160,11 @@ const accountDropDownMenu = [
       {/*Desktop Navigation */}
 
       <ul className="hidden md:flex flex-1 justify-center ">
-        {Navlinks.map(elements => ( //map is an array method to loop over an array, and return a new array of elements
+        {Navlinks.map(elements => {
+          if(userInfo && elements.name === "Konto"){ //remove the entire account icon if user is logged in
+            return null;
+          }
+        return ( //map is an array method to loop over an array, and return a new array of elements
           <li
           key={elements.id}
           className="relative p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
@@ -185,13 +191,11 @@ const accountDropDownMenu = [
       }
 
         return ( //otherwise, if we dont enter the if statemet due to user logged in, render the rest of the names/link
-
       <li key={idx} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
         <Link to={items.link}>{items.name}</Link>
       </li>
     );
-  })}
-      
+    })}
   </ul>
 )}
 {/* Dropdown for account */}
@@ -199,7 +203,6 @@ const accountDropDownMenu = [
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
     {accountDropDownMenu.map((accList, ids) => {
       // Hide "Logg inn" and "Registrer deg" when logged in
-
       if (userInfo && (accList.name === "Logg inn" || accList.name === "Registrer deg")) {
         return null;
       }
@@ -237,41 +240,54 @@ const accountDropDownMenu = [
     })}
   </ul>
 )}
-
-
-          </li>
-        ))}
-      </ul>
+</li>
+);
+})}
+</ul>
       {
-      userInfo && (
-      <div className="flex-none w-10 h-10 rounded-full hidden md:block">
+      userInfo && ( 
+      <Menu as="div" className="flex-none w-10 h-10 rounded-full hidden md:block">
+        <MenuButton className="">
         <img
       src={userInfo?.imageUrl}
       alt=""
       className="flex-none w-10 h-10 rounded-full hidden md:block relative"
-      onMouseEnter={() => {
-        setAccDropMenu(true);
-      }}
-      onMouseLeave={() => {
-        setAccDropMenu(false);
-      }}
       />
-        <div id="dropDown" className="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
-          <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefault">
-          <li>
-            <Link to="/account" 
-            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-purple-700">
-              Min profil</Link>
-          </li>
-
-          <li>
-            <Link to="/logout" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-purple-700">
+        </MenuButton>
+        <MenuItems
+        transition
+        className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg outline-black/5 transition 
+        data-close:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in
+        "
+        >
+          
+        <div className="py-1">
+          <MenuItem>
+            <Link 
+            to="/account" 
+            className="block w-full px-4 py-2 text-left text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden">
+              Min profil
+              </Link>
+            </MenuItem>
+            <MenuItem>
+            <button 
+            className="block w-full px-4 py-2 text-left text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden"
+            type="button"
+            onClick={() => {  
+              localStorage.removeItem("access_token"); //Remove all info and token of the user from the global local storage
+              navigate('/', {replace:true});
+              if(location.pathname==='/'){
+                window.location.reload(); //refresh the page if we are in homepage
+                                          //useful to refresh the users information on the homepage
+              }
+            }}    
+            >
             Logg ut
-            </Link>
-          </li>
-          </ul>
+            </button>
+            </MenuItem>
         </div>
-      </div>
+        </MenuItems>
+      </Menu>
       )
       }
 

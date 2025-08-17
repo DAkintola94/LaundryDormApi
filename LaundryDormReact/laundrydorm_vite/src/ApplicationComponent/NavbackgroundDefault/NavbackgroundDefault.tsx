@@ -5,15 +5,20 @@ import {useState, useRef, useEffect} from 'react'
 import {Link} from "react-router-dom"
 import {jwtDecode} from 'jwt-decode';
 import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
-import { FaEnvelope } from 'react-icons/fa';
+import { FcReading } from 'react-icons/fc';
 import { GiWashingMachine } from "react-icons/gi";
 import { useNavigate, useLocation } from 'react-router-dom'
 import {Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import axios  from 'axios';
+
 
 
 
 export const NavbarDefault = () => {
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+
+const token = localStorage.getItem("access_token");
 
 const location = useLocation(); //useLocation gives you information about where the user currently is in your app.
 const navigate = useNavigate();
@@ -23,12 +28,10 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
  const [dropDownOpen, setDropdownOpen] = useState(false); //dropdown menu for "Vask"
  const [accDownOpen, setAccDropMenu] = useState(false); //dropdown menu for "Account"
- const [profileImageDropDown, setProfileImageDropDown] = useState(false);
 
 
  const laundryTimeout = useRef<number | null>(null) //useref is similar to usestate, but useref does not cause re-renders when its value changes
  const accountTimeout = useRef<number | null>(null) //Setting number if there is a int value, and null if nothing have been set
- const profileImageTimeout = useRef<number | null>(null);
 
 
  const handleLaundryMouseEnter = () => {
@@ -43,16 +46,6 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
   laundryTimeout.current = window.setTimeout(() => setDropdownOpen(false), 100)
  }
 
- const handleProfileImageMouseEnter = () => {
-  if(profileImageTimeout.current){
-    clearTimeout(profileImageTimeout.current);
-    profileImageTimeout.current = null;
-  }
- }
-
- const handleProfileImageMouseLeave = () => {
-  profileImageTimeout.current = window.setTimeout(() => setProfileImageDropDown(false), 100)
- }
 
  const handleAccountMouseEnter = () => {
   if(accountTimeout.current){ 
@@ -87,10 +80,25 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
   }
 
     const [userInfo, setUsersInfo] = useState<UserInfo | null>(null); //using it to set or get value from the UserInfo object
-
+    const [imageUrl, setImageUrl] = useState<string | undefined>(undefined); //So that image is COMPETLY empty if no user is signed in
 
     useEffect(() => {
-      const token = localStorage.getItem("access_token");
+      const fetchUserInfomation = async () => {
+           await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
+            {
+              headers:{"Authorization" : `Bearer ${token}`}
+            })
+            .then(response => {
+              console.log("Fetching this data from backend ",response.data);
+              setImageUrl(response.data.profilePictureUrlPath); //sending the image url path that belongs to the user
+            })
+      }
+      if(token){
+        fetchUserInfomation();
+      }
+      else {
+        console.log("No user is logged in, no image to be served");
+      }
       if(token){
         try {
           const decode = jwtDecode<MyJwtPayload>(token); //important section, as you decoded JWT here and store it in localstorage which is global
@@ -112,9 +120,7 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
       }
 
-    }, [] );
-
-    console.log(userInfo?.imageUrl);
+    }, [token, API_BASE_URL]);
     
 
     if(userInfo?.expireDateTime){
@@ -126,9 +132,9 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
 const Navlinks = [
 {id: 1, name: "Vask", link:'/vask', icon: <GiWashingMachine />},
-{id: 2, name: "Innboks", link: '/innboks', icon:  <FaEnvelope />},
+{id: 2, name: "About", link: '/aboutus', icon:  <FcReading />},
 {id: 3, name: "Konto", link: '/account', icon: <MdAccountCircle />},
-{id: 4, name: "Om oss", link: '/report', icon: <MdPermDeviceInformation />},
+{id: 4, name: "Report-Section", link: '/report', icon: <MdPermDeviceInformation />},
 ];
 
 const toogleNav = () => setNavBar(!nav);
@@ -249,7 +255,7 @@ const accountDropDownMenu = [
       <Menu as="div" className="flex-none w-10 h-10 rounded-full hidden md:block">
         <MenuButton className="">
         <img
-      src={userInfo?.imageUrl}
+      src={imageUrl}
       alt=""
       className="flex-none w-10 h-10 rounded-full hidden md:block relative"
       />

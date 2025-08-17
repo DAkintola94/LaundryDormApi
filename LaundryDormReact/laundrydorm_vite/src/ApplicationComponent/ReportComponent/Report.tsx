@@ -107,14 +107,14 @@ export const Report = () => {
 
   useEffect(() => { //This is for incase we have a logged in user, and we want to set the value according to their info from backend
     const fetchData = async () => {
-      await axios.get(`${API_BASE_URL}/api/Advice/AuthenticateReporter`,
+      await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
         {
           headers: {"Authorization" : `Bearer ${token}`}
         })
         .then(response => {
           console.log(response.data); //remember to debugg the value from backend
-          setUsername(response.data.authorName); //data.json name from the backend
-          setEmail(response.data.emailAddress);  //data.json name from the backend
+          setUsername(response.data.userName); //data.json name from the backend
+          setEmail(response.data.email);  //data.json name from the backend
           setPendingButton(false);
         }
         )

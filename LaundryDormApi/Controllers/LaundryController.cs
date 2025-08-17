@@ -285,10 +285,11 @@ namespace LaundryDormApi.Controllers
                 if (laundrySessionViewModel != null)
                 {
                     var isConflict = getSession.Any(sFromDb => //You can use linq to get several data from DB or list like this. The variable here becomes boolean, due to how .Any works
-                     sFromDb.ReservedDate.HasValue
+                    sFromDb.ReservedDate.HasValue
                     && sFromDb.ReservedDate.Value == selectedDate //To check for conflict on the SAME DAY!!
                     && sFromDb.TimePeriodId == selectedPeriodId //to check for conflict between the timestamp to set laundry
                     && (sFromDb.LaundryStatusID == 2
+                    || sFromDb.LaundryStatusID == 1
                     || sFromDb.LaundryStatusID == 3
                     || sFromDb.LaundryStatusID == 4)
                     ); //check if date is occupied, and if the active status are not conflicting
@@ -299,6 +300,7 @@ namespace LaundryDormApi.Controllers
                         UserEmail = currentUser.Email,
                         Name = currentUser.FirstName + " " + currentUser.LastName, //getting information from the current logged in user, through the token sent, and decoded in the middleware
                         PhoneNumber = currentUser.PhoneNumber,
+                        ImageURL = currentUser.ProfilePictureUrlPath,
                         Message = laundrySessionViewModel.UserMessage,
                         MachineId = laundrySessionViewModel.MachineId, //Foreign key for MachineModel table
                         ReservationTime = DateTime.Now,
@@ -323,7 +325,7 @@ namespace LaundryDormApi.Controllers
 
                     else
                     {
-                        return BadRequest("Session initiation was in conflict with registered time in the database");
+                        return BadRequest("Session initiation was in conflict with registered time in the database, please choose another time");
                     }
 
                 }

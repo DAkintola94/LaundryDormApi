@@ -193,5 +193,27 @@ namespace LaundryDormApi.Controllers
             return Unauthorized("No user is signed in");
         }
 
+        [HttpGet]
+        [Route("AuthenticateUser")]
+        [Authorize]
+        public async Task<IActionResult> ExposeUserInformation()
+        {
+            var currentUser = await _userManager.GetUserAsync(User); //User get the users security claim, its a middleware the runs before anything even hits the controller
+
+            if (currentUser == null)
+            {
+                return BadRequest("No user is logged in, return to standard annonymous report");
+            }
+
+            ApplicationUser applicationUser = new ApplicationUser
+            {
+                Email = currentUser.Email ?? "Email is empty",
+                UserName = currentUser.FirstName + " " + currentUser.LastName ?? "No username found",
+                ProfilePictureUrlPath = currentUser.ProfilePictureUrlPath,
+                PhoneNumber = currentUser.PhoneNumber
+            };
+            return Ok(applicationUser);
+        }
+
     }
 }

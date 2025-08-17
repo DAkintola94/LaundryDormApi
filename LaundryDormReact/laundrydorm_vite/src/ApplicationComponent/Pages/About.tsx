@@ -1,10 +1,14 @@
 
 import profilePic from "../../assets/aboutpicture.jpg"
+import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault";
+import { FooterDefault } from "../FooterDefault/FooterDefault";
 
 
-export const About = () => {
+export const About = ({hideNavbar = false, hideFooter = false} : {hideNavbar?:boolean, hideFooter?:boolean}) => {
+                        //To be able to disable navbar and footer when exporting
   return (
     <>
+    {!hideNavbar && <NavbarDefault />}
     <section id="about-us" className="py-16">
         <div className="container mx-auto py-2 flex">
             <div className="w-1/2 flex flex-col px-16 justify-center text-center">
@@ -30,8 +34,8 @@ export const About = () => {
             </div>
             </div>
         </div>
-        
     </section>
+    {!hideFooter && <FooterDefault />}
     </>
   );
 };

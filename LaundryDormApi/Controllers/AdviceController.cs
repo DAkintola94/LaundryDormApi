@@ -48,26 +48,6 @@ namespace LaundryDormApi.Controllers
         }
 
         [HttpGet]
-        [Route("AuthenticateReporter")]
-        [Authorize]
-        public async Task<IActionResult> ExposeUserInformation()
-        {
-            var currentUser = await _userManager.GetUserAsync(User); //User get the users security claim, its a middleware the runs before anything even hits the controller
-
-            if(currentUser == null)
-            {
-                return BadRequest("No user is logged in, return to standard annonymous report");
-            }
-
-            AdviceViewModel adviceViewModel = new AdviceViewModel
-            {
-                EmailAddress = currentUser.Email ?? "Email is empty",
-                AuthorName = currentUser.FirstName + " " + currentUser.LastName ?? "No username found"
-            };
-            return Ok(adviceViewModel);
-        }
-
-        [HttpGet]
         [Route("FetchAdvice")]
         [Authorize]
         public async Task<IActionResult> GetAdvice([FromQuery] string? namefilter, [FromQuery] string? nameQuery,

@@ -3,41 +3,35 @@
 import {useState, useEffect} from "react"
 import blueLaundry from '../../assets/blue_laundry.png'
 import bgCss from '../../ApplicationComponent/BackgroundDefault/BackgroundDefault.module.css'
-import { JWTInformation } from "../Pages/JWTInformation" //importing JWT functions, its not sending jsx/html or react, its returning/sending token object value
 import 'aos/dist/aos.css'
+import axios from 'axios';
 
 export const BackgroundDefault = () => {
 
-    type UsersInformation = {
-    email: string,
-    name: string,
-    phoneNr: string;
-    expireDateTime: number;
-    issuer: string;
-    audience: string;
-  };
-  const [usersName, setUsersName] = useState('');
-
   const token = localStorage.getItem("access_token");
-  const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
-  console.log(usersInfo);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+  const [populateName, setName] = useState("");
+  //const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   
   useEffect(() => {
-    const info = JWTInformation();  //getting data from the JWT page we created, that returns token value, and not jsx, html or react
-    setUsersInfo(info)                                 //useState "setUsersInfo" part is used to set the usersInfo part to become the UsersInformation object default 
-    //this is needed since the data is being sent as object, and not single string
-
-    if (info) {
-      setUsersName(info?.name); //using useState setter to set the name, email and phone number we retreive from JWT page 
-       const currentTime = Date.now() / 1000; //current time in seconds
-
-    const tokenExpiredDate = info?.expireDateTime;
-    if(tokenExpiredDate && currentTime > tokenExpiredDate){ //checking if current time is larger than token's expired time, in second
-        localStorage.removeItem("access_token");
+    const fetchUserInfomation = async () => {
+      await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,{
+        headers: {"Authorization" : `Bearer ${token}`}
+      })
+      .then(response => {
+        console.log("data response from the backend", response.data);
+        setName(response.data.userName);
+        //setImageUrl(response.data.profilePictureUrlPath);
+      })
     }
+    if(token){
+      fetchUserInfomation();
+    }
+    else {
+      console.log("No user is currently signed in");
     }
 
-  }, [])
+  }, [token, API_BASE_URL])
 
   return (
     <div className={bgCss.backgroundImage}> 
@@ -47,18 +41,18 @@ export const BackgroundDefault = () => {
         {/* text content section*/}
         <div className="text-center space-y-5 py-14">
             <p data-aos="fade-up"
-            className="text-[#eed963]
+            className="text-[#ffff00]
             text-3xl font-semibold"> Velkommen
-            {token && usersName &&(
-              <span> {usersName} </span> //showing the users name if its populated
+            {token && populateName &&(
+              <span> {populateName} </span> //showing the users name if its populated
             )}
             </p>
             <h1 data-aos="fade-up"
-            data-aos-delay="600" className="text-4xl md:text-3xl font-bold text-[#eed963]"> Bok vask nå, eller reserve på forhånd </h1>
+            data-aos-delay="600" className="text-4xl md:text-3xl font-bold text-[#ffff00]"> Bok vask nå, eller reserve på forhånd </h1>
             <p
             data-aos="fade-up"
             data-aos-delay="1000"
-            className=" text-base sm:text-xl font-semibold"
+            className=" text-white sm:text-xl font-semibold"
             >
                 www.laundrydorm.com
             </p>

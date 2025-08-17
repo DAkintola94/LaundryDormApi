@@ -1,7 +1,7 @@
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
+
 import { useState, useEffect } from "react"
-import { JWTInformation } from "../Pages/JWTInformation" //importing JWT functions, its not sending jsx/html or react, its returning/sending token object value
 import { useNavigate } from "react-router-dom";
 import { MdError } from "react-icons/md";
 import axios from "axios";
@@ -9,7 +9,7 @@ import axios from "axios";
 export const Settvask = () => {
   const navigate = useNavigate();
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
     // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
     // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
 
@@ -20,7 +20,6 @@ export const Settvask = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formName, setFormName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [expiredDate, setExpiredDate] = useState<number | null>(null);
   const [errorMsg, setError] = useState('');
   // const [sessionId, setSessionId] = useState<number | null>(null); not needed currently, since we are returning backendSessionId directly from data
 
@@ -28,37 +27,33 @@ export const Settvask = () => {
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
 
   const token = localStorage.getItem("access_token");
-  
-  console.log(expiredDate);
 
   console.log(formEmail);
   console.log(formName);
   console.log(phoneNumber);
   console.log("The token value is",token);
 
-  type UsersInformation = {
-    email: string,
-    name: string,
-    phoneNr: string;
-    expireDateTime: number;
-    issuer: string;
-    audience: string;
-  };
-
-  const [usersInfo, setUsersInfo] = useState<UsersInformation | null>(null); //using it to set or get value from the UserInfo object
 
   useEffect(() => {
-    const info = JWTInformation();  //getting data from the JWT page we created, that returns token value, and not jsx, html or react
-    setUsersInfo(info)                                 //useState "setUsersInfo" part is used to set the usersInfo part to become the UsersInformation object default 
-    //this is needed since the data is being sent as object, and not single string
-
-    if (info) {
-      setFormName(info?.name); //using useState setter to set the name, email and phone number we retreive from JWT page 
-      setFormEmail(info?.email);
-      setPhoneNumber(info?.phoneNr);
-      setExpiredDate(info?.expireDateTime);
+    const fetchSetUsersInfo = async () => {
+      await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
+      {
+        headers: {"Authorization" : `Bearer ${token}`}
+      })
+      .then(response => {
+        setFormName(response.data.userName);
+        setFormEmail(response.data.email);
+        setPhoneNumber(response.data.phoneNumber);
+      })
     }
-  }, []) //with the array as second argument means this effect will only run once
+    if(token)
+    {
+      fetchSetUsersInfo();
+    }
+    else {
+      console.log("No user is currently signed in");
+    }
+  }, [token, API_BASE_URL]) //with the array as second argument means this effect will only run once
 
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
@@ -107,8 +102,8 @@ export const Settvask = () => {
       if (axios.isAxiosError(err) && err.response) {
         // If server responded with a status code outside the 2xx range
 
-        console.error('Backend error', err.response.status);
-        setError(`Error ${err.response.data || "something went wrong"}`);
+        console.error('Backend error: ', err.response.status);
+        setError(`Error: ${err.response.data || "something went wrong"}`);
         setPending(false);
 
       } else if (axios.isAxiosError(err) && err.request) {
@@ -148,14 +143,14 @@ export const Settvask = () => {
                 </label>
 
                 <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.name || ""} readOnly></input>
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={formName || ""} readOnly></input>
 
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
                   Email
                 </label>
 
                 <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={usersInfo?.email || ""} readOnly></input>
+           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={formEmail || ""} readOnly></input>
 
 
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
@@ -165,7 +160,7 @@ export const Settvask = () => {
                 <textarea className="appearance-none block w-full bg-white text-gray-700 border border-red-500 
            rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" onChange={(evt) => setFormMessage(evt.target.value)} maxLength={150}></textarea>
            { errorMsg && 
-              <span className="text-black mb-4"> {errorMsg} </span>
+              <span className="text-red-600 mb-4"> {errorMsg} </span>
            }
 
                 <label htmlFor="laundryTime" className="block uppercase text-xs text-gray-700 font-bold text-center">Velg tidspunkt</label> {/* NB! justify-center only works on flex containers, not for label since label is an inline element. use text-center for inline */}
@@ -212,7 +207,7 @@ export const Settvask = () => {
         </form>
 
       </div>
-    }  
+    } 
     </>
   )
 }

@@ -10,7 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
+#*.local comment out for now since git keep ignoring .evn.local, which is annoying to edit everytime one npm run dev!
 
 # Editor directories and files
 .vscode/*

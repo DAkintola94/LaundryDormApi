@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250810124547_InitialDBMigration")]
-    partial class InitialDBMigration
+    [Migration("20250814065341_FirstInitialDBMigration")]
+    partial class FirstInitialDBMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -195,6 +195,9 @@ namespace LaundryDormApi.Migrations
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("LaundrySessionId"));
+
+                    b.Property<string>("ImageURL")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("LaundryEndTime")
                         .HasColumnType("longtext");

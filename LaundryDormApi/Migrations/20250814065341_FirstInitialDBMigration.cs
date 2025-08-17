@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LaundryDormApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDBMigration : Migration
+    public partial class FirstInitialDBMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -189,6 +189,8 @@ namespace LaundryDormApi.Migrations
                     UserEmail = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PhoneNumber = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ImageURL = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ReservationTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ReservedDate = table.Column<DateOnly>(type: "date", nullable: true),

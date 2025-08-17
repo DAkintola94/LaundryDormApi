@@ -28,7 +28,7 @@ AOS.refresh();
     </div>
 
      <div className="flex-1">
-      <About />
+     <About hideFooter={true} hideNavbar={true}/>
     </div> 
     
     <FooterDefault/>

@@ -3,6 +3,7 @@ using LaundryDormApi.Model.DomainModel;
 using System.IO;
 using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LaundryDormApi.Repository
 {
@@ -57,7 +58,7 @@ namespace LaundryDormApi.Repository
 
             await image.ImageFile.CopyToAsync(stream, cancellationToken);
 
-            var urlFilePath = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}/Images/{image.ImageName}{image.ImageExtension}";
+            var urlFilePath = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}/ServerImages/{image.ImageName}{image.ImageExtension}";
 
             image.ImagePath = urlFilePath; //Its the url path that we are saving in the database. Not the picture itself
 
@@ -65,6 +66,7 @@ namespace LaundryDormApi.Repository
             await _context.SaveChangesAsync(cancellationToken);
             return image;
         }
+
 
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations.LaundryDormAuth
 {
     [DbContext(typeof(LaundryDormAuthContext))]
-    [Migration("20250810124613_InitialAuthMigration")]
-    partial class InitialAuthMigration
+    [Migration("20250814065638_FirstInitialAuthMigration")]
+    partial class FirstInitialAuthMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,10 @@ namespace LaundryDormApi.Migrations.LaundryDormAuth
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ProfilePictureUrlPath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");

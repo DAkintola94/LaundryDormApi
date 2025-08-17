@@ -25,7 +25,8 @@ namespace LaundryDormApi.Repository
                 new Claim (ClaimTypes.Email, applicationUser.Email ?? string.Empty), 
                 new Claim (ClaimTypes.MobilePhone, applicationUser.PhoneNumber ?? string.Empty),
                 new Claim (ClaimTypes.Name, $"{applicationUser.FirstName} {applicationUser.LastName}" ?? string.Empty),
-                new Claim (ClaimTypes.NameIdentifier, applicationUser.Id ?? string.Empty)
+                new Claim (ClaimTypes.NameIdentifier, applicationUser.Id ?? string.Empty),
+                new Claim (ClaimTypes.Uri, applicationUser.ProfilePictureUrlPath ?? string.Empty) //serving the image path of the file from server
             };
 
             foreach (var role in roles)

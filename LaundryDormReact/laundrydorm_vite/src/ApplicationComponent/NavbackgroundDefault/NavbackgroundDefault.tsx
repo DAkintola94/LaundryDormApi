@@ -2,16 +2,23 @@
 //Navbar, MobileNav, Button, IconButton,
 //import laundrySVG from "../../assets/BlueLaundry.svg"
 import {useState, useRef, useEffect} from 'react'
-import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
 import {Link} from "react-router-dom"
 import {jwtDecode} from 'jwt-decode';
 import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
-import { FaEnvelope } from 'react-icons/fa';
+import { FcReading } from 'react-icons/fc';
 import { GiWashingMachine } from "react-icons/gi";
 import { useNavigate, useLocation } from 'react-router-dom'
+import {Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import axios  from 'axios';
+
+
 
 
 export const NavbarDefault = () => {
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+
+const token = localStorage.getItem("access_token");
 
 const location = useLocation(); //useLocation gives you information about where the user currently is in your app.
 const navigate = useNavigate();
@@ -24,30 +31,31 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
 
  const laundryTimeout = useRef<number | null>(null) //useref is similar to usestate, but useref does not cause re-renders when its value changes
- const accountTimeout = useRef<number | null>(null)
+ const accountTimeout = useRef<number | null>(null) //Setting number if there is a int value, and null if nothing have been set
 
 
  const handleLaundryMouseEnter = () => {
-  if(laundryTimeout.current){
-    clearTimeout(laundryTimeout.current);
-    laundryTimeout.current = null;
+  if(laundryTimeout.current){ 
+    clearTimeout(laundryTimeout.current); //Clear (reset) the timeout number when user enter with their mouse
+    laundryTimeout.current = null; //Set the value to null
   }
-  setDropdownOpen(true);
+  setDropdownOpen(true); //Setting dropdown to true
  }
 
- const handleLaundryMouseLeave = () => {
+ const handleLaundryMouseLeave = () => { //Adding delay befor closing the dropdown, to prevent it from disappearing instantly
   laundryTimeout.current = window.setTimeout(() => setDropdownOpen(false), 100)
  }
 
+
  const handleAccountMouseEnter = () => {
-  if(accountTimeout.current){
-    clearTimeout(accountTimeout.current);
-    accountTimeout.current = null;
+  if(accountTimeout.current){ 
+    clearTimeout(accountTimeout.current); //Clear (reset) the timeout number when user enter with their mouse
+    accountTimeout.current = null; //Set the value to null
   }
-  setAccDropMenu(true); 
+  setAccDropMenu(true); //Setting dropdown to true
  }
 
- const handleAccountMouseLeave = () => {
+ const handleAccountMouseLeave = () => { //Adding delay befor closing the dropdown, to prevent it from disappearing instantly
   accountTimeout.current = window.setTimeout(() => setAccDropMenu(false), 100)
  }
 
@@ -58,22 +66,39 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
     expireDateTime: number;
     issuer: string;
     audience: string;
+    imageUrl: string;
   };
 
   type MyJwtPayload = {
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": string; //due to how our claim is sending the information from the backend
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone": string; //due to how our claim is sending the information from the backend
     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": string //due to how our claim is sending the information from the backend
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri": string;
     exp: number; //expire date/time
     iss: string; //issuer
     aud: string;
   }
 
     const [userInfo, setUsersInfo] = useState<UserInfo | null>(null); //using it to set or get value from the UserInfo object
-
+    const [imageUrl, setImageUrl] = useState<string | undefined>(undefined); //So that image is COMPETLY empty if no user is signed in
 
     useEffect(() => {
-      const token = localStorage.getItem("access_token");
+      const fetchUserInfomation = async () => {
+           await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
+            {
+              headers:{"Authorization" : `Bearer ${token}`}
+            })
+            .then(response => {
+              console.log("Fetching this data from backend ",response.data);
+              setImageUrl(response.data.profilePictureUrlPath); //sending the image url path that belongs to the user
+            })
+      }
+      if(token){
+        fetchUserInfomation();
+      }
+      else {
+        console.log("No user is logged in, no image to be served");
+      }
       if(token){
         try {
           const decode = jwtDecode<MyJwtPayload>(token); //important section, as you decoded JWT here and store it in localstorage which is global
@@ -81,6 +106,7 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
             email: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], //due to how our claim is sending the information from the backend
             name: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"], //due to how our claim is sending the information from the backend
             phoneNr: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"], //due to how our claim is sending the information from the backend
+            imageUrl: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri"], //Image url path where the backend serves the image
             expireDateTime: decode.exp,
             issuer: decode.iss,
             audience: decode.aud
@@ -94,23 +120,21 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
       }
 
-    }, [] );
-
+    }, [token, API_BASE_URL]);
     
 
     if(userInfo?.expireDateTime){
       const currentTime = Date.now() / 1000; //Current time in seconds
     }
 
-
     console.log("JWT token info",userInfo);
 
 
 const Navlinks = [
 {id: 1, name: "Vask", link:'/vask', icon: <GiWashingMachine />},
-{id: 2, name: "Innboks", link: '/innboks', icon:  <FaEnvelope />},
+{id: 2, name: "About", link: '/aboutus', icon:  <FcReading />},
 {id: 3, name: "Konto", link: '/account', icon: <MdAccountCircle />},
-{id: 4, name: "Om oss", link: '/report', icon: <MdPermDeviceInformation />},
+{id: 4, name: "Report-Section", link: '/report', icon: <MdPermDeviceInformation />},
 ];
 
 const toogleNav = () => setNavBar(!nav);
@@ -131,20 +155,22 @@ const accountDropDownMenu = [
   return (
     <>
     <div className="sticky top-0 z-50">
-    <div className="bg-black flex justify-between items-center mx-auto px-2 text-white">
+    <div className="bg-black flex items-center mx-auto px-2 text-white">
       {/* Logo */}
       
       <Link to="/">
-      <h1 className="w-full text-2xl font-bold text-[#c658da] flex items-center"> 
+      <h1 className="text-2xl font-bold text-[#c658da] flex items-center"> 
         {/*SVG image for logo if needed <img src={laundrySVG} className="w-8 h-6 ml-2" alt="laundry_svg"/> */}  LaundyDorm </h1>
       </Link>
 
       {/*Desktop Navigation */}
 
-      <ul className="hidden md:flex">
-        {Navlinks.map(elements => ( //map is an array method to loop over an array, and return a new array of elements
-
-        
+      <ul className="hidden md:flex flex-1 justify-center ">
+        {Navlinks.map(elements => {
+          if(userInfo && elements.name === "Konto"){ //remove the entire account icon if user is logged in
+            return null;
+          }
+        return ( //map is an array method to loop over an array, and return a new array of elements
           <li
           key={elements.id}
           className="relative p-4 hover:bg-[#00df9a] rounded-xl m-2 cursor-pointer duration-300 hover:text-black"
@@ -171,13 +197,11 @@ const accountDropDownMenu = [
       }
 
         return ( //otherwise, if we dont enter the if statemet due to user logged in, render the rest of the names/link
-
       <li key={idx} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
         <Link to={items.link}>{items.name}</Link>
       </li>
     );
-  })}
-      
+    })}
   </ul>
 )}
 {/* Dropdown for account */}
@@ -185,7 +209,6 @@ const accountDropDownMenu = [
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
     {accountDropDownMenu.map((accList, ids) => {
       // Hide "Logg inn" and "Registrer deg" when logged in
-
       if (userInfo && (accList.name === "Logg inn" || accList.name === "Registrer deg")) {
         return null;
       }
@@ -223,18 +246,60 @@ const accountDropDownMenu = [
     })}
   </ul>
 )}
+</li>
+);
+})}
+</ul>
+      {
+      userInfo && ( 
+      <Menu as="div" className="flex-none w-10 h-10 rounded-full hidden md:block">
+        <MenuButton className="">
+        <img
+      src={imageUrl}
+      alt=""
+      className="flex-none w-10 h-10 rounded-full hidden md:block relative"
+      />
+        </MenuButton>
+        <MenuItems
+        transition
+        className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg outline-black/5 transition 
+        data-close:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in
+        "
+        >
+          
+        <div className="py-1">
+          <MenuItem>
+            <Link 
+            to="/account" 
+            className="block w-full px-4 py-2 text-left text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden">
+              Min profil
+              </Link>
+            </MenuItem>
+            <MenuItem>
+            <button 
+            className="block w-full px-4 py-2 text-left text-gray-700 data-focus:bg-gray-100 data-focus:text-gray-900 data-focus:outline-hidden"
+            type="button"
+            onClick={() => {  
+              localStorage.removeItem("access_token"); //Remove all info and token of the user from the global local storage
+              navigate('/', {replace:true});
+              if(location.pathname==='/'){
+                window.location.reload(); //refresh the page if we are in homepage
+                                          //useful to refresh the users information on the homepage
+              }
+            }}    
+            >
+            Logg ut
+            </button>
+            </MenuItem>
+        </div>
+        </MenuItems>
+      </Menu>
+      )
+      }
 
-
-          </li>
-        ))}
-      </ul>
-
-      {/* Mobile Navigation Icon */}
-      <div onClick={toogleNav} className="block md:hidden">
-      {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
-      </div>
     </div>
     </div>
     </>
   );
 };
+

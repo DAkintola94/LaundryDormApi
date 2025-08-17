@@ -195,6 +195,9 @@ namespace LaundryDormApi
                 {
                     Console.WriteLine($"An error occurred while migrating the database: {err.Message}");
                     Environment.Exit(1); //Exit the application if migration fails
+
+                    //Be careful with this scope/line of code, as if you dont have a valid migration/connection to database, the backend wont start at all
+                    //Because it want's to connect to the database upon startup
                 }
             }
 

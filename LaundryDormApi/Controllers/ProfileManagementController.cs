@@ -17,20 +17,65 @@ namespace LaundryDormApi.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenRepository _tokenRepository;
+        private readonly IImageRepository _imageRepository;
 
         public ProfileManagementController(UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager, ITokenRepository tokenRepository)
+            SignInManager<ApplicationUser> signInManager, ITokenRepository tokenRepository,
+            IImageRepository imageRepo
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenRepository = tokenRepository;
+            _imageRepository = imageRepo;
+        }
+
+        private bool ImageValidationRequest(ImageViewModel imageRequest)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".svg" };
+            if (!allowedExtensions.Contains(Path.GetExtension(imageRequest.File.FileName)))
+            {
+                ModelState.AddModelError("File", "Invalid file type, only .jpg, .jpeg, .png are allowed");
+                return false;
+            }
+            if (imageRequest.File.Length > 10485760)
+            {
+                ModelState.AddModelError("File", "File size is too large. Maximum file size is 10MB");
+                return false;
+            }
+
+            return true;
         }
 
         [HttpPost]
         [Route("RegistrationAuth")]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel regViewModel)
+        public async Task<IActionResult> Register([FromForm] RegisterViewModel regViewModel, [FromForm] ImageViewModel imageViewModel, CancellationToken
+            cancellationToken = default)
         {
-            
+            var checkImageValidation = ImageValidationRequest(imageViewModel);
+
+            if (imageViewModel == null)
+            {
+                return BadRequest("Please upload a profile picture");
+            }
+
+            if (checkImageValidation == false)
+            {
+                return BadRequest("Please upload a valid image format .jpg, .jpeg, .png");
+            }
+
+            ImageModel profileImage = new ImageModel
+            {
+                ImageFile = imageViewModel.File,
+                ImageName = Path.GetFileNameWithoutExtension(imageViewModel.File.FileName),
+                ImageExtension = Path.GetExtension(imageViewModel.File.FileName),
+                ImageSizeInBytes = imageViewModel.File.Length
+            };
+
+            var uploadProfilePicture = await _imageRepository.Upload(profileImage, cancellationToken); //Create a variable since we only want the image url path later
+
+            var getImageURLPath = uploadProfilePicture.ImagePath; //Getting the image url path from the variable above
+
             if(regViewModel != null && ModelState.IsValid)
             {
                 ApplicationUser applicationUser = new ApplicationUser
@@ -40,7 +85,8 @@ namespace LaundryDormApi.Controllers
                     Address = regViewModel.UserAddress,
                     Email = regViewModel.Email, //identity which we inherit from already has email property, no need to create on in the model
                     UserName = regViewModel.Email, //Since identity requires username, use email as username, and dont let the user write a username
-                    PhoneNumber = regViewModel.PhoneNumber //--
+                    PhoneNumber = regViewModel.PhoneNumber, //--
+                    ProfilePictureUrlPath = getImageURLPath ?? "No image url path found"
                 };
             
              var result = await _userManager.CreateAsync(applicationUser, regViewModel.Password);
@@ -138,12 +184,35 @@ namespace LaundryDormApi.Controllers
                     UserFirstName = currentUsers.FirstName ?? "Users first name is undefined",
                     UserLastName = currentUsers.LastName ?? "Users last name is undefined",
                     ProfileId = currentUsers.Id ?? "Users Id was not found",
-                    UserAddress = currentUsers.Address ?? "Users address was not found"
+                    UserAddress = currentUsers.Address ?? "Users address was not found",
+                    UserImageURL = currentUsers.ProfilePictureUrlPath ?? "No image url found"
                 };
 
                 return Ok(registerViewModel); //send the users information that the frontend can pick up
             }
             return Unauthorized("No user is signed in");
+        }
+
+        [HttpGet]
+        [Route("AuthenticateUser")]
+        [Authorize]
+        public async Task<IActionResult> ExposeUserInformation()
+        {
+            var currentUser = await _userManager.GetUserAsync(User); //User get the users security claim, its a middleware the runs before anything even hits the controller
+
+            if (currentUser == null)
+            {
+                return BadRequest("No user is logged in, return to standard annonymous report");
+            }
+
+            ApplicationUser applicationUser = new ApplicationUser
+            {
+                Email = currentUser.Email ?? "Email is empty",
+                UserName = currentUser.FirstName + " " + currentUser.LastName ?? "No username found",
+                ProfilePictureUrlPath = currentUser.ProfilePictureUrlPath,
+                PhoneNumber = currentUser.PhoneNumber
+            };
+            return Ok(applicationUser);
         }
 
     }

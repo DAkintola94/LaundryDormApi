@@ -1,17 +1,16 @@
 //import {Link, Route, Routes } from "react-router-dom";
 //Navbar, MobileNav, Button, IconButton,
 //import laundrySVG from "../../assets/BlueLaundry.svg"
+//npm install lucide-react@latest if npm issues
 import {useState, useRef, useEffect} from 'react'
 import {Link} from "react-router-dom"
-import {jwtDecode} from 'jwt-decode';
 import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
 import { FcReading } from 'react-icons/fc';
+import {IoChatboxEllipses} from "react-icons/io5";
 import { GiWashingMachine } from "react-icons/gi";
 import { useNavigate, useLocation } from 'react-router-dom'
 import {Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import axios  from 'axios';
-
-
 
 
 export const NavbarDefault = () => {
@@ -32,6 +31,7 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
  const laundryTimeout = useRef<number | null>(null) //useref is similar to usestate, but useref does not cause re-renders when its value changes
  const accountTimeout = useRef<number | null>(null) //Setting number if there is a int value, and null if nothing have been set
+
 
 
  const handleLaundryMouseEnter = () => {
@@ -59,27 +59,6 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
   accountTimeout.current = window.setTimeout(() => setAccDropMenu(false), 100)
  }
 
-  type UserInfo = { //Where we want to hold the information about the logged in user
-    email: string; 
-    name: string;
-    phoneNr: string;
-    expireDateTime: number;
-    issuer: string;
-    audience: string;
-    imageUrl: string;
-  };
-
-  type MyJwtPayload = {
-    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress": string; //due to how our claim is sending the information from the backend
-    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone": string; //due to how our claim is sending the information from the backend
-    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name": string //due to how our claim is sending the information from the backend
-    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri": string;
-    exp: number; //expire date/time
-    iss: string; //issuer
-    aud: string;
-  }
-
-    const [userInfo, setUsersInfo] = useState<UserInfo | null>(null); //using it to set or get value from the UserInfo object
     const [imageUrl, setImageUrl] = useState<string | undefined>(undefined); //So that image is COMPETLY empty if no user is signed in
 
     useEffect(() => {
@@ -95,39 +74,12 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
       }
       if(token){
         fetchUserInfomation();
+        console.log(token);
       }
       else {
         console.log("No user is logged in, no image to be served");
       }
-      if(token){
-        try {
-          const decode = jwtDecode<MyJwtPayload>(token); //important section, as you decoded JWT here and store it in localstorage which is global
-          setUsersInfo({
-            email: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], //due to how our claim is sending the information from the backend
-            name: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"], //due to how our claim is sending the information from the backend
-            phoneNr: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"], //due to how our claim is sending the information from the backend
-            imageUrl: decode["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uri"], //Image url path where the backend serves the image
-            expireDateTime: decode.exp,
-            issuer: decode.iss,
-            audience: decode.aud
-          })
-
-          //localStorage.setItem("decodedPayload", JSON.stringify(userInfo)); //using JSON.stringify to serialize the objects before storing them
-                                                                          //Use JSON.Parse if you want to convert it back to its original object form
-        } catch (err){
-          console.error("Invalid token",err);
-        }
-
-      }
-
     }, [token, API_BASE_URL]);
-    
-
-    if(userInfo?.expireDateTime){
-      const currentTime = Date.now() / 1000; //Current time in seconds
-    }
-
-    console.log("JWT token info",userInfo);
 
 
 const Navlinks = [
@@ -135,6 +87,7 @@ const Navlinks = [
 {id: 2, name: "About", link: '/aboutus', icon:  <FcReading />},
 {id: 3, name: "Konto", link: '/account', icon: <MdAccountCircle />},
 {id: 4, name: "Report-Section", link: '/report', icon: <MdPermDeviceInformation />},
+{id: 5, name: "Chat", link: '/chat', icon: <IoChatboxEllipses/>}
 ];
 
 const toogleNav = () => setNavBar(!nav);
@@ -167,7 +120,10 @@ const accountDropDownMenu = [
 
       <ul className="hidden md:flex flex-1 justify-center ">
         {Navlinks.map(elements => {
-          if(userInfo && elements.name === "Konto"){ //remove the entire account icon if user is logged in
+          if(token && elements.name === "Konto"){ //remove the entire account icon if user is logged in
+            return null;
+          }
+          if(!token && elements.name === "Chat"){ //remove the entire chat icon if user is logged in
             return null;
           }
         return ( //map is an array method to loop over an array, and return a new array of elements
@@ -192,7 +148,7 @@ const accountDropDownMenu = [
            {elements.id === 1 && dropDownOpen && (
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
     {laundryDownMenu.map((items, idx) => {
-      if(!userInfo && (items.name==="Historikk" || items.name==="Reservasjon" ||items.name==="Bok vask")){
+      if(!token && (items.name==="Historikk" || items.name==="Reservasjon" ||items.name==="Bok vask")){ //Hiding dropdown list if user is not logged in
         return null;
       }
 
@@ -209,11 +165,11 @@ const accountDropDownMenu = [
   <ul className="absolute -left-8 top-full mt-2 bg-white text-black rounded shadow-lg min-w-[150px] z-50">
     {accountDropDownMenu.map((accList, ids) => {
       // Hide "Logg inn" and "Registrer deg" when logged in
-      if (userInfo && (accList.name === "Logg inn" || accList.name === "Registrer deg")) {
+      if (token && (accList.name === "Logg inn" || accList.name === "Registrer deg")) {
         return null;
       }
       // Hide "Logg ut" when NOT logged in
-      if (!userInfo && accList.name === "Logg ut") {
+      if (!token && accList.name === "Logg ut") {
         return null;
       }
       // Render "Logg ut" as a button when logged in
@@ -251,7 +207,7 @@ const accountDropDownMenu = [
 })}
 </ul>
       {
-      userInfo && ( 
+      token && ( 
       <Menu as="div" className="flex-none w-10 h-10 rounded-full hidden md:block">
         <MenuButton className="">
         <img

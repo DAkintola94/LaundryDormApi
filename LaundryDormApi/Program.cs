@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using System.Security.Cryptography.Xml;
 using Serilog;
+using LaundryDormApi.Controllers;
 
 
 namespace LaundryDormApi
@@ -174,6 +175,7 @@ namespace LaundryDormApi
                     (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("Jwt not configurated")))
                 });
 
+            builder.Services.AddSignalR(); //Middleware for signalr
 
             var app = builder.Build();
 
@@ -236,6 +238,8 @@ namespace LaundryDormApi
                                        //stores them in HttpContext.User
 
             app.UseAuthorization();
+
+            app.MapHub<ChatHub>("hubs/chat"); //Middleware for signalr, injecting the chathub class
 
             app.MapControllers();
 

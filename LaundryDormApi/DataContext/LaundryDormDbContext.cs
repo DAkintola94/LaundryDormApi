@@ -67,6 +67,10 @@ namespace LaundryDormApi.DataContext
                 .HasForeignKey(statusFK => statusFK.StatusId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ImageModel>()
+                .Property(i => i.ImageId)
+                .HasColumnType("binary(16)"); //So SQL dont try to store GUID as string and throw error
+
             modelBuilder.Entity<LaundryStatusState>().HasData( //seeding data, always seed when its something that should be permanent in the database/problem domain
                new LaundryStatusState { LaundryStatusID = 1, StatusDescription = "Aktiv" },
                new LaundryStatusState { LaundryStatusID = 2, StatusDescription = "Utløpt" },

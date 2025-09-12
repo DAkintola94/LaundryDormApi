@@ -30,6 +30,8 @@ namespace LaundryDormApi
             builder.Logging.ClearProviders();
             builder.Logging.AddSerilog(logger);
 
+            builder.Services.AddApplicationInsightsTelemetry();
+
             builder.Services.AddHttpClient();
 
 
@@ -67,24 +69,10 @@ namespace LaundryDormApi
 
 
             builder.Services.AddDbContext<LaundryDormDbContext>(options =>
-          options.UseMySql(builder.Configuration.GetConnectionString("DbContextConnection"),
-          new MySqlServerVersion(new Version(11, 8, 2)),
-          mySqlOptions => mySqlOptions.EnableRetryOnFailure(
-              maxRetryCount: 5,
-              maxRetryDelay: TimeSpan.FromSeconds(10),
-              errorNumbersToAdd: null
-              )
-          ));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DbContextConnection")));
 
             builder.Services.AddDbContext<LaundryDormAuthContext>(options => 
-            options.UseMySql(builder.Configuration.GetConnectionString("AuthContextConnection"),
-            new MySqlServerVersion(new Version(11, 8, 2)),
-            mySqlOptions => mySqlOptions.EnableRetryOnFailure(
-              maxRetryCount: 5,
-              maxRetryDelay: TimeSpan.FromSeconds(10),
-              errorNumbersToAdd: null
-              )
-            ));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("AuthContextConnection")));
 
             builder.Services.AddCors(options =>
             {
@@ -98,7 +86,9 @@ namespace LaundryDormApi
                 "https://localhost:5173",
                 "https://localhost:3000",
                 "http://localhost:3000",
-                            "http://localhost:4200") //this makes it possible to listen to the live server in vscode
+                            "http://localhost:4200",
+                            "https://laundry-dorm-api.vercel.app"
+                            ) //this makes it possible to listen to the live server in vscode
                                                                            //This setting makes it that the backend only listen to the frontend with this specific port/ip
                                                                            //During production, we set the address to the doamin name ("www.chess.com") feks
                                                                            //http: //127.0.0.1:5500

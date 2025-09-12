@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LaundryDormApi.Migrations
 {
     [DbContext(typeof(LaundryDormDbContext))]
-    [Migration("20250814065341_FirstInitialDBMigration")]
-    partial class FirstInitialDBMigration
+    [Migration("20250912194751_InitialMigraiton")]
+    partial class InitialMigraiton
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,9 +21,9 @@ namespace LaundryDormApi.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.AdviceSet", b =>
                 {
@@ -31,13 +31,13 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PosterId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PosterId"));
 
                     b.Property<string>("AdminEmail")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AdminInspectionDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("CategoryID")
                         .HasColumnType("int");
@@ -47,18 +47,18 @@ namespace LaundryDormApi.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InspectedByAdmin")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PosterName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
@@ -78,11 +78,11 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AdviceStatusId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AdviceStatusId"));
 
                     b.Property<string>("StatusDescription")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AdviceStatusId");
 
@@ -107,11 +107,11 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CategoryId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CategoryId");
 
@@ -142,23 +142,23 @@ namespace LaundryDormApi.Migrations
 
             modelBuilder.Entity("LaundryDormApi.Model.DomainModel.ImageModel", b =>
                 {
-                    b.Property<Guid>("ImageId")
+                    b.Property<byte[]>("ImageId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("binary(16)");
 
                     b.Property<string>("ImageDescription")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageExtension")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageName")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImagePath")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("ImageSizeInBytes")
                         .HasColumnType("bigint");
@@ -170,7 +170,7 @@ namespace LaundryDormApi.Migrations
                     b.HasData(
                         new
                         {
-                            ImageId = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+                            ImageId = new byte[] { 212, 195, 178, 161, 246, 229, 144, 120, 171, 205, 239, 18, 52, 86, 120, 144 },
                             ImageDescription = "Siemen machine picture",
                             ImageExtension = ".jpg",
                             ImageName = "washing machine",
@@ -179,7 +179,7 @@ namespace LaundryDormApi.Migrations
                         },
                         new
                         {
-                            ImageId = new Guid("b7e2a1c4-3f6a-4e2e-9b7a-2c8e1d4f5a6b"),
+                            ImageId = new byte[] { 196, 161, 226, 183, 106, 63, 46, 78, 155, 122, 44, 142, 29, 79, 90, 107 },
                             ImageDescription = "Balay washing machine",
                             ImageExtension = ".jpg",
                             ImageName = "BalayMachine",
@@ -194,19 +194,19 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("LaundrySessionId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LaundrySessionId"));
 
                     b.Property<string>("ImageURL")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LaundryEndTime")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LaundrySessionEndTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("LaundrySessionStartTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("LaundryStatusID")
                         .HasColumnType("int");
@@ -215,16 +215,16 @@ namespace LaundryDormApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ReservationTime")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateOnly?>("ReservedDate")
                         .HasColumnType("date");
@@ -233,7 +233,7 @@ namespace LaundryDormApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserEmail")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LaundrySessionId");
 
@@ -252,10 +252,10 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("LaundryStatusID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LaundryStatusID"));
 
                     b.Property<string>("StatusDescription")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LaundryStatusID");
 
@@ -295,22 +295,23 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("MachineId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MachineId"));
 
-                    b.Property<Guid>("ImageFK_ID")
-                        .HasColumnType("char(36)");
+                    b.Property<byte[]>("ImageFK_ID")
+                        .IsRequired()
+                        .HasColumnType("binary(16)");
 
                     b.Property<bool>("IsOperational")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Location")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MachineName")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ModelName")
-                        .HasColumnType("longtext");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MachineId");
 
@@ -322,7 +323,7 @@ namespace LaundryDormApi.Migrations
                         new
                         {
                             MachineId = 1,
-                            ImageFK_ID = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+                            ImageFK_ID = new byte[] { 212, 195, 178, 161, 246, 229, 144, 120, 171, 205, 239, 18, 52, 86, 120, 144 },
                             IsOperational = true,
                             Location = "Laundry room 1",
                             MachineName = "Siemen",
@@ -331,7 +332,7 @@ namespace LaundryDormApi.Migrations
                         new
                         {
                             MachineId = 2,
-                            ImageFK_ID = new Guid("b7e2a1c4-3f6a-4e2e-9b7a-2c8e1d4f5a6b"),
+                            ImageFK_ID = new byte[] { 196, 161, 226, 183, 106, 63, 46, 78, 155, 122, 44, 142, 29, 79, 90, 107 },
                             IsOperational = true,
                             Location = "Laundry room 2",
                             MachineName = "Samsung washing machine",
@@ -345,13 +346,13 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PeriodId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PeriodId"));
 
                     b.Property<TimeSpan>("End")
-                        .HasColumnType("time(6)");
+                        .HasColumnType("time");
 
                     b.Property<TimeSpan>("Start")
-                        .HasColumnType("time(6)");
+                        .HasColumnType("time");
 
                     b.HasKey("PeriodId");
 
@@ -384,7 +385,7 @@ namespace LaundryDormApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("UpdateCountId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UpdateCountId"));
 
                     b.Property<int?>("AmountOfCount")
                         .HasColumnType("int");

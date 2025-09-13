@@ -121,18 +121,30 @@ export const Register = () => {
         }
         catch(err: unknown) {
             if(axios.isAxiosError(err) && err.response){
+                const data = err.response.data;
               //if server respond with a status code outside of 2xx range
+
+              let responseErrorMessage = "Noe gikk galt";
+              setError(responseErrorMessage);
+
+              if(data){
+                if(Array.isArray(data.Errors)){
+                    responseErrorMessage = data.Errors.join(",");
+                } else if (typeof data.Errors === "string"){
+                    responseErrorMessage = data.Errors;
+                } else if (data.Message) {
+                    responseErrorMessage = data.Message
+                }
+              }
                 console.error('Backend respond status: ', err.response.status);
-                setError(`Error message from backend: ${err.response.data || "Something went wrong"}`);
+
+                setError(responseErrorMessage);
                 setBtnPending(false);
             } else if(axios.isAxiosError(err) && err.request){
-                //No response received (e.g., server down)
-                console.error("No response from server:", err.request);
-                setError("No response from the server, try again later");
+                setError("Ingen response fra serveren");
                 setBtnPending(false);
             } else {
-                 console.error("An unexpected error occured", err);
-                setError("An unexpected error occured" + err);
+                setError("Noe gikk galt" + err);
                 setBtnPending(false);
             }
         }
@@ -263,7 +275,7 @@ export const Register = () => {
                 <input 
                     type="password" 
                     onChange={(evt) => regPassword(evt.target.value)} 
-                    placeholder="****" 
+                    placeholder="Min 1 stor bokstav" 
                     className="text-black bg-white mb-4 p-2 border rounded w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                     required
                 />
@@ -276,7 +288,7 @@ export const Register = () => {
                 <input 
                     type="password" 
                     onChange={(evt) => regConfirmPassword(evt.target.value)} 
-                    placeholder="****" 
+                    placeholder="Min 1 stor bokstav" 
                     className="text-black bg-white mb-4 p-2 border rounded w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                     required
                 />

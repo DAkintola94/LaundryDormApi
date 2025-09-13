@@ -37,12 +37,14 @@ export const Historic = () => {
   const [modalValue, setModalState] = useState<UsersSessionHistoric | null>(null);
   const [userValidData, setData] = useState<UsersSessionHistoric[]>([]); //setting usestate to map object, as array. since .map only work with array
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading]=useState(false);
   const [postsPerPage, setPostsPerPage] = useState(8);
 
   const token = localStorage.getItem("access_token");
 
   useEffect(() => {
     const fetchData = async () =>{
+      setLoading(true);
     await axios.get(`${API_BASE_URL}/api/Laundry/SessionHistoric?pageNumber=${currentPage}&pageSize=${postsPerPage}`,
       {
         headers: {"Authorization" : `Bearer ${token}`}
@@ -50,16 +52,19 @@ export const Historic = () => {
     .then(response => {
        setData(response.data) //Axios puts the actual response data in the .data property of the response object.
        console.log(response.data);
+       setLoading(false);
       })                      //setting our populated data into the useState of userValidData [array]
 
       .catch(err => {
         console.log(err.message);
+        setLoading(false);
       })
     }
     if(token){
       fetchData();
     }
     else {
+      setLoading(false);
       const errMessage = "Unauthorize user";
       navigate('/error404', {
         replace: true,
@@ -166,7 +171,18 @@ export const Historic = () => {
         </thead>
 
         <tbody>
-          {!token && userValidData.length === 0 ? (
+          {
+          loading? (
+            <tr>
+              <td colSpan={7}>
+                <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
+                  <img src="../../../public/spinloading.svg" title="loadingImg" />
+                  <span> Henter data</span>
+                </div>
+              </td>
+            </tr>
+          ) :
+          userValidData.length === 0 ? (
           <tr>
             <td colSpan={7}>
               <div className="flex items-center justify-center text-red-600 font-bold gap-2"> 

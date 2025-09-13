@@ -7,7 +7,7 @@ export const Profile = () => {
     <>
     <NavbarDefault />
     <div>
-      This is the profile page
+      Under vei...
     </div>
     <FooterDefault />
     </>

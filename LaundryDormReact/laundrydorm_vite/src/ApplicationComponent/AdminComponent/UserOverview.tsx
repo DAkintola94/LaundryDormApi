@@ -2,8 +2,9 @@ import React from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import { useState, useEffect } from 'react'
-import { LuMessageCircle } from 'react-icons/lu'
+import { RiAdminFill } from 'react-icons/ri'
 import { MdError } from 'react-icons/md'
+import { FaUserLock } from 'react-icons/fa'
 import axios from 'axios'
 import { IoIosInformationCircle } from 'react-icons/io'
 
@@ -17,26 +18,32 @@ export const UserOverview = () => {
 
 type UserOverview = {
     email: string | null;
-    userFirstName: string | null;
-    userLastName: string | null; 
+    firstName: string | null;
+    lastName: string | null; 
     phoneNumber: string | null;
-    profileId: string | null;
-    userAddress: string | null;
+    id: string | null;
+    address: string | null;
 };
+
 
 const[modalValue, setModalState] = useState<UserOverview | null>(null);
 const[usersData, setUsersData] = useState<UserOverview[]>([]); //setting usestate to map object, as array. since .map only work with array
-const[loading, setLoading] = useState(true);
+const[loading, setLoading] = useState(false);
 const token = localStorage.getItem("access_token");
+const [adminError, setAdminError]=useState<string | null>(null)
+
+console.log(token);
 
 useEffect(() => {
   const fetchData = async () => {
+    setLoading(true);
     await axios.get(`${API_BASE_URL}/api/Admin/UsersOverview`,
       {
         headers: {"Authorization" : `Bearer ${token}`}
       })
       .then(response => {
         setUsersData(response.data);
+        console.log(response.data, "This is the data");
         setLoading(false);
       })
       .catch(err => {
@@ -47,7 +54,9 @@ useEffect(() => {
       if(token){ //remember to move it out of the fetchData scope function
         fetchData();
       } else {
+        setLoading(false);
         console.log("Unauthorized user");
+        setAdminError("Vennligst logg inn med admin bruker");
       }
 }, [token, API_BASE_URL])
 
@@ -80,42 +89,65 @@ useEffect(() => {
               </th>
 
               <th scope="col" className="px-6 py-3">
-                <LuMessageCircle />
+                <RiAdminFill />
               </th>
+
             </tr>
           </thead>
 
           <tbody>
-            {!token || usersData.length === 0 ? (
+            { loading ? (
+              <tr>
+                <td colSpan={7}>
+                  <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
+                  <img src="../../../public/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh];" />
+                  <span> Henter data </span>
+                  </div>
+                </td>
+              </tr>
+            ) : 
+
+            !token || adminError ? (
+              <tr>
+                <td colSpan={7}>
+                  <div className="flex items-center justify-center text-yellow-600 font-bold gap-2">
+                    <FaUserLock className="text-1xl" />
+                    <span> {adminError} </span>
+                  </div>
+                </td>
+              </tr>
+            ) :
+            
+            usersData.length === 0 ? (
             <tr>
               <td colSpan={7}>
                 <div className="flex items-center justify-center text-red-600 font-bold gap-2">
                   <MdError className="text-1x1" />
-                  <span> Ingen informasjon tilgjengelig</span>
+                      <span> Ingen informasjon tilgjengelig</span>
                 </div>
               </td>
             </tr>  
-            ) : (
+            ) : ( 
               usersData?.map((rowElement, idx) => (
                 <tr key={idx} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                  <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {rowElement.userFirstName}
+                  <th scope="row" className="px-6 py-4 font-bold">
+                    {rowElement.firstName}
                   </th>
 
-                  <td className="px-6 py-4">
-                    {rowElement.userLastName}
+                  <td className="px-6 py-4 font-bold">
+                    {rowElement.lastName}
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-black">
                     {rowElement.email}
                   </td>
 
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-black">
                     {rowElement.phoneNumber}
                   </td>
 
-                  <td className="px-6 py-4">
-                    {rowElement.profileId}
+                  <td className="px-6 py-4 text-black">
+                    {rowElement.id}
                   </td>
 
                   <td className="px-6 py-4 text-right">
@@ -140,10 +172,10 @@ useEffect(() => {
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
             <h2 className="text-lg font-bold md-4"> Velg handling </h2>
             <div className="space-y-2 md-4">
-              <p><strong>Navn:</strong>{modalValue.userFirstName || "Ikke oppgitt"} {modalValue.userLastName || "ikke oppgitt"} </p>
-              <p><strong>Addresse:</strong>{modalValue.userAddress || "Ikke oppgitt"}</p>
+              <p><strong>Navn:</strong>{modalValue.firstName || "Ikke oppgitt"} {modalValue.lastName || "ikke oppgitt"} </p>
+              <p><strong>Addresse:</strong>{modalValue.address || "Ikke oppgitt"}</p>
             </div>
-            <button
+            <button className="py-2"
             >
               Slett bruker
             </button>

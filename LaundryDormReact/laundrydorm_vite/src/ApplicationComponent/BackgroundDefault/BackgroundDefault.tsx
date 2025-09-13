@@ -19,7 +19,7 @@ export const BackgroundDefault = () => {
         headers: {"Authorization" : `Bearer ${token}`}
       })
       .then(response => {
-        console.log("data response from the backend", response.data);
+        //console.log("data response from the backend", response.data);
         setName(response.data.userName);
         //setImageUrl(response.data.profilePictureUrlPath);
       })

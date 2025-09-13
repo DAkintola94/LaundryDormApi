@@ -109,7 +109,6 @@ export const Register = () => {
             },
         })
             const tokenResponse = response.data.jwtToken //Since we are getting json in response
-            console.log("Token from the backend is ", tokenResponse);
             setBtnPending(false);
 
             localStorage.setItem("access_token", tokenResponse);

@@ -56,7 +56,7 @@ const toggleCardExpansion = (posterId: number) => {
   })
   .then(response => {
     setReportData(response.data);
-    console.log(response.data);
+    //console.log(response.data);
     setLoading(false);
   })
   .catch(err => {

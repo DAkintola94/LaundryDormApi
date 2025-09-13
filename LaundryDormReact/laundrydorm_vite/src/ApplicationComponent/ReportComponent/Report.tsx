@@ -112,7 +112,7 @@ export const Report = () => {
           headers: {"Authorization" : `Bearer ${token}`}
         })
         .then(response => {
-          console.log(response.data); //remember to debugg the value from backend
+          //console.log(response.data); //remember to debugg the value from backend
           setUsername(response.data.userName); //data.json name from the backend
           setEmail(response.data.email);  //data.json name from the backend
           setPendingButton(false);

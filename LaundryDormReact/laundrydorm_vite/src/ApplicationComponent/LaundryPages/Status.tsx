@@ -45,7 +45,7 @@ export const Status = () => {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
-  console.log("Token for status is", token);
+
 
   const [calenderData, setCalenderData] = useState<statusData[]>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
 
@@ -57,7 +57,7 @@ export const Status = () => {
         })
         .then(response => {
           setCalenderData(response.data);
-          console.log(response.data); //See the data server is returning, as well as the property name
+          //console.log(response.data); //See the data server is returning, as well as the property name
         })
         .catch(err => {
           console.log("An error occured", err);

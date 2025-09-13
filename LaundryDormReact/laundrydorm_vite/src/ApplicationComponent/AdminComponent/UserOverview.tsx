@@ -32,7 +32,6 @@ const[loading, setLoading] = useState(false);
 const token = localStorage.getItem("access_token");
 const [adminError, setAdminError]=useState<string | null>(null)
 
-console.log(token);
 
 useEffect(() => {
   const fetchData = async () => {
@@ -43,7 +42,7 @@ useEffect(() => {
       })
       .then(response => {
         setUsersData(response.data);
-        console.log(response.data, "This is the data");
+        //console.log(response.data, "This is the data");
         setLoading(false);
       })
       .catch(err => {
@@ -100,7 +99,7 @@ useEffect(() => {
               <tr>
                 <td colSpan={7}>
                   <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
-                  <img src="../../../public/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh];" />
+                  <img src="../../../public/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
                   <span> Henter data </span>
                   </div>
                 </td>

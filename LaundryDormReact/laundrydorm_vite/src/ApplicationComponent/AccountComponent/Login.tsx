@@ -41,7 +41,6 @@ export const Login = () => {
             },
         }) 
             const tokenResponse = response.data //When not getting json in return, only use data, not (dot) + variable name after
-            console.log("The token from backend is ", tokenResponse);
             setBtnPending(false);
 
             localStorage.setItem("access_token", tokenResponse);

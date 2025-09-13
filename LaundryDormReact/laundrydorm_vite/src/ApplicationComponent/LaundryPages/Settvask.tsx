@@ -27,12 +27,8 @@ export const Settvask = () => {
   const [laundryTime, setLaundryTime] = useState('1'); //need a default value so it doesn't auto set the option value to 0
 
   const token = localStorage.getItem("access_token");
-
-  console.log(formEmail);
-  console.log(formName);
+  
   console.log(phoneNumber);
-  console.log("The token value is",token);
-
 
   useEffect(() => {
     const fetchSetUsersInfo = async () => {

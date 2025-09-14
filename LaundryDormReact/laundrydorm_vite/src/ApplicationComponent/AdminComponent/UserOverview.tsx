@@ -99,7 +99,7 @@ useEffect(() => {
               <tr>
                 <td colSpan={7}>
                   <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
-                  <img src="../../../public/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
+                  <img src="../../assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
                   <span> Henter data </span>
                   </div>
                 </td>

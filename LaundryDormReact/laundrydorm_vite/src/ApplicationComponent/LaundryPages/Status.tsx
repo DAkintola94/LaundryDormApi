@@ -45,21 +45,25 @@ export const Status = () => {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
+  const [loading, setLoading] = useState(false);
 
 
   const [calenderData, setCalenderData] = useState<statusData[]>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
 
   useEffect(() => {
     const fetchTodayData = async () => {
+      setLoading(true);
       await axios.get(`${API_BASE_URL}/api/Laundry/PopulateAvailability`,
         {
           headers: {"Authorization" : `Bearer ${token}`}
         })
         .then(response => {
+          setLoading(false);
           setCalenderData(response.data);
           //console.log(response.data); //See the data server is returning, as well as the property name
         })
         .catch(err => {
+          setLoading(false);
           console.log("An error occured", err);
         })
     }
@@ -269,7 +273,7 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
                   
                 {/* The part that shows a small blue dot indicator for the days that have booking/scheduled */}
                 <div className="w-1 h-1 mx-auto mt-1">
-                  {calenderData.some((sessionCalender) => //change later to accomodate the backend laundrytime
+                  {calenderData.some((sessionCalender) => 
                   isSameDay(parseISO(sessionCalender.startPeriod), day)
                   ) && (
                     <div className="w-1 h-1 rounded-full bg-sky-500"></div>
@@ -287,7 +291,13 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
               </time>
             </h2>
             <ol className="mt-4 space-y-1 text-sm leading-6 text-gray-500">
-              {selectedLaundryDate.length > 0 ? (    //change later to accomodate the backend laundrytime
+              {
+              loading? (<p>
+                <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
+                   Henter data
+              </p>) :
+
+              selectedLaundryDate.length > 0 ? (    
                 selectedLaundryDate.map((scheduleCalender) => (
                   <Schedule schedule={scheduleCalender} key={scheduleCalender.sessionId} />
                 ))

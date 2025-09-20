@@ -44,11 +44,17 @@ export const Profile = () => {
         setPhoneNumber(response.data.phoneNumber);
         setAddress(response.data.userAddress);
         setImageUrl(response.data.userImageURL);
+        console.log("Current success status code", response.status);
       })
-      .catch(err => {
+      .catch((err) => {
         setLoading(false);
-        setFetchError(err);
-        console.log(err);
+        if(axios.isAxiosError(err) && err.response){
+          setFetchError(`Status code: ${err.response.status}`)
+          console.log(`Current error status code: ${err.response.status}`);
+        } else {
+            setFetchError(err);
+            console.log(err);
+        }
       })
     }
     if(token){

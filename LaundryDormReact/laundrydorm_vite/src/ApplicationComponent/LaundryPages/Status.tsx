@@ -293,7 +293,7 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
             <ol className="mt-4 space-y-1 text-sm leading-6 text-gray-500">
               {
               loading? (<p>
-                <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
+                <img src="../../assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
                    Henter data
               </p>) :
 

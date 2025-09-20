@@ -80,7 +80,7 @@ export const Profile = () => {
         
         loading? (
           <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
-                  <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
+                  <img src="../../assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
                   <span> Vennligst vent </span>
           </div>
         ) : 

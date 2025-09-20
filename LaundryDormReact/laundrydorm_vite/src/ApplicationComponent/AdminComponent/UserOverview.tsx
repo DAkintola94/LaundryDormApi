@@ -10,11 +10,9 @@ import { IoIosInformationCircle } from 'react-icons/io'
 
 export const UserOverview = () => {
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
     // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
     // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
-
-    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
 
 type UserOverview = {
     email: string | null;
@@ -99,7 +97,7 @@ useEffect(() => {
               <tr>
                 <td colSpan={7}>
                   <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
-                  <img src="../../assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
+                  <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
                   <span> Henter data </span>
                   </div>
                 </td>

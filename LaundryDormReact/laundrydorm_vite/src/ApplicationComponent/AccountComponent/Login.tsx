@@ -51,7 +51,6 @@ export const Login = () => {
 
         catch (err: unknown){
             if(axios.isAxiosError(err) && err.response){
-                //if server respond with a status code outside of 2xx range
                 console.error('Backend respond status: ', err.response.status);
                 setErrorMessage(`Error message from backend: ${err.response.data || "Something went wrong"}`);
                 setBtnPending(false);

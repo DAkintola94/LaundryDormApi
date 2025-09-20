@@ -119,6 +119,7 @@ export const Settvask = () => {
 
   return (
     <>
+    <NavbarDefault />
     { !token? ( <div className="flex items-center justify-center text-red-600 font-bold gap-2"> 
       < MdError className="text-1xl"/>
       <span> Vennligst logg inn for å bruke denne funksjonen </span>
@@ -129,7 +130,7 @@ export const Settvask = () => {
         <form onSubmit={handleSubmit} >
 
           <div>
-            <NavbarDefault />
+            
 
             <div className="flex flex-wrap justify-center -mx-3 mb-6">
               <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0 py-10">
@@ -192,8 +193,6 @@ export const Settvask = () => {
                   </button>
                 }
 
-                <FooterDefault />
-
               </div>
 
             </div>
@@ -204,6 +203,7 @@ export const Settvask = () => {
 
       </div>
     } 
+    <FooterDefault />
     </>
   )
 }

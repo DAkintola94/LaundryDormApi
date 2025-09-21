@@ -1,6 +1,5 @@
 https://laundry-dorm-api.vercel.app/
-
-The frontend is deployed on Vercel, while the backend is hosted on Azure. For security reasons, sensitive values such as the secret key and database connection string differ from those used in Azure.
+The frontend is deployed on Vercel, while the backend is hosted on Azure. 
 
 # To run the application in Docker:
 Information before cloning the application:

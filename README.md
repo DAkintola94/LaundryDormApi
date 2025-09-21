@@ -1,3 +1,9 @@
+https://laundry-dorm-api.vercel.app/
+
+The frontend is hosted in vercel app
+Backend is hosted in Azure
+
+# To run the application in Docker:
 Information before cloning the application:
 
 The installer don’t need Visual Studio or Visual Studio Code installed to run the application if its set it up with Docker correctly.

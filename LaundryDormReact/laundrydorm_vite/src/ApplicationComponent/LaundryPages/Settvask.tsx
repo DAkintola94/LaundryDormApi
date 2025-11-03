@@ -1,7 +1,7 @@
 // ...existing code...
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
-import videoBg from "../../assets/soapvideo.mp4"
+import videoBg from "../../assets/laundryvid.mp4"
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
@@ -135,19 +135,19 @@ export const Settvask = () => {
         <form onSubmit={handleSubmit} className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-3xl"> {/* increased max width to make form bigger */}
           
-            <div className="bg-white/60 backdrop-blur-md rounded-lg shadow-lg p-8 md:p-12"> {/* larger padding and card */}
+            <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg p-8 md:p-12"> {/* larger padding and card */}
               
               <div className="flex flex-wrap justify-center -mx-3 mb-6">
                 <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0 py-6"> {/* wider column: md:w-2/3 */}
   
-                  <label className="block uppercase tracking-wide text-gray-700 text-sm font-semibold mb-3" htmlFor="grid-first-name" >
+                  <label className="block uppercase tracking-wide text-white text-sm font-semibold mb-3" htmlFor="grid-first-name" >
                     Navn
                   </label>
   
                   <input className="appearance-none block w-full bg-gray-100 text-gray-900 border border-gray-300 
              rounded py-3 px-4 mb-4 text-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-300" id="grid-first-name" value={formName || ""} readOnly />
   
-                  <label className="block uppercase tracking-wide text-gray-700 text-sm font-semibold mb-3" htmlFor="grid-first-name" >
+                  <label className="block uppercase tracking-wide text-white text-sm font-semibold mb-3" htmlFor="grid-first-name" >
                     Email
                   </label>
   
@@ -155,7 +155,7 @@ export const Settvask = () => {
              rounded py-3 px-4 mb-4 text-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-300" id="grid-first-name" value={formEmail || ""} readOnly />
   
   
-                  <label className="block uppercase tracking-wide text-gray-700 text-sm font-semibold mb-3" htmlFor="grid-first-name" >
+                  <label className="block uppercase tracking-wide text-white text-sm font-semibold mb-3" htmlFor="grid-first-name" >
                     Melding til andre beboer...
                   </label>
   
@@ -165,8 +165,8 @@ export const Settvask = () => {
                 <span className="text-red-600 mb-4"> {errorMsg} </span>
              }
   
-                  <label htmlFor="laundryTime" className="block uppercase text-sm text-gray-700 font-semibold mt-4 mb-2 text-center">Velg tidspunkt</label>
-                  <select id="laundryTime" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-base border border-slate-200 rounded pl-3 pr-8 py-3 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                  <label htmlFor="laundryTime" className="block uppercase text-sm text-white font-semibold mt-4 mb-2 text-center">Velg tidspunkt</label>
+                  <select id="laundryTime" className="w-full bg-white placeholder:text-slate-400 text-black text-base border border-slate-200 rounded pl-3 pr-8 py-3 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
                    onChange={(evt) => setLaundryTime(evt.target.value)}>
                     <option value="1">kl. 07:00 - 12:00</option>
                     <option value="2">kl. 12:00 - 17:00</option>
@@ -174,7 +174,7 @@ export const Settvask = () => {
                   </select>
   
                   <label htmlFor="machineId" className="block uppercase text-sm text-gray-700 font-semibold mt-4 mb-2 text-center">Velg vaskemaskin</label>
-                  <select id="machineId" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-base border border-slate-200 rounded pl-3 pr-8 py-3 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                  <select id="machineId" className="w-full bg-white placeholder:text-black text-slate-700 text-base border border-slate-200 rounded pl-3 pr-8 py-3 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
                    onChange={(evt) => setMachineId(evt.target.value)}>
                     <option value="1"> Siemen vaskemaskin </option>
                     <option value="2"> Samsung vaskemaskin </option>

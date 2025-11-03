@@ -2,6 +2,9 @@
 import profilePic from "../../assets/aboutpicture.jpg"
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault";
 import { FooterDefault } from "../FooterDefault/FooterDefault";
+import {FaLinkedin, FaGithub} from "react-icons/fa"
+import {IoIosInformationCircle} from "react-icons/io"
+import { FaYoutube } from "react-icons/fa";
 
 
 export const About = ({hideNavbar = false, hideFooter = false} : {hideNavbar?:boolean, hideFooter?:boolean}) => {
@@ -24,8 +27,23 @@ export const About = ({hideNavbar = false, hideFooter = false} : {hideNavbar?:bo
                 <br/> <br/>
                 Jeg studerer IT og informasjonssystemer ved Universitetet i Agder og går tredje året på bachelorprogrammet. 
                 Prosjektet er et selvstendig initiativ laget på fritiden, og jeg håper det både viser min tekniske kompetanse og evne til å løse reelle problemer.
-                
+                <br></br>  
             </p>
+
+                <div className="flex flex-row mt-10 gap-3 text-4xl">
+                    <a title="Linkedin" href="https://www.linkedin.com/in/dennis-oni-akintola/">
+                        <FaLinkedin className="ml-50"/>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=Sp2SCRbn-I4" title="Demo video">
+                         <FaYoutube className=""/>
+                    </a>
+
+                    <a href="https://www.github.com/DAkintola94" title="Github">
+                         <FaGithub className=""/>
+                    </a>
+                </div>
+                
+
             </div>
 
             <div className="w-1/2 relative">

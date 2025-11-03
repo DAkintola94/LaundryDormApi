@@ -1,6 +1,7 @@
 
 import {FaLinkedin, FaGithub} from "react-icons/fa"
 import {IoIosInformationCircle} from "react-icons/io"
+import { FaYoutube } from "react-icons/fa";
 
 export const FooterDefault = () => {
   return (
@@ -10,6 +11,16 @@ export const FooterDefault = () => {
      ©Laundrydorm 2025
     </p>
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              
+              <li>
+                    <a title="Demo video" href="https://www.youtube.com/watch?v=Sp2SCRbn-I4" 
+                    target="blank"
+                    rel="noopener noreferrer"
+                    className="">
+                    <FaYoutube/>
+                 </a>
+                </li>
+
                 <li>
                     <a title="report" href="/report" 
                     target="blank"
@@ -18,6 +29,7 @@ export const FooterDefault = () => {
                     <IoIosInformationCircle/>
                  </a>
                 </li>
+
                 <li>
                     <a title="linkedin" href="https://www.linkedin.com/in/dennis-oni-akintola/" 
                     target="blank"
@@ -25,8 +37,8 @@ export const FooterDefault = () => {
                     className="">
                     <FaLinkedin/>
                  </a>
-
                 </li>
+
                 <li>
                     <a title="github" href="https://github.com/DAkintola94" 
                     target="blank"

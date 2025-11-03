@@ -1,5 +1,7 @@
+// ...existing code...
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault";
+import videoBg from "../../assets/soapvideo.mp4"
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
@@ -126,84 +128,86 @@ export const Settvask = () => {
        </div>
       ) :     
       
-      <div className="laundryBG_set">
-        <form onSubmit={handleSubmit} >
+      <div className="relative min-h-screen flex items-center justify-center"> {/* make page fill viewport and center content */}
+        <div className="overlay" /> {/* overlay kept for visual effect */}
+        <video src={videoBg} autoPlay loop muted className="absolute inset-0 w-full h-full object-cover" />
 
-          <div>
-            
-
-            <div className="flex flex-wrap justify-center -mx-3 mb-6">
-              <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0 py-10">
-
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
-                  Navn
-                </label>
-
-                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={formName || ""} readOnly></input>
-
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
-                  Email
-                </label>
-
-                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 
-           rounded py-1 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" value={formEmail || ""} readOnly></input>
-
-
-                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-first-name" >
-                  Melding til andre beboer...
-                </label>
-
-                <textarea className="appearance-none block w-full bg-white text-gray-700 border border-red-500 
-           rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="grid-first-name" onChange={(evt) => setFormMessage(evt.target.value)} maxLength={150}></textarea>
-           { errorMsg && 
-              <span className="text-red-600 mb-4"> {errorMsg} </span>
-           }
-
-                <label htmlFor="laundryTime" className="block uppercase text-xs text-gray-700 font-bold text-center">Velg tidspunkt</label> {/* NB! justify-center only works on flex containers, not for label since label is an inline element. use text-center for inline */}
-                <select id="laundryTime" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                 onChange={(evt) => setLaundryTime(evt.target.value)}>
-                  <option value="1">kl. 07:00 - 12:00</option>
-                  <option value="2">kl. 12:00 - 17:00</option>
-                  <option value="3">kl. 17:00 - 22:00</option>
-                </select>
-
-                <label htmlFor="machineId" className="block uppercase text-xs text-gray-700 font-bold text-center">Velg vaskemaskin</label> {/* NB! justify-center only works on flex containers, not for label since label is an inline element. use text-center for inline */}
-                <select id="machineId" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded pl-3 pr-8 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
-                 onChange={(evt) => setMachineId(evt.target.value)}>
-                  <option value="1"> Siemen vaskemaskin </option>
-                  <option value="2"> Samsung vaskemaskin </option>
-                </select>
-
-                {!pending && <button type="submit" 
-                className="mt-4 mx-auto mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold items-center justify-center flex">
-                Opprett vask</button>} {/*mt is for margin-top, gives space between labels/form*/}
-
-                {pending &&
-                  <button disabled className=" mt-4 mb-4 p-2 border rounded w-full max-w-md bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center"> {/*Move the button center instead*/}
-                    {pending ? (
+        <form onSubmit={handleSubmit} className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-3xl"> {/* increased max width to make form bigger */}
+          
+            <div className="bg-white/60 backdrop-blur-md rounded-lg shadow-lg p-8 md:p-12"> {/* larger padding and card */}
+              
+              <div className="flex flex-wrap justify-center -mx-3 mb-6">
+                <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0 py-6"> {/* wider column: md:w-2/3 */}
+  
+                  <label className="block uppercase tracking-wide text-gray-700 text-sm font-semibold mb-3" htmlFor="grid-first-name" >
+                    Navn
+                  </label>
+  
+                  <input className="appearance-none block w-full bg-gray-100 text-gray-900 border border-gray-300 
+             rounded py-3 px-4 mb-4 text-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-300" id="grid-first-name" value={formName || ""} readOnly />
+  
+                  <label className="block uppercase tracking-wide text-gray-700 text-sm font-semibold mb-3" htmlFor="grid-first-name" >
+                    Email
+                  </label>
+  
+                  <input className="appearance-none block w-full bg-gray-100 text-gray-900 border border-gray-300 
+             rounded py-3 px-4 mb-4 text-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-300" id="grid-first-name" value={formEmail || ""} readOnly />
+  
+  
+                  <label className="block uppercase tracking-wide text-gray-700 text-sm font-semibold mb-3" htmlFor="grid-first-name" >
+                    Melding til andre beboer...
+                  </label>
+  
+                  <textarea className="appearance-none block w-full bg-white text-gray-900 border border-gray-300 
+             rounded py-4 px-4 mb-3 text-lg leading-tight focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-300" id="grid-first-name" onChange={(evt) => setFormMessage(evt.target.value)} maxLength={150} />
+             { errorMsg && 
+                <span className="text-red-600 mb-4"> {errorMsg} </span>
+             }
+  
+                  <label htmlFor="laundryTime" className="block uppercase text-sm text-gray-700 font-semibold mt-4 mb-2 text-center">Velg tidspunkt</label>
+                  <select id="laundryTime" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-base border border-slate-200 rounded pl-3 pr-8 py-3 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                   onChange={(evt) => setLaundryTime(evt.target.value)}>
+                    <option value="1">kl. 07:00 - 12:00</option>
+                    <option value="2">kl. 12:00 - 17:00</option>
+                    <option value="3">kl. 17:00 - 22:00</option>
+                  </select>
+  
+                  <label htmlFor="machineId" className="block uppercase text-sm text-gray-700 font-semibold mt-4 mb-2 text-center">Velg vaskemaskin</label>
+                  <select id="machineId" className="w-full bg-white placeholder:text-slate-400 text-slate-700 text-base border border-slate-200 rounded pl-3 pr-8 py-3 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md appearance-none cursor-pointer"
+                   onChange={(evt) => setMachineId(evt.target.value)}>
+                    <option value="1"> Siemen vaskemaskin </option>
+                    <option value="2"> Samsung vaskemaskin </option>
+                  </select>
+  
+                  {!pending && <button type="submit" 
+                  className="mt-6 mx-auto mb-4 px-6 py-3 rounded w-full md:w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center">
+                  Opprett vask</button>}
+  
+                  {pending &&
+                    <button disabled className=" mt-6 mb-4 px-6 py-3 rounded w-full md:w-1/2 bg-blue-600 text-white font-bold flex items-center justify-center">
                       <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                       </svg>
-                    ) : (
-                      <span className="w-5 h-5 mr-3" /> // invisible spacer. In other word, we are leaving only "w-5 h-5 mr-3" again, and not rendering the circle/path 
-                    )}
-                    Vennligst vent
-                  </button>
-                }
-
+                      Vennligst vent
+                    </button>
+                  }
+  
+                </div>
+  
               </div>
-
+  
             </div>
-
+  
           </div>
-
+  
         </form>
-
+  
       </div>
     } 
     <FooterDefault />
     </>
   )
 }
+// ...existing code...

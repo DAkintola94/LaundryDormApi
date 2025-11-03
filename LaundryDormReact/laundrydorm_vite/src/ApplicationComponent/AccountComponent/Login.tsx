@@ -6,6 +6,7 @@ import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { FcIdea } from 'react-icons/fc'
 
 
 export const Login = () => {
@@ -16,12 +17,15 @@ export const Login = () => {
 
     console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
     
+    const token = localStorage.getItem("access_token");
     const navigate = useNavigate();
 
     const [email, usersEmail] = useState('');
     const [passWord, usersPassword] = useState('');
     const [pending, setBtnPending] = useState(false);
     const [errorMsg, setErrorMessage] = useState('');
+    const [countError, setErrorCount] = useState(0);
+    
 
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -54,15 +58,18 @@ export const Login = () => {
                 console.error('Backend respond status: ', err.response.status);
                 setErrorMessage(`Error message from backend: ${err.response.data || "Something went wrong"}`);
                 setBtnPending(false);
+                setErrorCount(countError + 1);
             } else if(axios.isAxiosError(err) && err.request){
                 //No response received (e.g., server down)
                 console.error("No response from server:", err.request);
                 setErrorMessage("No response from the server, try again later");
                 setBtnPending(false);
+                setErrorCount(countError + 1);
             } else {
                 console.error("An unexpected error occured", err);
                 setErrorMessage("An unexpected error occured" + err);
                 setBtnPending(false);
+                setErrorCount(countError + 1);
             }
         }
     }
@@ -74,11 +81,22 @@ export const Login = () => {
             <div className="min-h-screen flex flex-col">
                 <NavbarDefault/>
 
+                {
+                    token? (<div className="flex items-center justify-center text-white mt-5 font-bold gap-2">
+                        <FcIdea className="text-2xl" />
+                        <span className="text-yellow-200" > Obs, du er allerede innlogget</span>
+                    </div>) 
+                 : 
+
                 <div className="flex-1 flex flex-col items-center justify-center py-8">
                     <label className="text-white flex items-center gap-2"> Email <MdAlternateEmail /></label>
                     <input type="text" onChange={(e) => usersEmail(e.target.value) } placeholder="abc123@laundrydorm.no" className="text-white mb-4 p-2 border rounded w-full max-w-md"/>
                     {errorMsg &&
                         <span className="text-red-400 mb-4"> {errorMsg}</span>
+                    }
+
+                    { countError > 1 && 
+                        <span className="text-red-400 mb-4"> Azure "cold start" kan skape problemer av og til, prøv igjen. </span>
                     }
 
                     <label className="text-white flex items-center gap-2"> Passord <RiLockPasswordFill /> </label>
@@ -103,6 +121,8 @@ export const Login = () => {
                     }
 
                 </div>
+
+                }
                 <FooterDefault />
             </div>
 

@@ -90,7 +90,7 @@ export const Login = () => {
 
                 <div className="flex-1 flex flex-col items-center justify-center py-8">
                     <label className="text-white flex items-center gap-2"> Email <MdAlternateEmail /></label>
-                    <input type="text" onChange={(e) => usersEmail(e.target.value) } placeholder="abc123@laundrydorm.no" className="text-white mb-4 p-2 border rounded w-full max-w-md"/>
+                    <input type="text" onChange={(e) => usersEmail(e.target.value) } placeholder="abc123@laundrydorm.no" className="text-white mb-4 p-2 border rounded w-full max-w-md" required />
                     {errorMsg &&
                         <span className="text-red-400 mb-4"> {errorMsg}</span>
                     }

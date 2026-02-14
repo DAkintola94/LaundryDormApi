@@ -6,8 +6,8 @@ import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
 import { useNavigate } from 'react-router-dom'
 import { FcIdea } from 'react-icons/fc'
-import { loginCall } from "../../lib/api_calls" //importing the function so we can use it here
-import { responseProps } from '../../lib/api_calls' //importing the datatype
+import { loginCall } from "../../lib/authCall" //importing the function so we can use it here
+import { responseProps } from '../../lib/authCall' //importing the datatype
 
 
 export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : boolean, hideFooter?: boolean}) => {

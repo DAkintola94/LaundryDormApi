@@ -1,15 +1,16 @@
 import axios from "axios";
 import { data } from "react-router-dom";
 
- export default interface apiCallProps {
-    error: []
- }
-
  export interface responseProps{ //exporting the interface so we can use the datatype elsewhere
     success: boolean | undefined
     successMessage: string | undefined
     errorMessage: string | undefined ,
     errorObject: any | undefined
+ }
+
+ export interface profileProps{
+    imageUrl: string | undefined
+    error: string | undefined
  }
 
 
@@ -110,6 +111,30 @@ import { data } from "react-router-dom";
         }
     }
 
+ }
+
+ export async function globalFetchData(API_BASE_URL: string):
+ Promise<profileProps>
+ {
+    try{
+         const token = localStorage.getItem("access_token");
+        const getProfileInfo = await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
+            {
+                headers: {"Authorization" : `Bearer ${token}`}
+            }
+        )
+        return {
+            imageUrl: getProfileInfo.data.profilePictureUrlPath,
+            error: undefined
+        }
+    }
+
+    catch {
+        return {
+            imageUrl: undefined,
+            error: "An error occured"
+        }
+    }
  }
  
 

@@ -9,8 +9,8 @@ import {useState} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
 import { useNavigate } from 'react-router-dom'
-import { registerApiCall } from "../../lib/api_calls"
-import { responseProps } from '../../lib/api_calls'
+import { registerApiCall } from "../../lib/authCall"
+import { responseProps } from '../../lib/authCall'
 
 
 export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar? :boolean, hideFooter?: boolean}) => {

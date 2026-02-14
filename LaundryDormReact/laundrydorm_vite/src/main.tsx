@@ -15,6 +15,7 @@ import {Profile} from './ApplicationComponent/AccountComponent/Profile'
 import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage'
 import { Error404 } from './ApplicationComponent/Pages/Error404'
 import { UserOverview } from './ApplicationComponent/AdminComponent/UserOverview'
+import { MainGate } from './ApplicationComponent/AccountComponent/MainGate'
 
 
 createRoot(document.getElementById('root')!).render( //This is where React injects the whole SPA into the #root div
@@ -35,8 +36,7 @@ createRoot(document.getElementById('root')!).render( //This is where React injec
       <Route path="/viewreport" element={<ViewReport />}/>
       <Route path="/error404" element={<Error404 />} />
       <Route path="/useroverview" element={<UserOverview/>} />
-
-
+      <Route path="/Stage" element={<MainGate/>} />
     </Routes>
     </BrowserRouter>
   </StrictMode>,

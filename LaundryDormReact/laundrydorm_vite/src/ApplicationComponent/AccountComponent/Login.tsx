@@ -4,12 +4,13 @@ import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { FcIdea } from 'react-icons/fc'
+import { loginCall } from "../../lib/api_calls" //importing the function so we can use it here
+import { responseProps } from '../../lib/api_calls' //importing the datatype
 
 
-export const Login = () => {
+export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : boolean, hideFooter?: boolean}) => {
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
     // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
@@ -26,52 +27,29 @@ export const Login = () => {
     const [errorMsg, setErrorMessage] = useState('');
     const [countError, setErrorCount] = useState(0);
     
-
+    
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const loginData = { //The left side need to match how the model is setup in backend/C#
-                                //right side is what we get from our user/usestate
-            Email: email,
-            Password: passWord
-        }
+
         setBtnPending(true);
 
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/LoginAuth`, 
-            loginData, //This is the body, axios automatically JSON-stringifies the request body, no need to json.stringify
-        {
-            headers: {
-                "Content-Type": "application/json"
-            },
-        }) 
-            const tokenResponse = response.data //When not getting json in return, only use data, not (dot) + variable name after
+        const formData = new FormData();
+
+        formData.append("Email", email);
+        formData.append("Password", passWord);
+
+        const responseData: responseProps = await loginCall(formData, API_BASE_URL);
+        console.log(responseData)
+
+        if(responseData){
+            console.log(responseData.successMessage);
             setBtnPending(false);
-
-            localStorage.setItem("access_token", tokenResponse);
-            navigate('/',
-                {replace: true}
-            );
+            navigate('/', {replace: true});
         }
 
-        catch (err: unknown){
-            if(axios.isAxiosError(err) && err.response){
-                console.error('Backend respond status: ', err.response.status);
-                setErrorMessage(`Error message from backend: ${err.response.data || "Something went wrong"}`);
-                setBtnPending(false);
-                setErrorCount(countError + 1);
-            } else if(axios.isAxiosError(err) && err.request){
-                //No response received (e.g., server down)
-                console.error("No response from server:", err.request);
-                setErrorMessage("No response from the server, try again later");
-                setBtnPending(false);
-                setErrorCount(countError + 1);
-            } else {
-                console.error("An unexpected error occured", err);
-                setErrorMessage("An unexpected error occured" + err);
-                setBtnPending(false);
-                setErrorCount(countError + 1);
-            }
-        }
+        setBtnPending(false);
+        
+         return setErrorMessage(responseData.errorMessage ?? "An error occured") 
     }
 
   return (
@@ -79,7 +57,7 @@ export const Login = () => {
     <div className="register_loginBG">
         <form onSubmit={handleSubmit}>
             <div className="min-h-screen flex flex-col">
-                <NavbarDefault/>
+                {!hideNavbar && <NavbarDefault  />}
 
                 {
                     token? (<div className="flex items-center justify-center text-white mt-5 font-bold gap-2">
@@ -129,7 +107,7 @@ export const Login = () => {
         </form>
 
     </div>
-    
+    {!hideFooter && <FooterDefault />}
     </>
     
   )

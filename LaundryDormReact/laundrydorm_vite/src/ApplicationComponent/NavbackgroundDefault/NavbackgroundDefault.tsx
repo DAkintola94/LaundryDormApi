@@ -1,7 +1,7 @@
 //import {Link, Route, Routes } from "react-router-dom";
 //Navbar, MobileNav, Button, IconButton,
 //import laundrySVG from "../../assets/BlueLaundry.svg"
-import {useState, useRef, useEffect} from 'react'
+import React, {useState, useRef, useEffect} from 'react'
 import {Link} from "react-router-dom"
 import {jwtDecode} from 'jwt-decode';
 import { MdAccountCircle, MdPermDeviceInformation } from 'react-icons/md';
@@ -12,10 +12,7 @@ import {Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import axios  from 'axios';
 
 
-
-
-export const NavbarDefault = () => {
-
+export const NavbarDefault: React.FC<{isRegister?: boolean; onNavigateToAuth?: (toRegister: boolean) => void}> = () => {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 
 const token = localStorage.getItem("access_token");
@@ -57,6 +54,13 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
 
  const handleAccountMouseLeave = () => { //Adding delay befor closing the dropdown, to prevent it from disappearing instantly
   accountTimeout.current = window.setTimeout(() => setAccDropMenu(false), 100)
+ }
+
+ const handleAccountAction = (action: () => void, actionName: string) => {
+  console.log(`Button clicked: ${actionName}`);
+  action();
+  console.log(`Action executed: ${actionName}, closing dropdown`);
+  setAccDropMenu(false); //Close dropdown after action is executed
  }
 
   type UserInfo = { //Where we want to hold the information about the logged in user
@@ -146,11 +150,20 @@ const laundryDownMenu = [
 ];
 
 const accountDropDownMenu = [
-{name: "Logg inn", link:"/login"},
-{name: "Logg ut", link:"/logout"},
-{name: "Registrer deg", link:"/register"}
-];
+  {name: "Logg inn", action: () => {
+    navigate('/Stage', {replace: true, state: {isRegister: false}});
+  }},
 
+  {name: "Logg ut", action: () => {
+    localStorage.removeItem("access_token");
+    navigate('/', {replace: true});
+    if(location.pathname === '/') window.location.reload();
+  }},
+
+  {name: "Registrer deg", action: () => {
+    navigate('/Stage', {replace: true, state: {isRegister: true}})
+  }}
+]
 
   return (
     <>
@@ -212,6 +225,8 @@ const accountDropDownMenu = [
       if (userInfo && (accList.name === "Logg inn" || accList.name === "Registrer deg")) {
         return null;
       }
+      if(location.pathname==='/Stage' &&(accList.name === "Logg inn" || accList.name === "Registrer deg" ))
+         return null;
       // Hide "Logg ut" when NOT logged in
       if (!userInfo && accList.name === "Logg ut") {
         return null;
@@ -222,34 +237,32 @@ const accountDropDownMenu = [
           <li key={ids} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
             <button
               className="w-full text-left"
-              onClick={() => {
-                localStorage.removeItem("access_token"); //removes all info about user, global
-                
-                navigate('/', { replace: true }); //navigate back to homepage
-                if(location.pathname === '/'){
-                  window.location.reload(); //refresh the page if we are in homepage
-                                            //useful to refresh users information on screen
-                }
-              }}
+              onClick={() => handleAccountAction(accList.action, accList.name)}
             >
               {accList.name}
             </button>
           </li>
         );
       }
-      // Render other menu items as links, except the logout, which is rendered as button
+      // Render all other items as buttons
       return (
         <li key={ids} className="px-4 py-2 hover:bg-[#00df9a] hover:text-black">
-          <Link to={accList.link}>{accList.name}</Link>
+          <button
+            type="button"
+            className="w-full text-left"
+            onClick={() => handleAccountAction(accList.action, accList.name)}
+          >
+            {accList.name}
+          </button>
         </li>
       );
     })}
   </ul>
 )}
-</li>
-);
-})}
-</ul>
+          </li>
+        );
+      })}
+      </ul>
       {
       userInfo && ( 
       <Menu as="div" className="flex-none w-10 h-10 rounded-full hidden md:block">

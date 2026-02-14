@@ -9,9 +9,11 @@ import {useState} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { registerApiCall } from "../../lib/api_calls"
+import { responseProps } from '../../lib/api_calls'
 
-export const Register = () => {
+
+export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar? :boolean, hideFooter?: boolean}) => {
     const [{files}, {removeFile, openFileDialog, getInputProps}] = 
     useFileUpload({
         accept: "image/*",
@@ -37,6 +39,7 @@ export const Register = () => {
     const [email, regEmail] = useState("");
     const [isPending, setBtnPending] = useState(false);
     const [errorMessage, setError] = useState('');
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -85,78 +88,29 @@ export const Register = () => {
         formData.append('File', actualFile);  // IFormFile File
         formData.append('FileName', actualFile.name);  // string FileName
 
-        
-        //const registerData ={ //The left side need to match how the model is setup in backend/C#
-                                //right side is what we get from our user/usestate
-            //UserAddress: address,
-            //Email: email,
-            //Password: passWord,
-            //ConfirmPassword: confirmPassWord,
-            //UserFirstName: firstName,
-            //UserLastName: lastName,
-            //PhoneNumber: phoneNumber
-        //};
-        
-        // Debug: Log the data being sent
-        console.log("Sending registration data:", formData);
-        
-        try {
-             const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/RegistrationAuth`, 
-                formData, //Sending FormData, instead of JSON
-        { 
-            headers: {
-                "Content-Type": "multipart/form-data" 
-            },
-        })
-            const tokenResponse = response.data.jwtToken //Since we are getting json in response
+        const regData: responseProps = await registerApiCall(formData, API_BASE_URL);
+        if(regData){
+            console.log(regData.successMessage);
             setBtnPending(false);
-
-            localStorage.setItem("access_token", tokenResponse);
-            navigate('/',
+               navigate('/',
                 {
                     replace: true
                 }
             );
         }
-        catch(err: unknown) {
-            if(axios.isAxiosError(err) && err.response){
-                const data = err.response.data;
-              //if server respond with a status code outside of 2xx range
-
-              let responseErrorMessage = "Noe gikk galt";
-              setError(responseErrorMessage);
-
-              if(data){
-                if(Array.isArray(data.Errors)){
-                    responseErrorMessage = data.Errors.join(",");
-                } else if (typeof data.Errors === "string"){
-                    responseErrorMessage = data.Errors;
-                } else if (data.Message) {
-                    responseErrorMessage = data.Message
-                }
-              }
-                console.error('Backend respond status: ', err.response.status);
-
-                setError(responseErrorMessage);
-                setBtnPending(false);
-            } else if(axios.isAxiosError(err) && err.request){
-                setError("Ingen response fra serveren");
-                setBtnPending(false);
-            } else {
-                setError("Noe gikk galt" + err);
-                setBtnPending(false);
-            }
-        }
+        setBtnPending(false);
+        setError(regData.errorMessage ?? "An error occured")
+        console.log(regData.errorObject);
     } 
 
     return (
         <>
+        {!hideNavbar && <NavbarDefault  />}
         <div className="register_loginBG"> {/* .register_loginBG is in global css*/}
             
         <form onSubmit={handleSubmit}>
 
         <div className="min-h-screen flex flex-col">
-            <NavbarDefault />
 
             <div className="flex-1 flex flex-col items-center justify-center py-8">
 
@@ -325,6 +279,7 @@ export const Register = () => {
         </form>
 
         </div>
+        {!hideFooter && <FooterDefault />}
         </>
     )
 }

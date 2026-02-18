@@ -68,16 +68,7 @@ export const Profile = () => {
     <>
     <NavbarDefault />
     <div>
-      {
-        !token? (
-          <div className="flex items-center justify-center text-red-500 font-bold gap-2">
-            <FaUserLock className="text-1xl" />
-            <span> Vennligst logg inn for å bruke denne funksjonen </span>
-          </div>
-        ) 
-        
-        : 
-        
+        {
         loading? (
           <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
                   <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
@@ -95,7 +86,7 @@ export const Profile = () => {
 
           </div>
         )
-      }
+        }
     </div>
     <FooterDefault />
     </>

@@ -1,79 +1,60 @@
 import React from 'react'
-import axios from "axios"
 import {useState, useEffect} from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import { Pagination } from '../Data_OperationComponent/Pagination'
 import { LuMessageCircle } from 'react-icons/lu'
 import { MdError } from 'react-icons/md'
-import { useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
+import { UsersSessionHistoric } from '@/lib/apiCall'
+import { getHistoricData } from '@/lib/apiCall'
 
 export const Historic = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+  const token = localStorage.getItem("access_token");
   // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
   // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
 
   console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
 
-  const navigate = useNavigate();
-
-  type UsersSessionHistoric = { //Setting the datatype of the data we will be getting from backend, and set to table in react. Remember, camelCase
-    sessionUser: string;
-    sessionId: number;
-    email: string | null; //expecting string, or no value (null)
-    reservationDate: string | null; // string, because backend sends ISO string (date) 
-    reservationTime: string | null; // string, because backend sends ISO string (date)
-    laundryStatusDescription: string | null;
-    startPeriod: string | null; // string, because backend sends ISO string (date)
-    endPeriod: string | null; // string, because backend sends ISO string (date)
-    machineName: string | null;
-    userMessage: string | null;
-  };
 
   const [sort, setSort] = useState({keyToSort: 'Reservasjon dato', direction: 'asc'});
 
   const [modalValue, setModalState] = useState<UsersSessionHistoric | null>(null);
   const [userValidData, setData] = useState<UsersSessionHistoric[]>([]); //setting usestate to map object, as array. since .map only work with array
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading]=useState(false);
+  const [loading, setLoadingBtn]=useState(false);
   const [postsPerPage, setPostsPerPage] = useState(8);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const token = localStorage.getItem("access_token");
+
 
   useEffect(() => {
-    const fetchData = async () =>{
-      setLoading(true);
-    await axios.get(`${API_BASE_URL}/api/Laundry/SessionHistoric?pageNumber=${currentPage}&pageSize=${postsPerPage}`,
-      {
-        headers: {"Authorization" : `Bearer ${token}`}
-      })
-    .then(response => {
-       setData(response.data) //Axios puts the actual response data in the .data property of the response object.
-       //console.log(response.data);
-       setLoading(false);
-      })                      //setting our populated data into the useState of userValidData [array]
+    setLoadingBtn(true);
+    const initializeData = async () =>{
+      //We are expecting a void promises, no need to write anything from the method call
+      //Since we are expecting void promises, we cant fetch.seepropertyvalues because void returns nothing
+      const fetchData = await getHistoricData(API_BASE_URL,
+        {
+          setSessionHistoric: setData,
+          setLoadingBtn,
+          setErrorMessage
+        },
+        currentPage,
+        postsPerPage
+       );
 
-      .catch(err => {
-        console.log(err.message);
-        setLoading(false);
-      })
+       console.log(fetchData)
+       //however, our callbacks (usestate, useref, what so ever) will be populated if the method callback used them
+       //Therefore, you can just call them directly incase they have value, since you can't get the method propertyvalue due to its void promise
+       console.log(errorMessage);
     }
+
     if(token){
-      fetchData();
+      initializeData();
     }
-    else {
-      setLoading(false);
-      const errMessage = "Unauthorize user";
-      navigate('/error404', {
-        replace: true,
-        state: {
-          errMessage: errMessage
-        }
-      })
-    }
-  }, [token, navigate, currentPage, postsPerPage, API_BASE_URL])
+  }, [token, currentPage, postsPerPage, API_BASE_URL, errorMessage])
 
 
   {/*Sorting function*/}
@@ -109,9 +90,7 @@ export const Historic = () => {
   };
 
   const sortedData = getSortedData();
-  const lastPostIndex = currentPage * postsPerPage;
-  const firstPostIndex = lastPostIndex - postsPerPage;
-  const currentPost = sortedData.slice(firstPostIndex, lastPostIndex);
+  const currentPost = sortedData
 
 
 
@@ -266,7 +245,6 @@ export const Historic = () => {
         </div>
       </div>
     )
-
     }
 
       <FooterDefault />

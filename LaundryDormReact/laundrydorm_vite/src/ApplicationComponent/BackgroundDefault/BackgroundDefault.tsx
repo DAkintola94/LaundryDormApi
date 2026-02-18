@@ -1,10 +1,9 @@
-//import React from 'react'
-//import bgCity from '../../../assets/city_lake.jpg'
 import {useState, useEffect} from "react"
 import blueLaundry from '../../assets/blue_laundry.png'
 import bgCss from '../../ApplicationComponent/BackgroundDefault/BackgroundDefault.module.css'
 import 'aos/dist/aos.css'
-import axios from 'axios';
+import { globalFetchData } from "@/lib/authCall"
+import { profileProps } from "@/lib/authCall"
 
 export const BackgroundDefault = () => {
 
@@ -14,24 +13,16 @@ export const BackgroundDefault = () => {
   //const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   
   useEffect(() => {
-    const fetchUserInfomation = async () => {
-      await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,{
-        headers: {"Authorization" : `Bearer ${token}`}
-      })
-      .then(response => {
-        //console.log("data response from the backend", response.data);
-        setName(response.data.userName);
-        //setImageUrl(response.data.profilePictureUrlPath);
-      })
-    }
-    if(token){
-      fetchUserInfomation();
-    }
-    else {
-      console.log("No user is currently signed in");
+    const initializeUserData = async () => {
+      const fetchData:profileProps = await globalFetchData(API_BASE_URL);
+      setName(fetchData.userName ?? "undefined")
     }
 
-  }, [token, API_BASE_URL])
+    if(token){ //You still need token for useEffect to kick in when token value change, so we can call a function
+      initializeUserData()
+    }
+    
+  }, [API_BASE_URL, token])
 
   return (
     <div className={bgCss.backgroundImage}> 
@@ -43,7 +34,7 @@ export const BackgroundDefault = () => {
             <p data-aos="fade-up"
             className="text-[#ffff00]
             text-3xl font-semibold"> Velkommen
-            {token && populateName &&(
+            {populateName &&(
               <span> {populateName} </span> //showing the users name if its populated
             )}
             </p>

@@ -75,10 +75,6 @@ const [nav, setNavBar] = useState(false); //hooks must be called at the top leve
         fetchUsersInfo();
       }
     }, [API_BASE_URL, imageUrl, token]);
-    
-
-    console.log("JWT token info",token);
-
 
 const Navlinks = [
 {id: 1, name: "Vask", link:'/vask', icon: <GiWashingMachine />},
@@ -169,6 +165,10 @@ const accountDropDownMenu = [
     {accountDropDownMenu.map((accList, ids) => {
       // Hide "Logg inn" and "Registrer deg" when logged in
       if (token && (accList.name === "Logg inn" || accList.name === "Registrer deg")) {
+        return null;
+      }
+
+      if(location.pathname==='/Stage' && (accList.name === "Logg inn" || accList.name === "Registrer deg")){
         return null;
       }
       // Hide "Logg ut" when NOT logged in

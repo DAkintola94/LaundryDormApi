@@ -89,18 +89,20 @@ export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar?
         formData.append('FileName', actualFile.name);  // string FileName
 
         const regData: responseProps = await registerApiCall(formData, API_BASE_URL);
-        if(regData){
+
+        if(regData.success === true) {
             console.log(regData.successMessage);
             setBtnPending(false);
-               navigate('/',
-                {
-                    replace: true
-                }
-            );
-        }
+            navigate('/', { replace: true });
+        } else {
+        // Use errorMessage first (which now contains err.message from the catch block)
+        // Fall back to errorObject.message if it exists, then generic message
+            const errorMsg = regData.errorMessage 
+            || (regData.errorObject?.message) 
+            || "An error occurred";
+        setError(errorMsg);
         setBtnPending(false);
-        setError(regData.errorMessage ?? "An error occured")
-        console.log(regData.errorObject);
+        }
     } 
 
     return (

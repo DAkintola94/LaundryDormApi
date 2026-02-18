@@ -1,5 +1,5 @@
 import React from 'react'
-import {useState} from 'react'
+import {useState, useRef} from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {MdAlternateEmail} from 'react-icons/md'
@@ -18,14 +18,14 @@ export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : 
 
     console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
     
-    const token = localStorage.getItem("access_token");
     const navigate = useNavigate();
 
     const [email, usersEmail] = useState('');
     const [passWord, usersPassword] = useState('');
     const [pending, setBtnPending] = useState(false);
     const [errorMsg, setErrorMessage] = useState('');
-    const [countError, setErrorCount] = useState(0);
+    const [countError, setErrorCount] = useState(Number);
+    const errorCountRef = useRef(1);
     
     
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
@@ -41,15 +41,35 @@ export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : 
         const responseData: responseProps = await loginCall(formData, API_BASE_URL);
         console.log(responseData)
 
-        if(responseData){
-            console.log(responseData.successMessage);
+        if(responseData.success === false && responseData.errorObject.message === "Request failed with status code 401"){
             setBtnPending(false);
-            navigate('/', {replace: true});
+            return
+        }
+
+        if(responseData.success === false){
+            setBtnPending(false);
+            setErrorCount(errorCountRef.current++);
+
+            console.log(countError, ": is the amount of error");
+
+             if (responseData.errorObject){
+                setErrorMessage(responseData.errorObject.message);
+                return
+            } 
+             else if(responseData.errorMessage){
+                setErrorMessage(responseData.errorMessage ?? "");
+                return
+            }
+
+            setErrorMessage(responseData.errorMessage ?? "An error occured");
+            setBtnPending(false);
+
+            return;
         }
 
         setBtnPending(false);
+        navigate('/', {replace: true});
         
-         return setErrorMessage(responseData.errorMessage ?? "An error occured") 
     }
 
   return (
@@ -58,24 +78,9 @@ export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : 
         <form onSubmit={handleSubmit}>
             <div className="min-h-screen flex flex-col">
                 {!hideNavbar && <NavbarDefault  />}
-
-                {
-                    token? (<div className="flex items-center justify-center text-white mt-5 font-bold gap-2">
-                        <FcIdea className="text-2xl" />
-                        <span className="text-yellow-200" > Obs, du er allerede innlogget</span>
-                    </div>) 
-                 : 
-
                 <div className="flex-1 flex flex-col items-center justify-center py-8">
                     <label className="text-white flex items-center gap-2"> Email <MdAlternateEmail /></label>
                     <input type="text" onChange={(e) => usersEmail(e.target.value) } placeholder="abc123@laundrydorm.no" className="text-white mb-4 p-2 border rounded w-full max-w-md"/>
-                    {errorMsg &&
-                        <span className="text-red-400 mb-4"> {errorMsg}</span>
-                    }
-
-                    { countError > 1 && 
-                        <span className="text-red-400 mb-4"> Azure "cold start" kan skape problemer av og til, prøv igjen. </span>
-                    }
 
                     <label className="text-white flex items-center gap-2"> Passord <RiLockPasswordFill /> </label>
                     <input type="password" onChange={(e) => usersPassword(e.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required />
@@ -98,9 +103,17 @@ export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : 
                         </button>
                     }
 
+                        {errorMsg &&
+                        <span className="text-white"> {errorMsg}</span>
+                    }
+
+                    { countError > 2 && 
+                        <span className="text-white"> Azure "cold start" kan skape problemer av og til, prøv igjen. </span>
+                    }
+
                 </div>
 
-                }
+
                 <FooterDefault />
             </div>
 

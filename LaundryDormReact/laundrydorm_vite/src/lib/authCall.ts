@@ -11,6 +11,37 @@ import { data } from "react-router-dom";
  export interface profileProps{
     imageUrl: string | undefined
     error: string | undefined
+    userName: string | undefined
+    phoneNr: string | undefined
+ }
+
+  export async function globalFetchData(API_BASE_URL: string):
+ Promise<profileProps>
+ {
+    try{
+         const token = localStorage.getItem("access_token");
+        const getProfileInfo = await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
+            {
+                headers: {"Authorization" : `Bearer ${token}`}
+            }
+        ) 
+        return {
+            imageUrl: getProfileInfo.data.profilePictureUrlPath,
+            error: undefined,
+            userName: getProfileInfo.data.userName,
+            phoneNr: getProfileInfo.data.phoneNumber
+
+        }
+    }
+
+    catch {
+        return {
+            imageUrl: undefined,
+            error: "An error occured",
+            userName: undefined,
+            phoneNr: undefined
+        }
+    }
  }
 
 
@@ -60,11 +91,11 @@ import { data } from "react-router-dom";
                 console.error('Backend respond status: ', err.response.status);
                 console.log(responseErrorMessage);
                 //errorMsg(responseErrorMessage);
-            } else if(axios.isAxiosError(err) && err.request){
+            } else if(axios.isAxiosError(err)){
                 return {
                     success: false,
                     successMessage: "An error occured",
-                    errorObject: undefined,
+                    errorObject: err.message,
                     errorMessage: "No message from the server"
                 }
             } else {
@@ -113,29 +144,6 @@ import { data } from "react-router-dom";
 
  }
 
- export async function globalFetchData(API_BASE_URL: string):
- Promise<profileProps>
- {
-    try{
-         const token = localStorage.getItem("access_token");
-        const getProfileInfo = await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
-            {
-                headers: {"Authorization" : `Bearer ${token}`}
-            }
-        )
-        return {
-            imageUrl: getProfileInfo.data.profilePictureUrlPath,
-            error: undefined
-        }
-    }
-
-    catch {
-        return {
-            imageUrl: undefined,
-            error: "An error occured"
-        }
-    }
- }
  
 
     

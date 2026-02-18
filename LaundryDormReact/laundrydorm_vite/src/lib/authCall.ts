@@ -13,6 +13,20 @@ import { data } from "react-router-dom";
     error: string | undefined
     userName: string | undefined
     phoneNr: string | undefined
+    //email: string | undefined
+    //address: string | undefined
+ }
+
+ export interface valueCallbacks{
+    setFirstName: (name: string) => void,
+    setLastName: (lastName: string) => void
+    setId: (userId: string) => void
+    setEmail: (email: string) => void
+    setPhoneNumber: (phoneNr: string) => void
+    setAddress: (address: string) => void
+    setImageUrl: (imageUrl: string) => void
+    setLoading: (loadingState: boolean) => void
+    setFetchError: (errorMessage: string) => void
  }
 
   export async function globalFetchData(API_BASE_URL: string):
@@ -30,6 +44,8 @@ import { data } from "react-router-dom";
             error: undefined,
             userName: getProfileInfo.data.userName,
             phoneNr: getProfileInfo.data.phoneNumber
+            //email: undefined,
+            //address: undefined
 
         }
     }
@@ -39,8 +55,34 @@ import { data } from "react-router-dom";
             imageUrl: undefined,
             error: "An error occured",
             userName: undefined,
-            phoneNr: undefined
+            phoneNr: undefined,
+            //email: undefined,
+            //address: undefined
         }
+    }
+ }
+
+ export async function globalUserProfileData(API_BASE_URL: string, callbackValues: valueCallbacks)
+ : Promise<void>{
+    try{
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get(`${API_BASE_URL}/api/ProfileManagement/ProfilePage`,
+            {
+                headers: {"Authorization" : `Bearer ${token}`}
+            })
+           if(!response) return callbackValues.setLoading(false);
+           console.log(response, "for the profile page");
+        callbackValues.setFirstName(response.data.userFirstName);
+        callbackValues.setLastName(response.data.userLastName);
+        callbackValues.setId(response.data.profileId);
+        callbackValues.setEmail(response.data.email);
+        callbackValues.setPhoneNumber(response.data.phoneNumber);
+        callbackValues.setAddress(response.data.userAddress);
+        callbackValues.setImageUrl(response.data.userImageURL);
+        callbackValues.setLoading(false);
+    } catch {
+        callbackValues.setFetchError("An error occured");
+        callbackValues.setLoading(false);
     }
  }
 

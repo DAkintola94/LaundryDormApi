@@ -9,13 +9,26 @@ export const BackgroundDefault = () => {
 
   const token = localStorage.getItem("access_token");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
-  const [populateName, setName] = useState("");
-  //const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+
+
+  const [dataFromApi, setData] = useState<profileProps>({ //Setting them to empty string for now
+    imageUrl: "",
+    error: "",
+    phoneNr: "",
+    userName: "",
+    email: ""
+  })
   
   useEffect(() => {
     const initializeUserData = async () => {
       const fetchData:profileProps = await globalFetchData(API_BASE_URL);
-      setName(fetchData.userName ?? "undefined")
+      setData({
+        imageUrl: fetchData.imageUrl ?? "undefined",
+        error: fetchData.error ?? "undefined",
+        phoneNr: fetchData.phoneNr ?? "undefined",
+        userName: fetchData.userName ?? "undefined",
+        email: fetchData.email ?? "undefined"
+      })
     }
 
     if(token){ //You still need token for useEffect to kick in when token value change, so we can call a function
@@ -34,8 +47,8 @@ export const BackgroundDefault = () => {
             <p data-aos="fade-up"
             className="text-[#ffff00]
             text-3xl font-semibold"> Velkommen
-            {populateName &&(
-              <span> {populateName} </span> //showing the users name if its populated
+            {dataFromApi.userName &&( //If we have any data in the props
+              <span> {dataFromApi.userName} </span> //showing the users name if its populated
             )}
             </p>
             <h1 data-aos="fade-up"

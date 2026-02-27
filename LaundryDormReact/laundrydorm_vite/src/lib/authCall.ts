@@ -13,7 +13,7 @@ import { data } from "react-router-dom";
     error: string | undefined
     userName: string | undefined
     phoneNr: string | undefined
-    //email: string | undefined
+    email: string | undefined
     //address: string | undefined
  }
 
@@ -43,8 +43,8 @@ import { data } from "react-router-dom";
             imageUrl: getProfileInfo.data.profilePictureUrlPath,
             error: undefined,
             userName: getProfileInfo.data.userName,
-            phoneNr: getProfileInfo.data.phoneNumber
-            //email: undefined,
+            phoneNr: getProfileInfo.data.phoneNumber,
+            email: getProfileInfo.data.email,
             //address: undefined
 
         }
@@ -56,7 +56,7 @@ import { data } from "react-router-dom";
             error: "An error occured",
             userName: undefined,
             phoneNr: undefined,
-            //email: undefined,
+            email: undefined,
             //address: undefined
         }
     }

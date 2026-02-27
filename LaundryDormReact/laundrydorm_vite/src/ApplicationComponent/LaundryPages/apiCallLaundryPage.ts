@@ -21,6 +21,20 @@ export interface callbackStates{ //Creating void interface, so we can send sever
     setErrorMessage: (messageFromBackend: string) => void
 }
 
+export interface setLaundryCallbacks{ //Creating void interface, so we can send several callbacks to the user
+    setFormName: (formName: string) => void
+    setFormEmail: (formEmail: string) => void
+    setPhoneNumber: (phoneNr: string) => void
+    setError: (messageFromBackend: string) => void
+}
+
+export interface sessionProps {
+    userMessage: string,
+    machineId: number,
+    sessionTimePeriodId: number,
+    reservationTime: string
+}
+
 export async function getHistoricData(baseUrl: string ,callBack: callbackStates,
      currentPageShown: number, currentPostsPerPage: number)
      : Promise<void> //What the method promise to return, and it must be a void in this case
@@ -72,4 +86,31 @@ export async function getHistoricData(baseUrl: string ,callBack: callbackStates,
             callBack.setLoadingBtn(false);
     }
     
+}
+
+export async function setLaundryCall(API_BASE_URL: string, laundrySessionData: sessionProps)
+:Promise<string | undefined>
+{
+    const token = localStorage.getItem("access_token");
+    if(!token) return "undefined"
+    try{
+        const sendData = await axios.post(`${API_BASE_URL}/api/Laundry/StartSession`,
+            laundrySessionData,    
+        {
+            headers:{
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+
+        })
+
+        const responseData: string = sendData.data.backendSessionId; //backend is sending back that variable name "backendSessionId"
+        if(!responseData) return "undefined"
+        console.log(responseData);
+        
+        return responseData
+    }
+    catch{
+        console.log("An error occured");
+    }
 }

@@ -6,8 +6,8 @@ import { Pagination } from '../Data_OperationComponent/Pagination'
 import { LuMessageCircle } from 'react-icons/lu'
 import { MdError } from 'react-icons/md'
 import { format, parseISO } from 'date-fns'
-import { UsersSessionHistoric } from '@/lib/apiCall'
-import { getHistoricData } from '@/lib/apiCall'
+import { UsersSessionHistoric } from '@/ApplicationComponent/LaundryPages/apiCallLaundryPage'
+import { getHistoricData } from '@/ApplicationComponent/LaundryPages/apiCallLaundryPage'
 
 export const Historic = () => {
 

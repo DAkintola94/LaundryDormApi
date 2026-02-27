@@ -1,5 +1,25 @@
-
 import axios from "axios";
+
+export type statusData = { //must match the viewmodel name of the backend. cascalCase!
+      //This is just a type declearation here, but the post variable must match ASP.NET core JSON
+      //ASP.NET converts to camelCase
+      sessionId: number | null; 
+      reservationTime: string | null;
+      reservationDate: string | null;
+      userMessage: string | null;
+      startPeriod: string;
+      endPeriod: string;
+      laundryStatusDescription: string | null;
+      machineName: string | null;
+      imageUrlPath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path of the image that server serve
+      nameOfUser: string | null;
+}
+
+export type reserveDataTypes = { 
+    machineId: number
+    sessionTimePeriodId: number
+    reservationDate : string, //Since backend is expecting DateOnly, this works
+}
 
 export type UsersSessionHistoric = { //Setting the datatype of the data we will be getting from backend, and set to table in react. Remember, camelCase
     sessionUser: string;
@@ -28,7 +48,7 @@ export interface setLaundryCallbacks{ //Creating void interface, so we can send 
     setError: (messageFromBackend: string) => void
 }
 
-export interface sessionProps {
+export type sessionProps = {
     userMessage: string,
     machineId: number,
     sessionTimePeriodId: number,
@@ -49,7 +69,6 @@ export async function getHistoricData(baseUrl: string ,callBack: callbackStates,
         {
             headers: {"Authorization": `Bearer ${token}`}
         });
-    console.log("Historic data from the backend: ", fetchData.data);
     callBack.setSessionHistoric(fetchData.data);
     callBack.setLoadingBtn(false);
     }
@@ -113,4 +132,50 @@ export async function setLaundryCall(API_BASE_URL: string, laundrySessionData: s
     catch{
         console.log("An error occured");
     }
+}
+
+export async function getCalenderInformation(): 
+Promise<statusData[] | undefined>{ 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const token = localStorage.getItem("access_token");
+    if(!token) {
+        console.warn("No token found");
+        return undefined
+    }
+        
+    try{
+        const response = await axios.get(`${API_BASE_URL}/api/Laundry/PopulateAvailability`, {
+        headers: { "Authorization" : `Bearer ${token}`}
+        })
+            if (!response) return undefined
+            console.log(response.data, "Data from status");
+            return response.data
+    }
+
+    catch{
+        console.log("An error occured");
+    }
+
+}
+
+export async function setReservationCall(reservationData: reserveDataTypes): Promise<string>{
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const token = localStorage.getItem("access_token");
+    if(!token) return "No user founded"
+
+    const reserveData = await axios.post(`${API_BASE_URL}/api/Laundry/SetReservation`,
+        reservationData,{
+            headers: {
+                "Content-Type" : "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        })
+
+    if(reserveData.data.laundrySessionId !== null){ //We are getting json back. Using session ID to confirm that we are actually getting something back
+        return "Reservation have been set"
+    }
+    else {
+        return "Something went wrong"
+    }
+
 }

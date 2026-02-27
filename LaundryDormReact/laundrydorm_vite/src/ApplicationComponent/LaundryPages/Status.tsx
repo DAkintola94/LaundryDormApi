@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import {Fragment, useState} from 'react'
-import { useNavigate } from 'react-router-dom'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {Menu, Transition} from '@headlessui/react'
@@ -15,72 +14,40 @@ import {
   parse, parseISO,
   startOfToday,
 } from 'date-fns'
-import axios from 'axios'
+import { getCalenderInformation, setReservationCall, statusData } from './apiCallLaundryPage'
 
 function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-type statusData = { //must match the viewmodel name of the backend. cascalCase!
-      //when ASP.NET Core sends this as JSON, it automatically converts to camelCase
-      sessionId: number | null; 
-      reservationTime: string | null;
-      reservationDate: string | null;
-      userMessage: string | null;
-      startPeriod: string;
-      endPeriod: string;
-      laundryStatusDescription: string | null;
-      machineName: string | null;
-      imageUrlPath: string | undefined; //Based on what the seeded foreignkey backend is serving. Url path of the image that server serve
-      nameOfUser: string | null;
-}
 
 export const Status = () => {
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
   // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
   // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
 
-  console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
-
-  const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
   const [loading, setLoading] = useState(false);
 
 
-  const [calenderData, setCalenderData] = useState<statusData[]>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
+  const [calenderData, setCalenderData] = useState<statusData[] | []>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
 
   useEffect(() => {
+    setLoading(true);
     const fetchTodayData = async () => {
-      setLoading(true);
-      await axios.get(`${API_BASE_URL}/api/Laundry/PopulateAvailability`,
-        {
-          headers: {"Authorization" : `Bearer ${token}`}
-        })
-        .then(response => {
-          setLoading(false);
-          setCalenderData(response.data);
-          //console.log(response.data); //See the data server is returning, as well as the property name
-        })
-        .catch(err => {
-          setLoading(false);
-          console.log("An error occured", err);
-        })
-    }
-    if(token){
-      fetchTodayData();
-    }
-    else {
-      const errorMessage = "Unauthorized user, please log in or contact admin"
+      const dataFromApi = await getCalenderInformation();
+      setCalenderData(dataFromApi || []);   
+  }
 
-      navigate('/error404', {
-        replace: true,
-        state: {
-          errMessage: errorMessage
-        }
-      })
-    }
-  }, [token, navigate, API_BASE_URL])
+  if(token){
+    fetchTodayData();
+  } 
+  else {
+    console.log("User is not logged in");
+  }
+  setLoading(false);
+
+  }, [token])
 
 
   const today = startOfToday()
@@ -100,7 +67,6 @@ export const Status = () => {
     end: endOfMonth(firstDayCurrentMonth),
   })
 
-  console.log(selectedDay);
 
   function previousMonth(){
     const firstDayNextMonth = add(firstDayCurrentMonth, { months: -1}) //sets the month according to the arrow we point, by -1 in this case
@@ -134,60 +100,26 @@ const [laundrySessionTime, setSessionTime] = useState('1');
 
 const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+
+  setPending(true);
+
   const reserveLaundry = {
     machineId: Number(machineId),
     sessionTimePeriodId: Number(laundrySessionTime),
     reservationDate : formDate, //Since backend is expecting DateOnly, this works
   };
 
-  if(!token){
-    const sendError = "Unauthorize user"
-    navigate('/error404', {
-      replace:true,
-      state: {
-        errMessage: sendError
-      }
-    })
-    return;
+  const postAndCallbackValue = await setReservationCall(reserveLaundry);
+
+  if(postAndCallbackValue){
+    setPending(false);
+    window.location.reload();
   }
 
-  setPending(true);
+  setFormError("Something went wrong");
 
-  try{
-    const sendData = await axios.post(`${API_BASE_URL}/api/Laundry/SetReservation`,
-           reserveLaundry, //This is the body, Axios automatically JSON-stringifies the request body, no need to json.stringify
-           {
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
-            },
-          })
-          setPending(false);
-          if(sendData.status === 200){ //reload the page if our data is successfully sent. So we can see dot on calender.
-            window.location.reload();
-          }
-  }
-  catch (err:unknown){
-    if(axios.isAxiosError(err) && err.response){
-
-      console.error("Backend error", err.response.status);
-      //Since backend is sending back plain string upon error, and not JSON with message property
-      setFormError(`Error! ${err.response.data || "Something went wrong"}`); //.data to get the text error
-      setPending(false);
-
-    } else if (axios.isAxiosError(err) && err.request){
-      //No response received (e.g., server down)
-      console.error('No response from the server:', err.request);
-      setFormError("No response from server, please try again later");
-      setPending(false);
-      
-    } else {
-      console.error("An unexpected error occured", err);
-      setFormError("An unexpected error occured" + err);
-      setPending(false);
-    }
-  }
 }
+
 
   return (
     <>

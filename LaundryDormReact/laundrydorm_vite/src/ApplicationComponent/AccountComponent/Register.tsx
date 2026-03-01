@@ -5,12 +5,20 @@ import {Button} from "../../components/ui/button"
 import {MdAlternateEmail, MdContactPhone, MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {FaAddressCard} from 'react-icons/fa'
 import { TbLockPassword} from 'react-icons/tb'
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
 import { useNavigate } from 'react-router-dom'
 import { registerApiCall } from "../../lib/authCall"
 import { responseProps } from '../../lib/authCall'
+import { GetAddressInformation } from '@/lib/addressCall'
+
+
+import useDebounce from '@/lib/useDebounce'
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { IoSearch } from "react-icons/io5";
+import { AddressResult } from '@/lib/addressCall'
 
 
 export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar? :boolean, hideFooter?: boolean}) => {
@@ -24,11 +32,8 @@ export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar?
 
     const navigate = useNavigate(); //to navigate to a certain site
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
     // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
-
-    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
 
     const [firstName, regFirstName] = useState("");
     const [lastName, regLastName] = useState("");
@@ -38,8 +43,31 @@ export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar?
     const [confirmPassWord, regConfirmPassword] = useState("");
     const [email, regEmail] = useState("");
     const [isPending, setBtnPending] = useState(false);
-    const [errorMessage, setError] = useState('');
 
+    const [isSelecting, setIsSelecting] = useState(false);
+    const [errorMessage, setError] = useState('');
+    const [open, setOpen] = useState(false);
+    const [suggestions, setSuggestions] = useState<AddressResult[]>([]);
+    const [selectedValue, setSelectedValue] = useState<AddressResult | null>(null);
+    const debouncedSearch = useDebounce(address, 400)
+
+    useEffect(() => {
+    if (!debouncedSearch || isSelecting) return
+
+    // SearchBar.tsx
+    const getData = async () => {
+
+      const results = await GetAddressInformation(debouncedSearch);
+      if (results.length > 0) {
+        setSuggestions(results);
+        setOpen(true);
+      } else {
+        setSuggestions([]);
+        setOpen(false);
+      }
+    };
+    void getData();
+  }, [debouncedSearch, isSelecting]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -88,7 +116,7 @@ export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar?
         formData.append('File', actualFile);  // IFormFile File
         formData.append('FileName', actualFile.name);  // string FileName
 
-        const regData: responseProps = await registerApiCall(formData, API_BASE_URL);
+        const regData: responseProps = await registerApiCall(formData);
 
         if(regData.success === true) {
             console.log(regData.successMessage);
@@ -198,14 +226,59 @@ export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar?
                     required
                 />
 
-                <label className="text-white flex items-center gap-2">Addresse <FaAddressCard />  </label>
-                <input 
-                    type="text" 
-                    onChange={(evt) => regAddress(evt.target.value)} 
-                    placeholder="stevnavn..." 
-                    className="text-black bg-white mb-4 p-2 border rounded w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    required
+            <label className="text-white flex items-center gap-2">Addresse <FaAddressCard />  </label>
+                <Autocomplete aria-required={true}
+                className="text-black bg-white mb-4  border rounded w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                freeSolo
+                open={open && suggestions.length > 0}
+                onClose={() => setOpen(false)}
+                inputValue={address}
+                // onInputChange Fires when you type in the input field. Use this to update your search state.
+                onInputChange={(_, value, reason) => {
+                if (reason === "input") {
+                    regAddress(value);
+                    setIsSelecting(false);
+                    setSelectedValue(null);
+                }
+                }}
+                value={selectedValue}
+                // onChange Fires when you select an option from the dropdown. Use this to finalize the selection.
+                onChange={(_, value) => {
+                if (typeof value === "string") {
+                    regAddress(value);
+                    setSelectedValue(null);
+                    setIsSelecting(true);
+                    setOpen(false);
+                    return;
+                }
+                setSelectedValue(value);
+                regAddress(value?.addressName ?? "");
+                setIsSelecting(true);
+                if (value) {
+                    regAddress(value.addressName + ", " + value.postnummer);
+
+                }
+                setOpen(false);
+                }}
+                options={suggestions}
+                getOptionLabel={(option) =>
+                typeof option === "string"
+                    ? option
+                    : `${option.addressName}, ${option.postnummer}`
+                }
+                isOptionEqualToValue={(option, value) => {
+                if (typeof option === "string" || typeof value === "string") return false;
+                return option.addressName === value.addressName && option.postnummer === value.postnummer;
+                }}
+                renderInput={(params) => (
+                <TextField 
+                    {...params}
+                    size="small"
+                    autoComplete="off"
+                    sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#ffffff' }, '& .MuiInputLabel-root': { color: '#666' } }}
                 />
+                )}
+            />
 
                 <label className="text-white flex items-center gap-2" >Email <MdAlternateEmail /> </label>
                 <input 

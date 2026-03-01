@@ -67,12 +67,35 @@ namespace LaundryDormApi
                 options.Lockout.AllowedForNewUsers = true;
             });
 
+            ////For live
+            //builder.Services.AddDbContext<LaundryDormDbContext>(options =>
+            //options.UseSqlServer(builder.Configuration.GetConnectionString("DbContextConnection")));
 
+            //builder.Services.AddDbContext<LaundryDormAuthContext>(options => 
+            //options.UseSqlServer(builder.Configuration.GetConnectionString("AuthContextConnection")));
+
+
+            //For dev
             builder.Services.AddDbContext<LaundryDormDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DbContextConnection")));
+          options.UseMySql(builder.Configuration.GetConnectionString("DbContextConnection"),
+          new MySqlServerVersion(new Version(11, 8, 2)),
+          mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+              maxRetryCount: 5,
+              maxRetryDelay: TimeSpan.FromSeconds(10),
+              errorNumbersToAdd: null
+              )
+          ));
 
-            builder.Services.AddDbContext<LaundryDormAuthContext>(options => 
-            options.UseSqlServer(builder.Configuration.GetConnectionString("AuthContextConnection")));
+            builder.Services.AddDbContext<LaundryDormAuthContext>(options =>
+            options.UseMySql(builder.Configuration.GetConnectionString("AuthContextConnection"),
+            new MySqlServerVersion(new Version(11, 8, 2)),
+            mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+              maxRetryCount: 5,
+              maxRetryDelay: TimeSpan.FromSeconds(10),
+              errorNumbersToAdd: null
+              )
+            ));
+
 
             builder.Services.AddCors(options =>
             {
@@ -167,29 +190,29 @@ namespace LaundryDormApi
 
             var app = builder.Build();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider; //This service/scope is important so docker compose can run migrations upon
-                                                      //application startup, and not when the container is created.
-                try
-                {
-                    var authContext = services.GetRequiredService<LaundryDormAuthContext>();
-                    var dbContext = services.GetRequiredService<LaundryDormDbContext>();
-                    authContext.Database.Migrate();
-                    dbContext.Database.Migrate();
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var services = scope.ServiceProvider; //This service/scope is important so docker compose can run migrations upon
+            //                                          //application startup, and not when the container is created.
+            //    try
+            //    {
+            //        var authContext = services.GetRequiredService<LaundryDormAuthContext>();
+            //        var dbContext = services.GetRequiredService<LaundryDormDbContext>();
+            //        authContext.Database.Migrate();
+            //        dbContext.Database.Migrate();
 
-                    Console.WriteLine("Database migration completed successfully.");
+            //        Console.WriteLine("Database migration completed successfully.");
 
-                } catch(Exception err)
+            //    } catch(Exception err)
 
-                {
-                    Console.WriteLine($"An error occurred while migrating the database: {err.Message}");
-                    Environment.Exit(1); //Exit the application if migration fails
+            //    {
+            //        Console.WriteLine($"An error occurred while migrating the database: {err.Message}");
+            //        Environment.Exit(1); //Exit the application if migration fails
 
-                    //Be careful with this scope/line of code, as if you dont have a valid migration/connection to database, the backend wont start at all
-                    //Because it want's to connect to the database upon startup
-                }
-            }
+            //        //Be careful with this scope/line of code, as if you dont have a valid migration/connection to database, the backend wont start at all
+            //        //Because it want's to connect to the database upon startup
+            //    }
+            //}
 
                 // Configure the HTTP request pipeline. 
 

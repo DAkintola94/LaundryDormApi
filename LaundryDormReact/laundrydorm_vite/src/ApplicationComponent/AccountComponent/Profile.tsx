@@ -1,7 +1,6 @@
 import React from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
-import { FaUserLock } from 'react-icons/fa'
 import {useState, useEffect} from 'react'
 import { globalUserProfileData } from '@/lib/authCall'
 

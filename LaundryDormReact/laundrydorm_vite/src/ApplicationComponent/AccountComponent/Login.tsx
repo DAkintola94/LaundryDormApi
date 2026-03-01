@@ -5,7 +5,6 @@ import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
 import { useNavigate } from 'react-router-dom'
-import { FcIdea } from 'react-icons/fc'
 import { loginCall } from "../../lib/authCall" //importing the function so we can use it here
 import { responseProps } from '../../lib/authCall' //importing the datatype
 

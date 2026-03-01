@@ -1,5 +1,4 @@
 import axios from "axios";
-import { data } from "react-router-dom";
 
  export interface responseProps{ //exporting the interface so we can use the datatype elsewhere
     success: boolean | undefined
@@ -87,10 +86,11 @@ import { data } from "react-router-dom";
  }
 
 
- export async function registerApiCall(formData: FormData, API_BASE_URL: string): 
+ export async function registerApiCall(formData: FormData): 
  Promise<responseProps>
  {
      try {
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
              const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/RegistrationAuth`, 
                 formData, //Sending FormData, instead of JSON
         { 
@@ -98,7 +98,7 @@ import { data } from "react-router-dom";
                 "Content-Type": "multipart/form-data" 
             },
         })
-        console.log(API_BASE_URL);
+            console.log(formData);
             const tokenResponse = response.data.jwtToken //Since we are getting json in response
             localStorage.setItem("access_token", tokenResponse);
             return {

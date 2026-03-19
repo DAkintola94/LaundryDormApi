@@ -21,7 +21,7 @@ jobs:
             - name: Copy files to VM
               uses: appleboy/scp-action@v0.1.7
               with:
-                  host: 141.253.111.63 #Oracle instance public ip address
+                  host: 141.145.214.18 #Oracle instance public ip address
                   username: ubuntu #Oracle instance vm username
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   port: 22 #Oracle vm is using port 22
@@ -32,7 +32,7 @@ jobs:
             - name: Deploy with Docker Compose
               uses: appleboy/ssh-action@v1
               with:
-                  host: 141.253.111.63 #Oracle instance public ip address
+                  host: 141.145.214.18 #Oracle instance public ip address
                   username: ubuntu #Oracle instance vm username
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   port: 22 #Oracle vm is using port 22

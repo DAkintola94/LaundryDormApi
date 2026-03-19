@@ -5,8 +5,7 @@ services:
       context: .
       dockerfile: LaundryDormApi/Dockerfile #Dockerfile path for the backend. Where its located in asp.net. This is adjusted after context (line above)
       # Rememeber, its the docker yaml (build) that sits at the very root and extract all the info from each dockerfiles to build upon them.
-    ports:
-      - "8080:8080"
+      
     restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -39,8 +38,7 @@ services:
       args:
         VITE_API_BASE_URL: http://laundrydorm.portofolio.no/api
     restart: unless-stopped
-    ports:
-      - "3000:80"
+    
     labels:
       - "traefik.enable=true"
 

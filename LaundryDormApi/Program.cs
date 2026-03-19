@@ -45,8 +45,8 @@ namespace LaundryDormApi
             builder.Services.AddScoped<ITokenRepository, TokenRepository>();
             builder.Services.AddScoped<IUpdateCountRepository, UpdateCountRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            
-            
+
+
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
                 .AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>("LaundryDormApi")
@@ -103,7 +103,7 @@ namespace LaundryDormApi
                     policyBuilder =>
                     {
                         policyBuilder.WithOrigins("https://localhost:7054",
-				"http://localhost:5174",
+                "http://localhost:5174",
                 "https://localhost5174",
                 "http://localhost:5173",
                 "https://localhost:5173",
@@ -112,9 +112,9 @@ namespace LaundryDormApi
                             "http://localhost:4200",
                             "https://laundry-dorm-api.vercel.app"
                             ) //this makes it possible to listen to the live server in vscode
-                                                                           //This setting makes it that the backend only listen to the frontend with this specific port/ip
-                                                                           //During production, we set the address to the doamin name ("www.chess.com") feks
-                                                                           //http: //127.0.0.1:5500
+                              //This setting makes it that the backend only listen to the frontend with this specific port/ip
+                              //During production, we set the address to the doamin name ("www.chess.com") feks
+                              //http: //127.0.0.1:5500
 
                         .AllowAnyHeader()
                         .AllowAnyMethod()
@@ -129,7 +129,7 @@ namespace LaundryDormApi
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "LaundryDorm Api", Version = "v1" });
                 options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme //telling Swagger that our API requires a security scheme, like a JWT Bearer token
                 {
-                    Name="Authorization",
+                    Name = "Authorization",
                     In = ParameterLocation.Header, //Authorization to be passed as header
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = JwtBearerDefaults.AuthenticationScheme
@@ -159,9 +159,9 @@ namespace LaundryDormApi
 
             builder.Services.AddAuthorization(); //Enables authentication middleware, which processes incoming HTTP requests and sets properties like HttpContext.User.
                                                  // Middleware is like a chain of small programs that run before your controller gets the request, and often after the controller sends back a response.
-                                                 
 
-            var jwtKey = builder.Configuration["Jwt:Key"]; 
+
+            var jwtKey = builder.Configuration["Jwt:Key"];
             // Configuration reads settings (like secrets or URLs) from outside the code, such as appsettings.json or environment variables
 
             builder.Services.AddAuthentication(options =>
@@ -190,38 +190,39 @@ namespace LaundryDormApi
 
             var app = builder.Build();
 
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var services = scope.ServiceProvider; //This service/scope is important so docker compose can run migrations upon
-            //                                          //application startup, and not when the container is created.
-            //    try
-            //    {
-            //        var authContext = services.GetRequiredService<LaundryDormAuthContext>();
-            //        var dbContext = services.GetRequiredService<LaundryDormDbContext>();
-            //        authContext.Database.Migrate();
-            //        dbContext.Database.Migrate();
-
-            //        Console.WriteLine("Database migration completed successfully.");
-
-            //    } catch(Exception err)
-
-            //    {
-            //        Console.WriteLine($"An error occurred while migrating the database: {err.Message}");
-            //        Environment.Exit(1); //Exit the application if migration fails
-
-            //        //Be careful with this scope/line of code, as if you dont have a valid migration/connection to database, the backend wont start at all
-            //        //Because it want's to connect to the database upon startup
-            //    }
-            //}
-
-                // Configure the HTTP request pipeline. 
-
-                if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider; //This service/scope is important so docker compose can run migrations upon
+                                                      //application startup, and not when the container is created.
+                try
                 {
-                    app.UseDeveloperExceptionPage();
-                    app.UseSwagger();
-                    app.UseSwaggerUI();
+                    var authContext = services.GetRequiredService<LaundryDormAuthContext>();
+                    var dbContext = services.GetRequiredService<LaundryDormDbContext>();
+                    authContext.Database.Migrate();
+                    dbContext.Database.Migrate();
+
+                    Console.WriteLine("Database migration completed successfully.");
+
                 }
+                catch (Exception err)
+
+                {
+                    Console.WriteLine($"An error occurred while migrating the database: {err.Message}");
+                    Environment.Exit(1); //Exit the application if migration fails
+
+                    //Be careful with this scope/line of code, as if you dont have a valid migration/connection to database, the backend wont start at all
+                    //Because it want's to connect to the database upon startup
+                }
+            }
+
+            // Configure the HTTP request pipeline. 
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
 
             //Configuring Middleware
             // Middleware is like a chain of small programs that run before your controller gets the request, and often after the controller sends back a response.
@@ -234,7 +235,7 @@ namespace LaundryDormApi
             app.UseHttpsRedirection();
 
             app.UseStaticFiles(new StaticFileOptions //middleware that configure ASP.NET core to serve static files (image) from the ServerImages folder in project dir
-                                                       //This makes any file placed in ServerImages folder to be access via a URL starting with /ServerImages
+                                                     //This makes any file placed in ServerImages folder to be access via a URL starting with /ServerImages
             {
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "ServerImages")), //The folder we aim to serve
                 RequestPath = "/ServerImages"
@@ -245,8 +246,8 @@ namespace LaundryDormApi
             app.UseCors("MyAllowSpecificOrigins");
 
             app.UseAuthentication(); //middleware for extracting JWT from the Authorization header 
-                                       //decodes the token, and pulls out the claims we added
-                                       //stores them in HttpContext.User
+                                     //decodes the token, and pulls out the claims we added
+                                     //stores them in HttpContext.User
 
             app.UseAuthorization();
 

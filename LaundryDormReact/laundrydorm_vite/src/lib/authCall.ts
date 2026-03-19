@@ -90,7 +90,10 @@ import axios from "axios";
  Promise<responseProps>
  {
      try {
-            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+            // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+            // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
              const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/RegistrationAuth`, 
                 formData, //Sending FormData, instead of JSON
         { 
@@ -153,10 +156,14 @@ import axios from "axios";
         }
  }
 
- export async function loginCall (formData: FormData, API_BASE_URL: string):
+ export async function loginCall (formData: FormData):
  Promise<responseProps> //Returning a promise, in this case, the promise is the interface we setup to attach datatypes
  {
     try {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+        // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
+        // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
+
         const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/LoginAuth`, 
             formData, //This is the body, axios automatically JSON-stringifies the request body, no need to json.stringify
         {

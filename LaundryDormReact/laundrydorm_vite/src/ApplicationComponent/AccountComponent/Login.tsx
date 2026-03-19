@@ -10,12 +10,6 @@ import { responseProps } from '../../lib/authCall' //importing the datatype
 
 
 export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : boolean, hideFooter?: boolean}) => {
-
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
-    // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
-    // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
-
-    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
     
     const navigate = useNavigate();
 
@@ -37,7 +31,7 @@ export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : 
         formData.append("Email", email);
         formData.append("Password", passWord);
 
-        const responseData: responseProps = await loginCall(formData, API_BASE_URL);
+        const responseData: responseProps = await loginCall(formData);
         console.log(responseData)
 
         if(responseData.success === false && responseData.errorObject.message === "Request failed with status code 401"){

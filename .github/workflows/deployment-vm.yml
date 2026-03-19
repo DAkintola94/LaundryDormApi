@@ -36,6 +36,7 @@ jobs:
                   username: ubuntu #Oracle instance vm username
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   port: 22 #Oracle vm is using port 22
+                  timeout: 20m
                   script: |
                       echo "Connected to VM"
                       cd ~/app

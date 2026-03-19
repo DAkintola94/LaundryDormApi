@@ -13,8 +13,7 @@ services:
       - "traefik.enable=true"
 
       # Backend → /api
-      #- "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/ServerImages`)"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.priority=100"
 
@@ -22,8 +21,6 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
       - "traefik.docker.network=atlas_network"
-    volumes:
-      - ./ServerImages:/app/ServerImages
     networks:
       - atlas_network
 

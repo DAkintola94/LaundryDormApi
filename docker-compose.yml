@@ -22,6 +22,8 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=8080"
 
       - "traefik.docker.network=atlas_network"
+    volumes:
+      - ./ServerImages:/app/ServerImages
     networks:
       - atlas_network
 

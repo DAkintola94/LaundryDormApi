@@ -1,37 +1,41 @@
-//import React from 'react'
-//import bgCity from '../../../assets/city_lake.jpg'
 import {useState, useEffect} from "react"
 import blueLaundry from '../../assets/blue_laundry.png'
 import bgCss from '../../ApplicationComponent/BackgroundDefault/BackgroundDefault.module.css'
 import 'aos/dist/aos.css'
-import axios from 'axios';
+import { globalFetchData } from "@/lib/authCall"
+import { profileProps } from "@/lib/authCall"
 
 export const BackgroundDefault = () => {
 
   const token = localStorage.getItem("access_token");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
-  const [populateName, setName] = useState("");
-  //const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+
+
+  const [dataFromApi, setData] = useState<profileProps>({ //Setting them to empty string for now
+    imageUrl: "",
+    error: "",
+    phoneNr: "",
+    userName: "",
+    email: ""
+  })
   
   useEffect(() => {
-    const fetchUserInfomation = async () => {
-      await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,{
-        headers: {"Authorization" : `Bearer ${token}`}
+    const initializeUserData = async () => {
+      const fetchData:profileProps = await globalFetchData(API_BASE_URL);
+      setData({
+        imageUrl: fetchData.imageUrl ?? "undefined",
+        error: fetchData.error ?? "undefined",
+        phoneNr: fetchData.phoneNr ?? "undefined",
+        userName: fetchData.userName ?? "undefined",
+        email: fetchData.email ?? "undefined"
       })
-      .then(response => {
-        //console.log("data response from the backend", response.data);
-        setName(response.data.userName);
-        //setImageUrl(response.data.profilePictureUrlPath);
-      })
-    }
-    if(token){
-      fetchUserInfomation();
-    }
-    else {
-      console.log("No user is currently signed in");
     }
 
-  }, [token, API_BASE_URL])
+    if(token){ //You still need token for useEffect to kick in when token value change, so we can call a function
+      initializeUserData()
+    }
+    
+  }, [API_BASE_URL, token])
 
   return (
     <div className={bgCss.backgroundImage}> 
@@ -43,8 +47,8 @@ export const BackgroundDefault = () => {
             <p data-aos="fade-up"
             className="text-[#ffff00]
             text-3xl font-semibold"> Velkommen
-            {token && populateName &&(
-              <span> {populateName} </span> //showing the users name if its populated
+            {dataFromApi.userName &&( //If we have any data in the props
+              <span> {dataFromApi.userName} </span> //showing the users name if its populated
             )}
             </p>
             <h1 data-aos="fade-up"

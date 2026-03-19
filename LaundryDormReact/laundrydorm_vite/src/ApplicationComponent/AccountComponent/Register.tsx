@@ -5,13 +5,23 @@ import {Button} from "../../components/ui/button"
 import {MdAlternateEmail, MdContactPhone, MdOutlineDriveFileRenameOutline} from 'react-icons/md'
 import {FaAddressCard} from 'react-icons/fa'
 import { TbLockPassword} from 'react-icons/tb'
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault"
 import { FooterDefault } from "../FooterDefault/FooterDefault"
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { registerApiCall } from "../../lib/authCall"
+import { responseProps } from '../../lib/authCall'
+import { GetAddressInformation } from '@/lib/addressCall'
 
-export const Register = () => {
+
+import useDebounce from '@/lib/useDebounce'
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
+import { IoSearch } from "react-icons/io5";
+import { AddressResult } from '@/lib/addressCall'
+
+
+export const Register = ({hideNavbar = false, hideFooter = false} : {hideNavbar? :boolean, hideFooter?: boolean}) => {
     const [{files}, {removeFile, openFileDialog, getInputProps}] = 
     useFileUpload({
         accept: "image/*",
@@ -22,11 +32,8 @@ export const Register = () => {
 
     const navigate = useNavigate(); //to navigate to a certain site
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
     // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
-
-    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
 
     const [firstName, regFirstName] = useState("");
     const [lastName, regLastName] = useState("");
@@ -36,7 +43,31 @@ export const Register = () => {
     const [confirmPassWord, regConfirmPassword] = useState("");
     const [email, regEmail] = useState("");
     const [isPending, setBtnPending] = useState(false);
+
+    const [isSelecting, setIsSelecting] = useState(false);
     const [errorMessage, setError] = useState('');
+    const [open, setOpen] = useState(false);
+    const [suggestions, setSuggestions] = useState<AddressResult[]>([]);
+    const [selectedValue, setSelectedValue] = useState<AddressResult | null>(null);
+    const debouncedSearch = useDebounce(address, 400)
+
+    useEffect(() => {
+    if (!debouncedSearch || isSelecting) return
+
+    // SearchBar.tsx
+    const getData = async () => {
+
+      const results = await GetAddressInformation(debouncedSearch);
+      if (results.length > 0) {
+        setSuggestions(results);
+        setOpen(true);
+      } else {
+        setSuggestions([]);
+        setOpen(false);
+      }
+    };
+    void getData();
+  }, [debouncedSearch, isSelecting]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -85,78 +116,31 @@ export const Register = () => {
         formData.append('File', actualFile);  // IFormFile File
         formData.append('FileName', actualFile.name);  // string FileName
 
-        
-        //const registerData ={ //The left side need to match how the model is setup in backend/C#
-                                //right side is what we get from our user/usestate
-            //UserAddress: address,
-            //Email: email,
-            //Password: passWord,
-            //ConfirmPassword: confirmPassWord,
-            //UserFirstName: firstName,
-            //UserLastName: lastName,
-            //PhoneNumber: phoneNumber
-        //};
-        
-        // Debug: Log the data being sent
-        console.log("Sending registration data:", formData);
-        
-        try {
-             const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/RegistrationAuth`, 
-                formData, //Sending FormData, instead of JSON
-        { 
-            headers: {
-                "Content-Type": "multipart/form-data" 
-            },
-        })
-            const tokenResponse = response.data.jwtToken //Since we are getting json in response
+        const regData: responseProps = await registerApiCall(formData);
+
+        if(regData.success === true) {
+            console.log(regData.successMessage);
             setBtnPending(false);
-
-            localStorage.setItem("access_token", tokenResponse);
-            navigate('/',
-                {
-                    replace: true
-                }
-            );
-        }
-        catch(err: unknown) {
-            if(axios.isAxiosError(err) && err.response){
-                const data = err.response.data;
-              //if server respond with a status code outside of 2xx range
-
-              let responseErrorMessage = "Noe gikk galt";
-              setError(responseErrorMessage);
-
-              if(data){
-                if(Array.isArray(data.Errors)){
-                    responseErrorMessage = data.Errors.join(",");
-                } else if (typeof data.Errors === "string"){
-                    responseErrorMessage = data.Errors;
-                } else if (data.Message) {
-                    responseErrorMessage = data.Message
-                }
-              }
-                console.error('Backend respond status: ', err.response.status);
-
-                setError(responseErrorMessage);
-                setBtnPending(false);
-            } else if(axios.isAxiosError(err) && err.request){
-                setError("Ingen response fra serveren");
-                setBtnPending(false);
-            } else {
-                setError("Noe gikk galt" + err);
-                setBtnPending(false);
-            }
+            navigate('/', { replace: true });
+        } else {
+        // Use errorMessage first (which now contains err.message from the catch block)
+        // Fall back to errorObject.message if it exists, then generic message
+            const errorMsg = regData.errorMessage 
+            || (regData.errorObject?.message) 
+            || "An error occurred";
+        setError(errorMsg);
+        setBtnPending(false);
         }
     } 
 
     return (
         <>
+        {!hideNavbar && <NavbarDefault  />}
         <div className="register_loginBG"> {/* .register_loginBG is in global css*/}
             
         <form onSubmit={handleSubmit}>
 
         <div className="min-h-screen flex flex-col">
-            <NavbarDefault />
 
             <div className="flex-1 flex flex-col items-center justify-center py-8">
 
@@ -242,14 +226,59 @@ export const Register = () => {
                     required
                 />
 
-                <label className="text-white flex items-center gap-2">Addresse <FaAddressCard />  </label>
-                <input 
-                    type="text" 
-                    onChange={(evt) => regAddress(evt.target.value)} 
-                    placeholder="stevnavn..." 
-                    className="text-black bg-white mb-4 p-2 border rounded w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    required
+            <label className="text-white flex items-center gap-2">Addresse <FaAddressCard />  </label>
+                <Autocomplete aria-required={true}
+                className="text-black bg-white mb-4  border rounded w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                freeSolo
+                open={open && suggestions.length > 0}
+                onClose={() => setOpen(false)}
+                inputValue={address}
+                // onInputChange Fires when you type in the input field. Use this to update your search state.
+                onInputChange={(_, value, reason) => {
+                if (reason === "input") {
+                    regAddress(value);
+                    setIsSelecting(false);
+                    setSelectedValue(null);
+                }
+                }}
+                value={selectedValue}
+                // onChange Fires when you select an option from the dropdown. Use this to finalize the selection.
+                onChange={(_, value) => {
+                if (typeof value === "string") {
+                    regAddress(value);
+                    setSelectedValue(null);
+                    setIsSelecting(true);
+                    setOpen(false);
+                    return;
+                }
+                setSelectedValue(value);
+                regAddress(value?.addressName ?? "");
+                setIsSelecting(true);
+                if (value) {
+                    regAddress(value.addressName + ", " + value.postnummer);
+
+                }
+                setOpen(false);
+                }}
+                options={suggestions}
+                getOptionLabel={(option) =>
+                typeof option === "string"
+                    ? option
+                    : `${option.addressName}, ${option.postnummer}`
+                }
+                isOptionEqualToValue={(option, value) => {
+                if (typeof option === "string" || typeof value === "string") return false;
+                return option.addressName === value.addressName && option.postnummer === value.postnummer;
+                }}
+                renderInput={(params) => (
+                <TextField 
+                    {...params}
+                    size="small"
+                    autoComplete="off"
+                    sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#ffffff' }, '& .MuiInputLabel-root': { color: '#666' } }}
                 />
+                )}
+            />
 
                 <label className="text-white flex items-center gap-2" >Email <MdAlternateEmail /> </label>
                 <input 
@@ -325,6 +354,7 @@ export const Register = () => {
         </form>
 
         </div>
+        {!hideFooter && <FooterDefault />}
         </>
     )
 }

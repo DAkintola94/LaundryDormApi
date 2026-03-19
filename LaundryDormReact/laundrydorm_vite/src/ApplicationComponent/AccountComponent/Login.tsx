@@ -1,77 +1,68 @@
 import React from 'react'
-import {useState} from 'react'
+import {useState, useRef} from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {MdAlternateEmail} from 'react-icons/md'
 import { RiLockPasswordFill } from 'react-icons/ri'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { FcIdea } from 'react-icons/fc'
+import { loginCall } from "../../lib/authCall" //importing the function so we can use it here
+import { responseProps } from '../../lib/authCall' //importing the datatype
 
 
-export const Login = () => {
-
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
-    // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
-    // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
-
-    console.log("Backend API URL, docker mode:", import.meta.env.VITE_API_BASE_URL);
+export const Login = ({hideNavbar = false, hideFooter = false} : {hideNavbar? : boolean, hideFooter?: boolean}) => {
     
-    const token = localStorage.getItem("access_token");
     const navigate = useNavigate();
 
     const [email, usersEmail] = useState('');
     const [passWord, usersPassword] = useState('');
     const [pending, setBtnPending] = useState(false);
     const [errorMsg, setErrorMessage] = useState('');
-    const [countError, setErrorCount] = useState(0);
+    const [countError, setErrorCount] = useState(Number);
+    const errorCountRef = useRef(1);
     
-
+    
     const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const loginData = { //The left side need to match how the model is setup in backend/C#
-                                //right side is what we get from our user/usestate
-            Email: email,
-            Password: passWord
-        }
+
         setBtnPending(true);
 
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/ProfileManagement/LoginAuth`, 
-            loginData, //This is the body, axios automatically JSON-stringifies the request body, no need to json.stringify
-        {
-            headers: {
-                "Content-Type": "application/json"
-            },
-        }) 
-            const tokenResponse = response.data //When not getting json in return, only use data, not (dot) + variable name after
+        const formData = new FormData();
+
+        formData.append("Email", email);
+        formData.append("Password", passWord);
+
+        const responseData: responseProps = await loginCall(formData);
+        console.log(responseData)
+
+        if(responseData.success === false && responseData.errorObject.message === "Request failed with status code 401"){
+            setBtnPending(false);
+            return
+        }
+
+        if(responseData.success === false){
+            setBtnPending(false);
+            setErrorCount(errorCountRef.current++);
+
+            console.log(countError, ": is the amount of error");
+
+             if (responseData.errorObject){
+                setErrorMessage(responseData.errorObject.message);
+                return
+            } 
+             else if(responseData.errorMessage){
+                setErrorMessage(responseData.errorMessage ?? "");
+                return
+            }
+
+            setErrorMessage(responseData.errorMessage ?? "An error occured");
             setBtnPending(false);
 
-            localStorage.setItem("access_token", tokenResponse);
-            navigate('/',
-                {replace: true}
-            );
+            return;
         }
 
-        catch (err: unknown){
-            if(axios.isAxiosError(err) && err.response){
-                console.error('Backend respond status: ', err.response.status);
-                setErrorMessage(`Error message from backend: ${err.response.data || "Something went wrong"}`);
-                setBtnPending(false);
-                setErrorCount(countError + 1);
-            } else if(axios.isAxiosError(err) && err.request){
-                //No response received (e.g., server down)
-                console.error("No response from server:", err.request);
-                setErrorMessage("No response from the server, try again later");
-                setBtnPending(false);
-                setErrorCount(countError + 1);
-            } else {
-                console.error("An unexpected error occured", err);
-                setErrorMessage("An unexpected error occured" + err);
-                setBtnPending(false);
-                setErrorCount(countError + 1);
-            }
-        }
+        setBtnPending(false);
+        navigate('/', {replace: true});
+        
     }
 
   return (
@@ -79,25 +70,10 @@ export const Login = () => {
     <div className="register_loginBG">
         <form onSubmit={handleSubmit}>
             <div className="min-h-screen flex flex-col">
-                <NavbarDefault/>
-
-                {
-                    token? (<div className="flex items-center justify-center text-white mt-5 font-bold gap-2">
-                        <FcIdea className="text-2xl" />
-                        <span className="text-yellow-200" > Obs, du er allerede innlogget</span>
-                    </div>) 
-                 : 
-
+                {!hideNavbar && <NavbarDefault  />}
                 <div className="flex-1 flex flex-col items-center justify-center py-8">
                     <label className="text-white flex items-center gap-2"> Email <MdAlternateEmail /></label>
-                    <input type="text" onChange={(e) => usersEmail(e.target.value) } placeholder="abc123@laundrydorm.no" className="text-white mb-4 p-2 border rounded w-full max-w-md" required />
-                    {errorMsg &&
-                        <span className="text-red-400 mb-4"> {errorMsg}</span>
-                    }
-
-                    { countError > 1 && 
-                        <span className="text-red-400 mb-4"> Azure "cold start" kan skape problemer av og til, prøv igjen. </span>
-                    }
+                    <input type="text" onChange={(e) => usersEmail(e.target.value) } placeholder="abc123@laundrydorm.no" className="text-white mb-4 p-2 border rounded w-full max-w-md"/>
 
                     <label className="text-white flex items-center gap-2"> Passord <RiLockPasswordFill /> </label>
                     <input type="password" onChange={(e) => usersPassword(e.target.value)} placeholder="****" className="text-white mb-4 p-2 border rounded w-full max-w-md" required />
@@ -120,16 +96,24 @@ export const Login = () => {
                         </button>
                     }
 
+                        {errorMsg &&
+                        <span className="text-white"> {errorMsg}</span>
+                    }
+
+                    { countError > 2 && 
+                        <span className="text-white"> Azure "cold start" kan skape problemer av og til, prøv igjen. </span>
+                    }
+
                 </div>
 
-                }
+
                 <FooterDefault />
             </div>
 
         </form>
 
     </div>
-    
+    {!hideFooter && <FooterDefault />}
     </>
     
   )

@@ -1,9 +1,8 @@
 import React from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
 import { FooterDefault } from '../FooterDefault/FooterDefault'
-import { FaUserLock } from 'react-icons/fa'
 import {useState, useEffect} from 'react'
-import axios from 'axios'
+import { globalUserProfileData } from '@/lib/authCall'
 
 export const Profile = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
@@ -29,55 +28,35 @@ export const Profile = () => {
 
   useEffect(() => {
     const fetchData = async() => {
-      setLoading(true);
-      await axios.get(`${API_BASE_URL}/api/ProfileManagement/ProfilePage`,
-      {
-        headers:{"Authorization" : `Bearer ${token}`}
-      })
-      .then(response => {
-        setLoading(false);
-        console.log("See object value", response.data);
-        setFirstName(response.data.userFirstName);
-        setLastName(response.data.userLastName);
-        setId(response.data.profileId);
-        setEmail(response.data.email);
-        setPhoneNumber(response.data.phoneNumber);
-        setAddress(response.data.userAddress);
-        setImageUrl(response.data.userImageURL);
-        console.log("Current success status code", response.status);
-      })
-      .catch((err) => {
-        setLoading(false);
-        if(axios.isAxiosError(err) && err.response){
-          setFetchError(`Status code: ${err.response.status}`)
-          console.log(`Current error status code: ${err.response.status}`);
-        } else {
-            setFetchError(err);
-            console.log(err);
+      setLoading(false);
+      const getData = await globalUserProfileData( //Void promise, we cant enter methods property, it gives use value based on logics
+        API_BASE_URL,
+        { //Setting all useState that will be used, its a void function, but a usestate here
+          setFirstName,
+          setLastName,
+          setId,
+          setEmail,
+          setPhoneNumber,
+          setAddress,
+          setImageUrl,
+          setLoading,
+          setFetchError
         }
-      })
+      );
+      console.log(getData);
+
     }
     if(token){
       fetchData();
-    } else {
-      console.log("No user is signed in");
-    }
+    } 
+    return
   },[token, API_BASE_URL] )
 
   return (
     <>
     <NavbarDefault />
     <div>
-      {
-        !token? (
-          <div className="flex items-center justify-center text-red-500 font-bold gap-2">
-            <FaUserLock className="text-1xl" />
-            <span> Vennligst logg inn for å bruke denne funksjonen </span>
-          </div>
-        ) 
-        
-        : 
-        
+        {
         loading? (
           <div className="flex items-center justify-center text-blue-600 font-bold gap-2">
                   <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
@@ -95,7 +74,7 @@ export const Profile = () => {
 
           </div>
         )
-      }
+        }
     </div>
     <FooterDefault />
     </>

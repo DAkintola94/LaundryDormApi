@@ -11,18 +11,50 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DbContextConnection=Server=mariadb;Database=LaundryDormBase;User=root;Password=Testingtesting1234
-      - ConnectionStrings__AuthContextConnection=Server=mariadb;Database=LaundryDormAuthDb;User=root;Password=Testingtesting1234
-    depends_on:
-      - mariadb
+      - ConnectionStrings__DbContextConnection=Server=mariadb;Database=LaundryDormBase;User=root;Password=${MYSQL_ROOT_PASSWORD}
+      - ConnectionStrings__AuthContextConnection=Server=mariadb;Database=LaundryDormAuthDb;User=root;Password=${MYSQL_ROOT_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      #Backend routing
+      - "traefik.http.routers.backend.rule=Host(`laundrydorm.portofolio.no`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.priority=100"
+      - "traefik.http.routers.backend.entrypoints=web"
+
+      # Add the middleware to strip the /api/ prefix
+      - "traefik.http.middlewares.backend-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=backend-strip"
+
+      #Backend service port
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+
+      #Ensure traefik connects through the correct Docker network
+      - "traefik.docker.network=atlas_network"
+    networks:
+      - atlas_network
 
   laundrydormfrontend:
     build:
       context: ./LaundryDormReact/laundrydorm_vite
       dockerfile: Dockerfile #Looking for/at the dockerfile at the context (frontend context) path level. Need one dockerfile for the frontend
+      args:
+        VITE_API_BASE_URL: http://laundrydorm.portofolio.no/api
     restart: unless-stopped
     ports:
       - "3000:80"
+    labels:
+      - "traefik.enable=true"
+
+      #Frontend routing (everything except /api goes here)
+      - "traefik.http.routers.frontend.rule=Host(`laundrydorm.portofolio.no`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+
+      #Frontend service port
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+      #Ensure Traefik connects through the correct Docker network
+      - "traefik.docker.network=atlas_network"
+    networks:
+      - atlas_network
     depends_on:
       - laundrydormapi
 
@@ -32,7 +64,7 @@ services:
     # This is because mariadb docker image already handles setups (starting DB server, creating user/datavase for environment variable, exposing port etc)
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: Testingtesting1234
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} #Its using the key from github secret variable, which is read from deployment-vm.yml
     ports:
       - "3307:3306"
     volumes:
@@ -41,13 +73,9 @@ services:
       # this volume mount that copies your local init.sql file into the container at /docker-entrypoint-initdb.d/init.sql with read-only permission (ro)
       # MariaDB's startup script will detect that init.sql and execute it during initialization.
 
-    healthcheck:
-      test:
-        ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pTestingtesting1234"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 20s
-
 volumes:
   mariadb_data:
+
+networks:
+  atlas_network:
+    external: true

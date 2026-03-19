@@ -1,0 +1,51 @@
+name: Deploy to Oracle VM
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+              #Running docker build BEFORE talking to the VM, test needed
+            #- name: Build and run containers
+            # run: docker compose up --build -d
+
+            # Copy project files to VM
+            - name: Copy files to VM
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: 141.253.111.63 #Oracle instance public ip address
+                  username: ubuntu #Oracle instance vm username
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22 #Oracle vm is using port 22
+                  source: "."
+                  target: "~/app"
+
+            # Run Docker Compose on VM
+            - name: Deploy with Docker Compose
+              uses: appleboy/ssh-action@v1
+              with:
+                  host: 141.253.111.63 #Oracle instance public ip address
+                  username: ubuntu #Oracle instance vm username
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22 #Oracle vm is using port 22
+                  script: |
+                      echo "Connected to VM"
+                      cd ~/app
+
+                      echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" > .env 
+
+                      docker compose down
+                      docker compose up -d --build 
+
+                      # Cleanup unused images
+                      docker image prune -f
+
+                      echo "Deployment complete"

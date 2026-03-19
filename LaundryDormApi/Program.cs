@@ -103,6 +103,7 @@ namespace LaundryDormApi
                     policyBuilder =>
                     {
                         policyBuilder.WithOrigins("https://localhost:7054",
+                "http://141.145.214.18",
                 "http://localhost:5174",
                 "https://localhost5174",
                 "http://localhost:5173",

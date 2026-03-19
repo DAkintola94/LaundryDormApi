@@ -58,6 +58,8 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - atlas_network
 
 volumes:
   mariadb_data:

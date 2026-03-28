@@ -233,7 +233,7 @@ namespace LaundryDormApi
             // Handling errors
             // Modifying requests or responses
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseStaticFiles(new StaticFileOptions //middleware that configure ASP.NET core to serve static files (image) from the ServerImages folder in project dir
                                                      //This makes any file placed in ServerImages folder to be access via a URL starting with /ServerImages

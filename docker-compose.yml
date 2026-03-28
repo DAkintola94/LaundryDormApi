@@ -15,7 +15,7 @@ services:
       - "traefik.enable=true"
 
       # Backend → /api
-      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/ServerImages`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.priority=100"
 

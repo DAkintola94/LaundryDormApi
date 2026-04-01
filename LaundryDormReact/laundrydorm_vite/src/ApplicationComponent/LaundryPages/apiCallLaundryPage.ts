@@ -1,3 +1,4 @@
+import { getValidAccess } from "@/lib/authExpire";
 import axios from "axios";
 
 export type statusData = { //must match the viewmodel name of the backend. cascalCase!
@@ -59,15 +60,15 @@ export async function getHistoricData(baseUrl: string ,callBack: callbackStates,
      currentPageShown: number, currentPostsPerPage: number)
      : Promise<void> //What the method promise to return, and it must be a void in this case
      {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
+    const validToken = getValidAccess(); //callback hook/funtion that returns token is its not expired, and it exist
+    if (!validToken) {
         callBack.setLoadingBtn(false); //send the loading as false, through the callback
         return callBack.setErrorMessage("An error occured");
     } 
     try{
         const fetchData = await axios.get(`${baseUrl}/api/Laundry/SessionHistoric?pageNumber=${currentPageShown}&pageSize=${currentPostsPerPage}`,
         {
-            headers: {"Authorization": `Bearer ${token}`}
+            headers: {"Authorization": `Bearer ${validToken}`}
         });
     callBack.setSessionHistoric(fetchData.data);
     callBack.setLoadingBtn(false);
@@ -110,15 +111,15 @@ export async function getHistoricData(baseUrl: string ,callBack: callbackStates,
 export async function setLaundryCall(API_BASE_URL: string, laundrySessionData: sessionProps)
 :Promise<string | undefined>
 {
-    const token = localStorage.getItem("access_token");
-    if(!token) return "undefined"
+    const validToken = getValidAccess(); //callback hook/funtion that returns token is its not expired, and it exist
+    if(!validToken) return "undefined"
     try{
         const sendData = await axios.post(`${API_BASE_URL}/api/Laundry/StartSession`,
             laundrySessionData,    
         {
             headers:{
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${validToken}`
             },
 
         })
@@ -137,15 +138,15 @@ export async function setLaundryCall(API_BASE_URL: string, laundrySessionData: s
 export async function getCalenderInformation(): 
 Promise<statusData[] | undefined>{ 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem("access_token");
-    if(!token) {
+    const validToken = getValidAccess(); //callback hook/funtion that returns token is its not expired, and it exist
+    if(!validToken) {
         console.warn("No token found");
         return undefined
     }
         
     try{
         const response = await axios.get(`${API_BASE_URL}/api/Laundry/PopulateAvailability`, {
-        headers: { "Authorization" : `Bearer ${token}`}
+        headers: { "Authorization" : `Bearer ${validToken}`}
         })
             if (!response) return undefined
             console.log(response.data, "Data from status");
@@ -160,14 +161,14 @@ Promise<statusData[] | undefined>{
 
 export async function setReservationCall(reservationData: reserveDataTypes): Promise<string>{
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem("access_token");
-    if(!token) return "No user founded"
+    const validToken = getValidAccess(); //callback hook/funtion that returns token is its not expired, and it exist
+    if(!validToken) return "No user founded, or allocated time expired"
 
     const reserveData = await axios.post(`${API_BASE_URL}/api/Laundry/SetReservation`,
         reservationData,{
             headers: {
                 "Content-Type" : "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${validToken}`
             },
         })
 

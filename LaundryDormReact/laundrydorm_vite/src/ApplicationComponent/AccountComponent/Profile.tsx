@@ -74,7 +74,7 @@ export const Profile = () => {
               <aside className="rounded-3xl border border-orange-100 bg-white p-6 shadow-lg">
                 <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-orange-200 bg-orange-50 text-3xl font-bold text-orange-600">
                   {imageUrl ? (
-                    <img title="profile_image" src={imageUrl} className="h-full w-full object-cover" />
+                    <img title="profile_image" src={imageUrl} className="h-full w-full object-contain" />
                   ) : (
                     <span>{(userFirstName.charAt(0) + userLastName.charAt(0)).toUpperCase() || '?'}</span>
                   )}

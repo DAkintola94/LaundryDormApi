@@ -33,6 +33,7 @@ createRoot(document.getElementById('root')!).render( //This is where React injec
       <Route path="/account" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/viewreport" element={<ProtectedRoute><ViewReport /></ProtectedRoute>} />
       <Route path="/useroverview" element={<ProtectedRoute><UserOverview/></ProtectedRoute>} />
+      <Route path="/profilepage" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
 
       {/* Public Routes - No authentication required */}
       <Route path="/aboutus" element={<About />} />

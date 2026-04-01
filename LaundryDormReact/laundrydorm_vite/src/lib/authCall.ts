@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getValidAccess } from "./authExpire";
 
  export interface responseProps{ //exporting the interface so we can use the datatype elsewhere
     success: boolean | undefined
@@ -32,10 +33,11 @@ import axios from "axios";
  Promise<profileProps>
  {
     try{
-         const token = localStorage.getItem("access_token");
+         const validToken = getValidAccess(); //callback hook/funtion that returns token is its not expired, and it exist
+
         const getProfileInfo = await axios.get(`${API_BASE_URL}/api/ProfileManagement/AuthenticateUser`,
             {
-                headers: {"Authorization" : `Bearer ${token}`}
+                headers: {"Authorization" : `Bearer ${validToken}`}
             }
         ) 
         return {

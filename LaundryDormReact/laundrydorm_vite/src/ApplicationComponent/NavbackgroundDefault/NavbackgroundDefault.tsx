@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import {Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { globalFetchData } from '@/lib/authCall';
 import { profileProps } from '@/lib/authCall';
+import { getValidAccess } from '@/lib/authExpire';
 
 
 export const NavbarDefault: React.FC<{isRegister?: boolean; onNavigateToAuth?: (toRegister: boolean) => void}> = () => {
@@ -208,7 +209,7 @@ const accountDropDownMenu = [
       })}
       </ul>
       {
-      token && ( 
+      getValidAccess() && ( 
       <Menu as="div" className="flex-none w-10 h-10 rounded-full hidden md:block">
         <MenuButton className="">
         <img
@@ -217,6 +218,7 @@ const accountDropDownMenu = [
       className="flex-none w-10 h-10 rounded-full hidden md:block relative"
       />
         </MenuButton>
+        
         <MenuItems
         transition
         className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg outline-black/5 transition 

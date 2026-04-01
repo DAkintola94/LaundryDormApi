@@ -3,7 +3,6 @@ import profilePic from "../../assets/aboutpicture.jpg"
 import { NavbarDefault } from "../NavbackgroundDefault/NavbackgroundDefault";
 import { FooterDefault } from "../FooterDefault/FooterDefault";
 import {FaLinkedin, FaGithub} from "react-icons/fa"
-import {IoIosInformationCircle} from "react-icons/io"
 import { FaYoutube } from "react-icons/fa";
 
 

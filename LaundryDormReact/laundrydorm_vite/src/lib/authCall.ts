@@ -18,14 +18,14 @@ import { getValidAccess } from "./authExpire";
  }
 
  export interface valueCallbacks{
-    setFirstName: (name: string) => void,
+    setFirstName: (name: string) => void, //setFirstName is a function that takes a string and returns nothing
     setLastName: (lastName: string) => void
     setId: (userId: string) => void
     setEmail: (email: string) => void
     setPhoneNumber: (phoneNr: string) => void
     setAddress: (address: string) => void
     setImageUrl: (imageUrl: string) => void
-    setLoading: (loadingState: boolean) => void
+    setLoading: (loadingState: boolean) => void //setLoading is a function that takes a boolean and returns nothing
     setFetchError: (errorMessage: string) => void
  }
 

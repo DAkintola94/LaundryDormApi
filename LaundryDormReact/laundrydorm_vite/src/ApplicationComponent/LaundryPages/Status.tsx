@@ -20,14 +20,20 @@ function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+export type statusProps = {
+  calenderOnly?: (calenderMode: boolean) => void;
+}
 
-export const Status = () => {
+
+export const Status = ({calenderOnly}: statusProps) => {
 
   // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
   // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
 
   const token = localStorage.getItem("access_token");
   const [loading, setLoading] = useState(false);
+
+  if(location.pathname === '/statusnreservation') calenderOnly?.(false);
 
 
   const [calenderData, setCalenderData] = useState<statusData[] | []>([]); //Need to convert the list to array in-order to use external methods like map, filter, some etc. 
@@ -246,6 +252,8 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
       </div>
     </div>
 
+    
+    { !calenderOnly &&
     <div className="flex py-6 justify-start items-start;">
       <div className="ml-[300px] mt-[0px]"> 
         <form onSubmit={handleSubmit}>
@@ -292,6 +300,7 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         </form>
       </div> 
     </div>
+    }
     <FooterDefault />
   </div>
     </>

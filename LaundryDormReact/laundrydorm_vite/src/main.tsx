@@ -16,9 +16,8 @@ import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage'
 import { Error404 } from './ApplicationComponent/Pages/Error404'
 import { UserOverview } from './ApplicationComponent/AdminComponent/UserOverview'
 import { MainGate } from './ApplicationComponent/AccountComponent/MainGate'
+import { Navigator } from './navigator'
 import ProtectedRoute from './ApplicationComponent/SecurityComponent/ProtectedRoute'
-
-
 
 createRoot(document.getElementById('root')!).render( //This is where React injects the whole SPA into the #root div
   <StrictMode>
@@ -34,6 +33,7 @@ createRoot(document.getElementById('root')!).render( //This is where React injec
       <Route path="/viewreport" element={<ProtectedRoute><ViewReport /></ProtectedRoute>} />
       <Route path="/useroverview" element={<ProtectedRoute><UserOverview/></ProtectedRoute>} />
       <Route path="/profilepage" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+      <Route path="/main_navigator" element={<ProtectedRoute><Navigator /></ProtectedRoute>} />
 
       {/* Public Routes - No authentication required */}
       <Route path="/aboutus" element={<About />} />
@@ -43,7 +43,7 @@ createRoot(document.getElementById('root')!).render( //This is where React injec
       <Route path="/error404" element={<Error404 />} />
       <Route path="/Stage" element={<MainGate/>} />
       <Route path="/" element={<App />} />
-
+      
     </Routes>
     </BrowserRouter>
   </StrictMode>,

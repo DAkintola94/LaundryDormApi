@@ -10,7 +10,13 @@ import { globalFetchData, profileProps } from "@/lib/authCall";
 import { setLaundryCall } from "./apiCallLaundryPage";
 import { sessionProps } from "./apiCallLaundryPage";
 
-export const Settvask = () => {
+type SettvaskProps = {
+  embedded?: boolean;
+  hideNavbar?: boolean;
+  hideFooter?: boolean;
+}
+
+export const Settvask = ({ embedded = false, hideNavbar = false, hideFooter = false }: SettvaskProps) => {
   const navigate = useNavigate();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
@@ -92,18 +98,18 @@ export const Settvask = () => {
 
   return (
     <>
-    <NavbarDefault />
+    {!hideNavbar && <NavbarDefault />}
     { !token? ( <div className="flex items-center justify-center text-red-600 font-bold gap-2"> 
       < MdError className="text-1xl"/>
       <span> Vennligst logg inn for å bruke denne funksjonen </span>
        </div>
       ) :     
       
-      <div className="relative min-h-screen flex items-center justify-center"> {/* make page fill viewport and center content */}
+      <div className={embedded ? "relative h-full min-h-0 flex items-stretch justify-center overflow-hidden" : "relative min-h-screen flex items-center justify-center"}> {/* make page fill viewport and center content */}
         <div className="overlay" /> {/* overlay kept for visual effect */}
         <video src={videoBg} autoPlay loop muted className="absolute inset-0 w-full h-full object-cover" />
 
-        <form onSubmit={handleSubmit} className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
+        <form onSubmit={handleSubmit} className="relative z-10 h-full w-full overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-3xl"> {/* increased max width to make form bigger */}
           
             <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg p-8 md:p-12"> {/* larger padding and card */}
@@ -179,7 +185,7 @@ export const Settvask = () => {
   
       </div>
     } 
-    <FooterDefault />
+    {!hideFooter && <FooterDefault />}
     </>
   )
 }

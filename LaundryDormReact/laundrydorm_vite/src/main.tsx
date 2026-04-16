@@ -16,7 +16,7 @@ import { SuccessPage } from './ApplicationComponent/Pages/SuccessPage'
 import { Error404 } from './ApplicationComponent/Pages/Error404'
 import { UserOverview } from './ApplicationComponent/AdminComponent/UserOverview'
 import { MainGate } from './ApplicationComponent/AccountComponent/MainGate'
-import { Navigator } from './navigator'
+import { Navigator } from './Navigator'
 import ProtectedRoute from './ApplicationComponent/SecurityComponent/ProtectedRoute'
 
 createRoot(document.getElementById('root')!).render( //This is where React injects the whole SPA into the #root div

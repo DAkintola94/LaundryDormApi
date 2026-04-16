@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import {Fragment, useState} from 'react'
 import { NavbarDefault } from '../NavbackgroundDefault/NavbackgroundDefault'
-import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {Menu, Transition} from '@headlessui/react'
 import {EllipsisVerticalIcon} from '@heroicons/react/24/outline'
 import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/solid'
+import { FooterDefault } from '../FooterDefault/FooterDefault'
 import {
   add, 
   eachDayOfInterval, endOfMonth,
@@ -22,10 +22,11 @@ function classNames(...classes: (string | boolean | undefined)[]) {
 
 export type statusProps = {
   calenderOnly?: (calenderMode: boolean) => void;
+  embedded?: boolean;
 }
 
 
-export const Status = ({calenderOnly}: statusProps) => {
+export const Status = ({calenderOnly, embedded = false}: statusProps) => {
 
   // Loads VITE_API_BASE_URL from the environment variables based on the current Vite mode.
   // if running in 'docker' mode, it uses variables from `.env.docker`; otherwise, it falls back to .env.local or .env.[mode].
@@ -129,10 +130,11 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
 
   return (
     <>
-    <div> <NavbarDefault />
-    <div className="pt-16">
-      <div className="max-w-md px-4 mx-auto sm:px-7 md:max-w-4xl md:px-6">
-        <div className="md:grid md:grid-cols-2 md:divide-x md:divide-gray-200">
+    <div className={embedded ? "h-full min-h-0" : "min-h-screen flex flex-col"}> 
+    {!embedded && <NavbarDefault />}
+    <div className={embedded ? "h-full" : "pt-16"}>
+      <div className={embedded ? "h-full max-w-none px-0" : "max-w-md px-4 mx-auto sm:px-7 md:max-w-4xl md:px-6"}>
+        <div className={embedded ? "grid h-full grid-cols-1 gap-6 md:grid-cols-2 md:divide-x md:divide-gray-200" : "md:grid md:grid-cols-2 md:divide-x md:divide-gray-200"}>
           <div className="md:pr-14">
             <div className="flex items-center">
               <h2 className="flex-auto font-semibold text-gray-900"> 
@@ -166,58 +168,46 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
               <div>Lør</div>
             </div>
             <div className="grid grid-cols-7 mt-2 text-sm">
-              {days.map((day, dayIdx) => ( //Looping into the const day, which is the inbuildt method eachDayOfInterval, with custom start and end
-              <div
-              key={day.toString()} // Unique identifier for React to track each calendar day element
-              className={classNames(
-                 dayIdx === 0 && colStartClasses[getDay(day)],
-                 'py-1.5'
-              )}
-              >
-                {/* Part responsible for styling each calendar day button based on different states and conditions. 
-                Shows certain color based on the day choosen
-                */}
-                <button
-                type="button"
-                onClick={() => setSelectedDay(day)}
-                className={classNames(
-                  isEqual(day, selectedDay) && 'text-white',
-                  !isEqual(day, selectedDay) && 
-                    isToday(day) &&
-                    'text-red-500',
-                  !isEqual(day, selectedDay) && 
-                    !isToday(day) &&
-                    isSameMonth(day, firstDayCurrentMonth) &&
-                    'text-gray-900',
-                  !isEqual(day, selectedDay) && 
-                    !isToday(day) && 
-                    !isSameMonth(day, firstDayCurrentMonth) &&
-                    'text-gray-400',
-                  isEqual(day, selectedDay) && isToday(day) && 'bg-red-500',
-                  isEqual(day, selectedDay) && 
-                    !isToday(day) &&
-                    'bg-gray-900',
-                  !isEqual(day, selectedDay) && 'hover:bg-gray-200',
-                  (isEqual(day, selectedDay) || isToday(day)) &&
-                    'font-semibold',
-                    'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
-              )} 
+              {days.map((day, dayIdx) => (
+                <div
+                  key={day.toString()}
+                  className={classNames(
+                    dayIdx === 0 && colStartClasses[getDay(day)],
+                    'py-1.5'
+                  )}
                 >
-                  {/*Showing days in number*/}
-                  <time dateTime={format(day, 'yyyy-MM-dd')}>
-                    {format(day, 'd')}
-                  </time>
-                </button>
-                  
-                {/* The part that shows a small blue dot indicator for the days that have booking/scheduled */}
-                <div className="w-1 h-1 mx-auto mt-1">
-                  {calenderData.some((sessionCalender) => 
-                  isSameDay(parseISO(sessionCalender.startPeriod), day)
-                  ) && (
-                    <div className="w-1 h-1 rounded-full bg-sky-500"></div>
-                  )} 
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDay(day)}
+                    className={classNames(
+                      isEqual(day, selectedDay) && 'text-white'
+                      , !isEqual(day, selectedDay) && isToday(day) && 'text-red-500',
+                      !isEqual(day, selectedDay) &&
+                        !isToday(day) &&
+                        isSameMonth(day, firstDayCurrentMonth) &&
+                        'text-gray-900',
+                      !isEqual(day, selectedDay) &&
+                        !isToday(day) &&
+                        !isSameMonth(day, firstDayCurrentMonth) &&
+                        'text-gray-400',
+                      isEqual(day, selectedDay) && isToday(day) && 'bg-red-500',
+                      isEqual(day, selectedDay) && !isToday(day) && 'bg-gray-900',
+                      !isEqual(day, selectedDay) && 'hover:bg-gray-200',
+                      (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
+                      'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
+                    )}
+                  >
+                    <time dateTime={format(day, 'yyyy-MM-dd')}>
+                      {format(day, 'd')}
+                    </time>
+                  </button>
+
+                  <div className="mx-auto mt-1 h-1 w-1">
+                    {calenderData.some((sessionCalender) =>
+                      isSameDay(parseISO(sessionCalender.startPeriod), day)
+                    ) && <div className="h-1 w-1 rounded-full bg-sky-500" />}
+                  </div>
                 </div>
-              </div>
               ))}
             </div>
           </div>
@@ -230,17 +220,17 @@ const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
             </h2>
             <ol className="mt-4 space-y-1 text-sm leading-6 text-gray-500">
               {
-              loading? (<p>
+              loading? (<li className="flex items-center gap-2">
                 <img src="src/assets/spinloading.svg" title='Loading image' className="h-[5vh] w-[5vh]" />
                    Henter data
-              </p>) :
+              </li>) :
 
               selectedLaundryDate.length > 0 ? (    
                 selectedLaundryDate.map((scheduleCalender) => (
                   <Schedule schedule={scheduleCalender} key={scheduleCalender.sessionId} />
                 ))
               ) : (
-                <p> Ingen vask booket idag.</p>
+                <li>Ingen vask booket idag.</li>
               )}
             </ol>
             

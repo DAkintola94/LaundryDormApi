@@ -1,24 +1,22 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { NavbarDefault } from './ApplicationComponent/NavbackgroundDefault/NavbackgroundDefault'
-import { FooterDefault } from './ApplicationComponent/FooterDefault/FooterDefault'
 import { Settvask } from './ApplicationComponent/LaundryPages/Settvask'
 import { Sidebar } from './ApplicationComponent/Pages/Sidebar'
 
 export const Navigator = () => {
-    //const [calenderMode, setCalenderMode] = useState(false);
   return (
-       <main className="h-screen w-screen flex flex-row relative">
-            <div className="h-full transition-all duration-500 w-[55%]">
-                <Settvask />
-            </div>
+    <main className="flex min-h-screen w-full flex-col bg-slate-100 text-slate-900">
+      <NavbarDefault />
 
-            <div className={`h-full flex justify-center bg-secondary z-999 border transition-all duration-500 w-[100%] `}>
-                 <Sidebar  />
-            </div>
+      <section className="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <aside className="min-h-0 w-full overflow-hidden border-b border-slate-200 bg-white lg:w-[55%] lg:border-b-0 lg:border-r">
+          <Sidebar />
+        </aside>
 
-
-                <FooterDefault 
-                />
+        <section className="min-h-0 w-full overflow-hidden bg-slate-950 lg:w-[45%]">
+          <Settvask embedded hideNavbar hideFooter />
+        </section>
+      </section>
     </main>
   )
 }
